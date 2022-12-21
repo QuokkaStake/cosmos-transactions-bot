@@ -1,0 +1,9 @@
+<strong>New transaction on chain {{ .Report.Chain }}</strong>
+Hash: {{ .Report.Reportable.Hash }}
+Height: {{ .Report.Reportable.Height }}
+Memo: {{ .Report.Reportable.Memo }}
+
+Messages:
+{{- range $msgId, $msg := .Msgs }}
+{{ $msg }}
+{{- end}}

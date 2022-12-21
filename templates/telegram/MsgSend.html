@@ -1,0 +1,7 @@
+<strong>Transfer</strong>
+From: {{ .From }}
+To: {{ .To }}
+Amounts:
+{{- range $amountId, $amount := .Amount }}
+- {{ $amount.Amount }} {{ $amount.Denom }}
+{{- end}}
