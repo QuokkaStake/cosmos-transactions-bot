@@ -42,7 +42,7 @@ func Execute(configPath string) {
 		case report := <-nodesManager.Channel:
 			log.Info().
 				Str("node", report.Node).
-				Str("chain", report.Chain).
+				Str("chain", report.Chain.Name).
 				Str("data", fmt.Sprintf("%+v", report.Reportable)).
 				Msg("Got report")
 

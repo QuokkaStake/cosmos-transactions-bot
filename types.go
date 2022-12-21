@@ -10,7 +10,7 @@ type Message interface {
 }
 
 type Report struct {
-	Chain      string
+	Chain      Chain
 	Node       string
 	Reportable Reportable
 }

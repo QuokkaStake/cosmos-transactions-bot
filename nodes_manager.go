@@ -18,8 +18,7 @@ func NewNodesManager(logger *zerolog.Logger, config *Config) *NodesManager {
 			nodes[chain.Name][index] = NewTendermintClient(
 				logger,
 				node,
-				chain.Name,
-				chain.Filters,
+				chain,
 			)
 		}
 	}

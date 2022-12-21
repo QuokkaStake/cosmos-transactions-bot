@@ -22,7 +22,7 @@ import (
 
 type TendermintClient struct {
 	Logger  zerolog.Logger
-	Chain   string
+	Chain   Chain
 	URL     string
 	Filters []string
 	Client  *tmClient.WSClient
@@ -36,18 +36,17 @@ type TendermintClient struct {
 func NewTendermintClient(
 	logger *zerolog.Logger,
 	url string,
-	chain string,
-	queries []string,
+	chain *Chain,
 ) *TendermintClient {
 	return &TendermintClient{
 		Logger: logger.With().
 			Str("component", "tendermint_client").
 			Str("url", url).
-			Str("chain", chain).
+			Str("chain", chain.Name).
 			Logger(),
 		URL:     url,
-		Chain:   chain,
-		Filters: queries,
+		Chain:   *chain,
+		Filters: chain.Filters,
 		Active:  false,
 		Channel: make(chan Report),
 		Parsers: map[string]MessageParser{
