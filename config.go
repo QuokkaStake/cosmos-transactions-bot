@@ -3,15 +3,18 @@ package main
 import (
 	"fmt"
 	"os"
+	"strconv"
 
 	"github.com/BurntSushi/toml"
 	"github.com/mcuadros/go-defaults"
 )
 
 type Explorer struct {
-	ProposalLinkPattern  string `toml:"proposal-link-pattern"`
-	WalletLinkPattern    string `toml:"wallet-link-pattern"`
-	ValidatorLinkPattern string `toml:"validator-link-pattern"`
+	ProposalLinkPattern    string `toml:"proposal-link-pattern"`
+	WalletLinkPattern      string `toml:"wallet-link-pattern"`
+	ValidatorLinkPattern   string `toml:"validator-link-pattern"`
+	TransactionLinkPattern string `toml:"transaction-link-pattern"`
+	BlockLinkPattern       string `toml:"block-link-pattern"`
 }
 
 type Chain struct {
@@ -85,6 +88,30 @@ func (c Chain) GetProposalLink(proposalID string) Link {
 	}
 }
 
+func (c Chain) GetTransactionLink(hash string) Link {
+	if c.Explorer == nil {
+		return Link{Title: hash}
+	}
+
+	return Link{
+		Href:  fmt.Sprintf(c.Explorer.TransactionLinkPattern, hash),
+		Title: hash,
+	}
+}
+
+func (c Chain) GetBlockLink(height int64) Link {
+	heightStr := strconv.FormatInt(height, 10)
+
+	if c.Explorer == nil {
+		return Link{Title: heightStr}
+	}
+
+	return Link{
+		Href:  fmt.Sprintf(c.Explorer.BlockLinkPattern, heightStr),
+		Title: heightStr,
+	}
+}
+
 type Chains []*Chain
 
 func (c Chains) FindByName(name string) *Chain {
@@ -145,9 +172,11 @@ func GetConfig(path string) (*Config, error) {
 	for _, chain := range configStruct.Chains {
 		if chain.MintscanPrefix != "" {
 			chain.Explorer = &Explorer{
-				ProposalLinkPattern:  fmt.Sprintf("https://mintscan.io/%s/proposals/%%s", chain.MintscanPrefix),
-				WalletLinkPattern:    fmt.Sprintf("https://mintscan.io/%s/account/%%s", chain.MintscanPrefix),
-				ValidatorLinkPattern: fmt.Sprintf("https://mintscan.io/%s/validators/%%s", chain.MintscanPrefix),
+				ProposalLinkPattern:    fmt.Sprintf("https://mintscan.io/%s/proposals/%%s", chain.MintscanPrefix),
+				WalletLinkPattern:      fmt.Sprintf("https://mintscan.io/%s/account/%%s", chain.MintscanPrefix),
+				ValidatorLinkPattern:   fmt.Sprintf("https://mintscan.io/%s/validators/%%s", chain.MintscanPrefix),
+				TransactionLinkPattern: fmt.Sprintf("https://mintscan.io/%s/txs/%%s", chain.MintscanPrefix),
+				BlockLinkPattern:       fmt.Sprintf("https://mintscan.io/%s/blocks/%%s", chain.MintscanPrefix),
 			}
 		}
 	}

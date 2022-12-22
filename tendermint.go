@@ -210,8 +210,8 @@ func (t *TendermintClient) ProcessEvent(event jsonRpcTypes.RPCResponse) {
 	}
 
 	txParsed := Tx{
-		Hash:     txHash,
-		Height:   txResult.Height,
+		Hash:     t.Chain.GetTransactionLink(txHash),
+		Height:   t.Chain.GetBlockLink(txResult.Height),
 		Memo:     txProto.GetBody().GetMemo(),
 		Messages: messages,
 	}

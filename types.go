@@ -22,9 +22,9 @@ type Reportable interface {
 }
 
 type Tx struct {
-	Hash     string
+	Hash     Link
 	Memo     string
-	Height   int64
+	Height   Link
 	Messages []Message
 }
 
@@ -37,7 +37,7 @@ func (tx Tx) Type() string {
 }
 
 func (tx Tx) GetHash() string {
-	return tx.Hash
+	return tx.Hash.Title
 }
 
 type TxError struct {

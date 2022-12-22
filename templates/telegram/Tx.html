@@ -1,6 +1,6 @@
 <strong>New transaction on chain {{ .Report.Chain.GetName }}</strong>
-Hash: {{ .Report.Reportable.Hash }}
-Height: {{ .Report.Reportable.Height }}
+Hash: {{ SerializeLink .Report.Reportable.Hash }}
+Height: {{ SerializeLink .Report.Reportable.Height }}
 Memo: {{ .Report.Reportable.Memo }}
 
 Messages:
