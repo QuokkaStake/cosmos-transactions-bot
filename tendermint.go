@@ -8,11 +8,10 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/tendermint/tendermint/crypto/tmhash"
-
 	"github.com/cosmos/cosmos-sdk/types/tx"
 	"github.com/gogo/protobuf/proto"
 	"github.com/rs/zerolog"
+	"github.com/tendermint/tendermint/crypto/tmhash"
 	"github.com/tendermint/tendermint/libs/json"
 	coreTypes "github.com/tendermint/tendermint/rpc/core/types"
 	tmClient "github.com/tendermint/tendermint/rpc/jsonrpc/client"
@@ -60,15 +59,15 @@ func NewTendermintClient(
 	}
 }
 
-func (t *TendermintClient) Status() TendermintRpcStatus {
+func (t *TendermintClient) Status() TendermintRPCStatus {
 	if t.Client == nil {
-		return TendermintRpcStatus{
+		return TendermintRPCStatus{
 			Success: false,
 			Error:   fmt.Errorf("Tendermint RPC not initialized"),
 		}
 	}
 
-	return TendermintRpcStatus{
+	return TendermintRPCStatus{
 		Success: t.Active,
 		Error:   t.Error,
 	}
@@ -90,7 +89,6 @@ func (t *TendermintClient) Listen() {
 		}),
 		tmClient.PingPeriod(5*time.Second),
 	)
-
 	if err != nil {
 		t.Logger.Error().Err(err).Msg("Failed to create a client")
 		return
@@ -149,14 +147,14 @@ func (t *TendermintClient) SubscribeToUpdates() {
 func (t *TendermintClient) ProcessEvent(event jsonRpcTypes.RPCResponse) {
 	if event.Error != nil && event.Error.Message != "" {
 		t.Logger.Error().Str("msg", event.Error.Error()).Msg("Got error in RPC response")
-		t.Channel <- t.MakeReport(TxError{Error: event.Error})
+		t.Channel <- t.MakeReport(&TxError{Error: event.Error})
 		return
 	}
 
 	var resultEvent coreTypes.ResultEvent
 	if err := json.Unmarshal(event.Result, &resultEvent); err != nil {
 		t.Logger.Error().Err(err).Msg("Failed to parse event")
-		t.Channel <- t.MakeReport(TxError{Error: event.Error})
+		t.Channel <- t.MakeReport(&TxError{Error: event.Error})
 		return
 	}
 
@@ -165,13 +163,19 @@ func (t *TendermintClient) ProcessEvent(event jsonRpcTypes.RPCResponse) {
 		return
 	}
 
-	txResult := resultEvent.Data.(tendermintTypes.EventDataTx).TxResult
+	eventDataTx, ok := resultEvent.Data.(tendermintTypes.EventDataTx)
+	if !ok {
+		t.Logger.Debug().Msg("Could not convert tx result to EventDataTx.")
+		return
+	}
+
+	txResult := eventDataTx.TxResult
 	txHash := fmt.Sprintf("%X", tmhash.Sum(txResult.Tx))
 	var txProto tx.Tx
 
 	if err := proto.Unmarshal(txResult.Tx, &txProto); err != nil {
 		t.Logger.Error().Err(err).Msg("Could not parse tx")
-		t.Channel <- t.MakeReport(TxError{Error: event.Error})
+		t.Channel <- t.MakeReport(&TxError{Error: event.Error})
 		return
 	}
 
@@ -194,12 +198,12 @@ func (t *TendermintClient) ProcessEvent(event jsonRpcTypes.RPCResponse) {
 			msgParsed, err = parser(message.Value, t.Chain)
 			if err != nil {
 				t.Logger.Error().Err(err).Str("type", message.TypeUrl).Msg("Error parsing message")
-				msgParsed = MsgError{
+				msgParsed = &MsgError{
 					Error: fmt.Errorf("Error parsing message: %s", err),
 				}
 			}
 		} else {
-			msgParsed = MsgError{
+			msgParsed = &MsgError{
 				Error: fmt.Errorf("Got unsupported message type: %s", message.TypeUrl),
 			}
 		}
@@ -216,7 +220,7 @@ func (t *TendermintClient) ProcessEvent(event jsonRpcTypes.RPCResponse) {
 		Messages: messages,
 	}
 
-	t.Channel <- t.MakeReport(txParsed)
+	t.Channel <- t.MakeReport(&txParsed)
 }
 
 func (t *TendermintClient) MakeReport(reportable Reportable) Report {

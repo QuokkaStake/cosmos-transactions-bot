@@ -18,13 +18,17 @@ type Explorer struct {
 }
 
 type Chain struct {
-	Name            string    `toml:"name"`
-	PrettyName      string    `toml:"pretty-name"`
-	TendermintNodes []string  `toml:"tendermint-nodes"`
-	ApiNodes        []string  `toml:"api-nodes"`
-	Filters         []string  `toml:"filters"`
-	MintscanPrefix  string    `toml:"mintscan-prefix"`
-	Explorer        *Explorer `toml:"explorer"`
+	Name              string    `toml:"name"`
+	PrettyName        string    `toml:"pretty-name"`
+	TendermintNodes   []string  `toml:"tendermint-nodes"`
+	APINodes          []string  `toml:"api-nodes"`
+	Filters           []string  `toml:"filters"`
+	MintscanPrefix    string    `toml:"mintscan-prefix"`
+	Explorer          *Explorer `toml:"explorer"`
+	CoingeckoCurrency string    `toml:"coingecko-currency"`
+	BaseDenom         string    `toml:"base-denom"`
+	DisplayDenom      string    `toml:"display-denom"`
+	DenomCoefficient  int64     `toml:"denom-coefficient" default:"1000000"`
 }
 
 func (c *Chain) Validate() error {
@@ -36,7 +40,7 @@ func (c *Chain) Validate() error {
 		return fmt.Errorf("no Tendermint nodes provided")
 	}
 
-	if len(c.ApiNodes) == 0 {
+	if len(c.APINodes) == 0 {
 		return fmt.Errorf("no API nodes provided")
 	}
 

@@ -35,7 +35,8 @@ type TelegramSerializedReport struct {
 
 func NewTelegramReporter(
 	config TelegramConfig,
-	logger *zerolog.Logger) *TelegramReporter {
+	logger *zerolog.Logger,
+) *TelegramReporter {
 	return &TelegramReporter{
 		TelegramToken: config.TelegramToken,
 		TelegramChat:  config.TelegramChat,
@@ -54,7 +55,6 @@ func (reporter *TelegramReporter) Init() {
 		Token:  reporter.TelegramToken,
 		Poller: &tele.LongPoller{Timeout: 10 * time.Second},
 	})
-
 	if err != nil {
 		reporter.Logger.Warn().Err(err).Msg("Could not create Telegram bot")
 		return
@@ -79,7 +79,8 @@ func (reporter TelegramReporter) GetTemplate(name string) (*template.Template, e
 	filename := fmt.Sprintf("%s.html", name)
 
 	t, err := template.New(filename).Funcs(template.FuncMap{
-		"SerializeLink": reporter.SerializeLink,
+		"SerializeLink":   reporter.SerializeLink,
+		"SerializeAmount": reporter.SerializeAmount,
 	}).ParseFS(templatesFs, "templates/telegram/"+filename)
 	if err != nil {
 		return nil, err
@@ -197,4 +198,21 @@ func (reporter *TelegramReporter) SerializeLink(link Link) template.HTML {
 	}
 
 	return template.HTML(link.Title)
+}
+
+func (reporter *TelegramReporter) SerializeAmount(amount Amount) template.HTML {
+	if amount.PriceUSD != 0 {
+		return template.HTML(fmt.Sprintf(
+			"%.6f%s ($%.2f)",
+			amount.Value,
+			amount.Denom,
+			amount.PriceUSD,
+		))
+	}
+
+	return template.HTML(fmt.Sprintf(
+		"%.6f%s",
+		amount.Value,
+		amount.Denom,
+	))
 }

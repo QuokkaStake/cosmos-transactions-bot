@@ -1,9 +1,11 @@
 package main
 
-func Map[T any, M any](a []T, f func(T) M) []M {
-	n := make([]M, len(a))
-	for i, e := range a {
-		n[i] = f(e)
+func Map[T any, V any](source []T, mapper func(T) V) []V {
+	destination := make([]V, len(source))
+
+	for index, elt := range source {
+		destination[index] = mapper(elt)
 	}
-	return n
+
+	return destination
 }

@@ -12,13 +12,13 @@ type MsgWithdrawDelegatorReward struct {
 	Amount           []cosmosTypes.Coin
 }
 
-func ParseMsgWithdrawDelegatorReward(data []byte, chain *Chain) (MsgWithdrawDelegatorReward, error) {
+func ParseMsgWithdrawDelegatorReward(data []byte, chain *Chain) (*MsgWithdrawDelegatorReward, error) {
 	var parsedMessage cosmosDistributionTypes.MsgWithdrawDelegatorReward
 	if err := proto.Unmarshal(data, &parsedMessage); err != nil {
-		return MsgWithdrawDelegatorReward{}, err
+		return nil, err
 	}
 
-	return MsgWithdrawDelegatorReward{
+	return &MsgWithdrawDelegatorReward{
 		DelegatorAddress: chain.GetWalletLink(parsedMessage.DelegatorAddress),
 		ValidatorAddress: chain.GetWalletLink(parsedMessage.ValidatorAddress),
 	}, nil
@@ -26,4 +26,8 @@ func ParseMsgWithdrawDelegatorReward(data []byte, chain *Chain) (MsgWithdrawDele
 
 func (m MsgWithdrawDelegatorReward) Type() string {
 	return "MsgWithdrawDelegatorReward"
+}
+
+func (m *MsgWithdrawDelegatorReward) GetAdditionalData(fetcher DataFetcher) {
+
 }

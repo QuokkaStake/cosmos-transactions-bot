@@ -3,5 +3,5 @@ From: {{ SerializeLink .From }}
 To: {{ SerializeLink .To }}
 Amounts:
 {{- range $amountId, $amount := .Amount }}
-- {{ $amount.Amount }} {{ $amount.Denom }}
+- {{ SerializeAmount $amount }}
 {{- end}}

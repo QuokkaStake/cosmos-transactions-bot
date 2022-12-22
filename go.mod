@@ -11,6 +11,7 @@ require (
 	github.com/mcuadros/go-defaults v1.2.0
 	github.com/rs/zerolog v1.28.0
 	github.com/spf13/cobra v1.6.1
+	github.com/superoo7/go-gecko v1.0.0
 	github.com/tendermint/tendermint v0.34.24
 	gopkg.in/telebot.v3 v3.1.2
 )
