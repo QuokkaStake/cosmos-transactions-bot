@@ -68,23 +68,26 @@ func (reporter TelegramReporter) Enabled() bool {
 	return reporter.TelegramToken != "" && reporter.TelegramChat != 0
 }
 
-func (reporter TelegramReporter) GetTemplate(t string) (*template.Template, error) {
-	if template, ok := reporter.Templates[t]; ok {
-		reporter.Logger.Trace().Str("type", string(t)).Msg("Using cached template")
+func (reporter TelegramReporter) GetTemplate(name string) (*template.Template, error) {
+	if template, ok := reporter.Templates[name]; ok {
+		reporter.Logger.Trace().Str("type", name).Msg("Using cached template")
 		return template, nil
 	}
 
-	reporter.Logger.Trace().Str("type", string(t)).Msg("Loading template")
+	reporter.Logger.Trace().Str("type", name).Msg("Loading template")
 
-	filename := fmt.Sprintf("templates/telegram/%s.html", t)
-	template, err := template.ParseFS(templatesFs, filename)
+	filename := fmt.Sprintf("%s.html", name)
+
+	t, err := template.New(filename).Funcs(template.FuncMap{
+		"SerializeLink": reporter.SerializeLink,
+	}).ParseFS(templatesFs, "templates/telegram/"+filename)
 	if err != nil {
 		return nil, err
 	}
 
-	reporter.Templates[t] = template
+	reporter.Templates[name] = t
 
-	return template, nil
+	return t, nil
 }
 
 func (reporter *TelegramReporter) SerializeReport(e TelegramSerializedReport) (string, error) {
@@ -186,4 +189,12 @@ func (reporter *TelegramReporter) BotReply(c tele.Context, msg string) error {
 	}
 
 	return nil
+}
+
+func (reporter *TelegramReporter) SerializeLink(link Link) template.HTML {
+	if link.Href != "" {
+		return template.HTML(fmt.Sprintf("<a href='%s'>%s</a>", link.Href, link.Title))
+	}
+
+	return template.HTML(link.Title)
 }

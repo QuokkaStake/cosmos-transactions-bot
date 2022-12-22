@@ -52,6 +52,39 @@ func (c Chain) GetName() string {
 	return c.Name
 }
 
+func (c Chain) GetWalletLink(address string) Link {
+	if c.Explorer == nil {
+		return Link{Title: address}
+	}
+
+	return Link{
+		Href:  fmt.Sprintf(c.Explorer.WalletLinkPattern, address),
+		Title: address,
+	}
+}
+
+func (c Chain) GetValidatorLink(address string) Link {
+	if c.Explorer == nil {
+		return Link{Title: address}
+	}
+
+	return Link{
+		Href:  fmt.Sprintf(c.Explorer.ValidatorLinkPattern, address),
+		Title: address,
+	}
+}
+
+func (c Chain) GetProposalLink(proposalID string) Link {
+	if c.Explorer == nil {
+		return Link{Title: proposalID}
+	}
+
+	return Link{
+		Href:  fmt.Sprintf(c.Explorer.ProposalLinkPattern, proposalID),
+		Title: proposalID,
+	}
+}
+
 type Chains []*Chain
 
 func (c Chains) FindByName(name string) *Chain {
@@ -108,5 +141,16 @@ func GetConfig(path string) (*Config, error) {
 	}
 
 	defaults.SetDefaults(configStruct)
+
+	for _, chain := range configStruct.Chains {
+		if chain.MintscanPrefix != "" {
+			chain.Explorer = &Explorer{
+				ProposalLinkPattern:  fmt.Sprintf("https://mintscan.io/%s/proposals/%%s", chain.MintscanPrefix),
+				WalletLinkPattern:    fmt.Sprintf("https://mintscan.io/%s/account/%%s", chain.MintscanPrefix),
+				ValidatorLinkPattern: fmt.Sprintf("https://mintscan.io/%s/validators/%%s", chain.MintscanPrefix),
+			}
+		}
+	}
+
 	return configStruct, nil
 }

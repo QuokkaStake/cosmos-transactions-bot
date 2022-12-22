@@ -7,20 +7,20 @@ import (
 )
 
 type MsgSend struct {
-	From   string
-	To     string
+	From   Link
+	To     Link
 	Amount []cosmosTypes.Coin
 }
 
-func ParseMsgSend(data []byte) (MsgSend, error) {
+func ParseMsgSend(data []byte, chain *Chain) (MsgSend, error) {
 	var parsedMessage cosmosBankTypes.MsgSend
 	if err := proto.Unmarshal(data, &parsedMessage); err != nil {
 		return MsgSend{}, err
 	}
 
 	return MsgSend{
-		From:   parsedMessage.FromAddress,
-		To:     parsedMessage.ToAddress,
+		From:   chain.GetWalletLink(parsedMessage.FromAddress),
+		To:     chain.GetWalletLink(parsedMessage.ToAddress),
 		Amount: parsedMessage.Amount,
 	}, nil
 }

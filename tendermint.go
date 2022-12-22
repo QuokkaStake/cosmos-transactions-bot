@@ -50,11 +50,11 @@ func NewTendermintClient(
 		Active:  false,
 		Channel: make(chan Report),
 		Parsers: map[string]MessageParser{
-			"/cosmos.bank.v1beta1.MsgSend": func(data []byte) (Message, error) {
-				return ParseMsgSend(data)
+			"/cosmos.bank.v1beta1.MsgSend": func(data []byte, c Chain) (Message, error) {
+				return ParseMsgSend(data, chain)
 			},
-			"/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward": func(data []byte) (Message, error) {
-				return ParseMsgWithdrawDelegatorReward(data)
+			"/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward": func(data []byte, c Chain) (Message, error) {
+				return ParseMsgWithdrawDelegatorReward(data, chain)
 			},
 		},
 	}
@@ -191,7 +191,7 @@ func (t *TendermintClient) ProcessEvent(event jsonRpcTypes.RPCResponse) {
 		var err error
 
 		if parser, ok := t.Parsers[message.TypeUrl]; ok {
-			msgParsed, err = parser(message.Value)
+			msgParsed, err = parser(message.Value, t.Chain)
 			if err != nil {
 				t.Logger.Error().Err(err).Str("type", message.TypeUrl).Msg("Error parsing message")
 				msgParsed = MsgError{

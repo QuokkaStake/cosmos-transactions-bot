@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/spf13/cobra"
 	"os"
 	"os/signal"
@@ -43,7 +42,7 @@ func Execute(configPath string) {
 			log.Info().
 				Str("node", report.Node).
 				Str("chain", report.Chain.Name).
-				Str("data", fmt.Sprintf("%+v", report.Reportable)).
+				Str("hash", report.Reportable.GetHash()).
 				Msg("Got report")
 
 			for _, reporter := range reporters {

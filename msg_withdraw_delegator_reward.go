@@ -7,20 +7,20 @@ import (
 )
 
 type MsgWithdrawDelegatorReward struct {
-	DelegatorAddress string
-	ValidatorAddress string
+	DelegatorAddress Link
+	ValidatorAddress Link
 	Amount           []cosmosTypes.Coin
 }
 
-func ParseMsgWithdrawDelegatorReward(data []byte) (MsgWithdrawDelegatorReward, error) {
+func ParseMsgWithdrawDelegatorReward(data []byte, chain *Chain) (MsgWithdrawDelegatorReward, error) {
 	var parsedMessage cosmosDistributionTypes.MsgWithdrawDelegatorReward
 	if err := proto.Unmarshal(data, &parsedMessage); err != nil {
 		return MsgWithdrawDelegatorReward{}, err
 	}
 
 	return MsgWithdrawDelegatorReward{
-		DelegatorAddress: parsedMessage.DelegatorAddress,
-		ValidatorAddress: parsedMessage.ValidatorAddress,
+		DelegatorAddress: chain.GetWalletLink(parsedMessage.DelegatorAddress),
+		ValidatorAddress: chain.GetWalletLink(parsedMessage.ValidatorAddress),
 	}, nil
 }
 

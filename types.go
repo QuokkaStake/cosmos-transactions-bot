@@ -64,11 +64,16 @@ func (m MsgError) Type() string {
 	return "MsgError"
 }
 
-type MessageParser func([]byte) (Message, error)
+type MessageParser func([]byte, Chain) (Message, error)
 
 type Reporter interface {
 	Init()
 	Name() string
 	Enabled() bool
 	Send(Report) error
+}
+
+type Link struct {
+	Href  string
+	Title string
 }
