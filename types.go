@@ -17,6 +17,7 @@ type Report struct {
 
 type Reportable interface {
 	Type() string
+	GetHash() string
 	GetMessages() []Message
 }
 
@@ -35,6 +36,10 @@ func (tx Tx) Type() string {
 	return "Tx"
 }
 
+func (tx Tx) GetHash() string {
+	return tx.Hash
+}
+
 type TxError struct {
 	Error error
 }
@@ -44,6 +49,10 @@ func (txError TxError) GetMessages() []Message {
 }
 
 func (txError TxError) Type() string {
+	return "TxError"
+}
+
+func (txError TxError) GetHash() string {
 	return "TxError"
 }
 
