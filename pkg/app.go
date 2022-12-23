@@ -1,7 +1,11 @@
-package main
+package pkg
 
 import (
 	"github.com/rs/zerolog"
+	"main/pkg/config"
+	"main/pkg/data_fetcher"
+	logger2 "main/pkg/logger"
+	"main/pkg/reporters"
 	"os"
 	"os/signal"
 	"syscall"
@@ -10,22 +14,22 @@ import (
 type App struct {
 	Logger       zerolog.Logger
 	NodesManager *NodesManager
-	Reporters    []Reporter
-	DataFetchers map[string]*DataFetcher
+	Reporters    []reporters.Reporter
+	DataFetchers map[string]*data_fetcher.DataFetcher
 }
 
-func NewApp(config *Config) *App {
-	logger := GetLogger(config.LogConfig)
+func NewApp(config *config.Config) *App {
+	logger := logger2.GetLogger(config.LogConfig)
 
 	nodesManager := NewNodesManager(logger, config)
 
-	reporters := []Reporter{
-		NewTelegramReporter(config.TelegramConfig, logger),
+	reporters := []reporters.Reporter{
+		reporters.NewTelegramReporter(config.TelegramConfig, logger),
 	}
 
-	dataFetchers := make(map[string]*DataFetcher, len(config.Chains))
+	dataFetchers := make(map[string]*data_fetcher.DataFetcher, len(config.Chains))
 	for _, chain := range config.Chains {
-		dataFetchers[chain.Name] = NewDataFetcher(logger, chain)
+		dataFetchers[chain.Name] = data_fetcher.NewDataFetcher(logger, chain)
 	}
 
 	return &App{

@@ -1,4 +1,4 @@
-package main
+package utils
 
 func Map[T any, V any](source []T, mapper func(T) V) []V {
 	destination := make([]V, len(source))

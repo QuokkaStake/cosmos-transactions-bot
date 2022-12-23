@@ -1,10 +1,13 @@
-package main
+package reporters
 
 import (
 	"bytes"
 	"embed"
 	"fmt"
 	"html/template"
+	"main/pkg/config"
+	"main/pkg/types"
+	"main/pkg/types/chains"
 	"strings"
 	"time"
 
@@ -29,12 +32,12 @@ const (
 var templatesFs embed.FS
 
 type TelegramSerializedReport struct {
-	Report Report
+	Report types.Report
 	Msgs   []template.HTML
 }
 
 func NewTelegramReporter(
-	config TelegramConfig,
+	config config.TelegramConfig,
 	logger *zerolog.Logger,
 ) *TelegramReporter {
 	return &TelegramReporter{
@@ -110,7 +113,7 @@ func (reporter *TelegramReporter) SerializeReport(e TelegramSerializedReport) (s
 	return buffer.String(), nil
 }
 
-func (reporter *TelegramReporter) SerializeMessage(msg Message) template.HTML {
+func (reporter *TelegramReporter) SerializeMessage(msg types.Message) template.HTML {
 	msgType := msg.Type()
 
 	reporterTemplate, err := reporter.GetTemplate(msgType)
@@ -129,7 +132,7 @@ func (reporter *TelegramReporter) SerializeMessage(msg Message) template.HTML {
 	return template.HTML(buffer.String())
 }
 
-func (reporter TelegramReporter) Send(report Report) error {
+func (reporter TelegramReporter) Send(report types.Report) error {
 	msgsSerialized := make([]template.HTML, len(report.Reportable.GetMessages()))
 
 	for index, msg := range report.Reportable.GetMessages() {
@@ -192,7 +195,7 @@ func (reporter *TelegramReporter) BotReply(c tele.Context, msg string) error {
 	return nil
 }
 
-func (reporter *TelegramReporter) SerializeLink(link Link) template.HTML {
+func (reporter *TelegramReporter) SerializeLink(link chains.Link) template.HTML {
 	if link.Href != "" {
 		return template.HTML(fmt.Sprintf("<a href='%s'>%s</a>", link.Href, link.Title))
 	}
@@ -200,7 +203,7 @@ func (reporter *TelegramReporter) SerializeLink(link Link) template.HTML {
 	return template.HTML(link.Title)
 }
 
-func (reporter *TelegramReporter) SerializeAmount(amount Amount) template.HTML {
+func (reporter *TelegramReporter) SerializeAmount(amount types.Amount) template.HTML {
 	if amount.PriceUSD != 0 {
 		return template.HTML(fmt.Sprintf(
 			"%.6f%s ($%.2f)",

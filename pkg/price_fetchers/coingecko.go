@@ -1,29 +1,18 @@
-package main
+package price_fetchers
 
 import (
 	"github.com/rs/zerolog"
 	gecko "github.com/superoo7/go-gecko/v3"
+	"main/pkg/types/chains"
 )
-
-type PriceFetcher interface {
-	GetPrice() (float64, error)
-}
-
-func GetPriceFetcher(logger *zerolog.Logger, chain *Chain) PriceFetcher {
-	if chain.CoingeckoCurrency != "" {
-		return NewCoingeckoPriceFetcher(logger, chain)
-	}
-
-	return nil
-}
 
 type CoingeckoPriceFetcher struct {
 	Client *gecko.Client
-	Chain  *Chain
+	Chain  *chains.Chain
 	Logger zerolog.Logger
 }
 
-func NewCoingeckoPriceFetcher(logger *zerolog.Logger, chain *Chain) *CoingeckoPriceFetcher {
+func NewCoingeckoPriceFetcher(logger *zerolog.Logger, chain *chains.Chain) *CoingeckoPriceFetcher {
 	return &CoingeckoPriceFetcher{
 		Client: gecko.NewClient(nil),
 		Logger: logger.With().Str("component", "coingecko_price_fetcher").Logger(),

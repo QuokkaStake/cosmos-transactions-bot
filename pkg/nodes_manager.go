@@ -1,22 +1,25 @@
-package main
+package pkg
 
 import (
+	"main/pkg/config"
+	"main/pkg/tendermint/ws"
+	"main/pkg/types"
 	"sync"
 
 	"github.com/rs/zerolog"
 )
 
 type ReportQueue struct {
-	Data  []Report
+	Data  []types.Report
 	Size  int
 	Mutes sync.Mutex
 }
 
 func NewReportQueue(size int) ReportQueue {
-	return ReportQueue{Data: make([]Report, 0), Size: size}
+	return ReportQueue{Data: make([]types.Report, 0), Size: size}
 }
 
-func (q *ReportQueue) Add(report Report) {
+func (q *ReportQueue) Add(report types.Report) {
 	q.Mutes.Lock()
 
 	if len(q.Data) >= q.Size {
@@ -27,7 +30,7 @@ func (q *ReportQueue) Add(report Report) {
 	q.Mutes.Unlock()
 }
 
-func (q *ReportQueue) Has(msg Report) bool {
+func (q *ReportQueue) Has(msg types.Report) bool {
 	for _, elem := range q.Data {
 		if elem.Reportable.GetHash() == msg.Reportable.GetHash() {
 			return true
@@ -39,20 +42,20 @@ func (q *ReportQueue) Has(msg Report) bool {
 
 type NodesManager struct {
 	Logger  zerolog.Logger
-	Nodes   map[string][]*TendermintClient
-	Channel chan Report
+	Nodes   map[string][]*ws.TendermintWebsocketClient
+	Channel chan types.Report
 	Queue   ReportQueue
 	Mutex   sync.Mutex
 }
 
-func NewNodesManager(logger *zerolog.Logger, config *Config) *NodesManager {
-	nodes := make(map[string][]*TendermintClient, len(config.Chains))
+func NewNodesManager(logger *zerolog.Logger, config *config.Config) *NodesManager {
+	nodes := make(map[string][]*ws.TendermintWebsocketClient, len(config.Chains))
 
 	for _, chain := range config.Chains {
-		nodes[chain.Name] = make([]*TendermintClient, len(chain.TendermintNodes))
+		nodes[chain.Name] = make([]*ws.TendermintWebsocketClient, len(chain.TendermintNodes))
 
 		for index, node := range chain.TendermintNodes {
-			nodes[chain.Name][index] = NewTendermintClient(
+			nodes[chain.Name][index] = ws.NewTendermintClient(
 				logger,
 				node,
 				chain,
@@ -63,7 +66,7 @@ func NewNodesManager(logger *zerolog.Logger, config *Config) *NodesManager {
 	return &NodesManager{
 		Logger:  logger.With().Str("component", "nodes_manager").Logger(),
 		Nodes:   nodes,
-		Channel: make(chan Report),
+		Channel: make(chan types.Report),
 		Queue:   NewReportQueue(100),
 	}
 }
@@ -77,7 +80,7 @@ func (m *NodesManager) Listen() {
 
 	for _, chain := range m.Nodes {
 		for _, node := range chain {
-			go func(c chan Report) {
+			go func(c chan types.Report) {
 				for msg := range c {
 					m.Mutex.Lock()
 
