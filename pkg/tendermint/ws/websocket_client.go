@@ -58,6 +58,9 @@ func NewTendermintClient(
 			"/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward": func(data []byte, c chains.Chain) (types.Message, error) {
 				return messages.ParseMsgWithdrawDelegatorReward(data, chain)
 			},
+			"/cosmos.staking.v1beta1.MsgDelegate": func(data []byte, c chains.Chain) (types.Message, error) {
+				return messages.ParseMsgDelegate(data, chain)
+			},
 		},
 	}
 }
