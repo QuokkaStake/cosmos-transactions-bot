@@ -61,6 +61,9 @@ func NewTendermintClient(
 			"/cosmos.staking.v1beta1.MsgDelegate": func(data []byte, c chains.Chain) (types.Message, error) {
 				return messages.ParseMsgDelegate(data, chain)
 			},
+			"/ibc.applications.transfer.v1.MsgTransfer": func(data []byte, c chains.Chain) (types.Message, error) {
+				return messages.ParseMsgTransfer(data, chain)
+			},
 		},
 	}
 }
@@ -226,7 +229,9 @@ func (t *TendermintWebsocketClient) ProcessEvent(event jsonRpcTypes.RPCResponse)
 		Messages: txMessages,
 	}
 
-	t.Channel <- t.MakeReport(&txParsed)
+	if len(txParsed.Messages) > 0 {
+		t.Channel <- t.MakeReport(&txParsed)
+	}
 }
 
 func (t *TendermintWebsocketClient) MakeReport(reportable types.Reportable) types.Report {
