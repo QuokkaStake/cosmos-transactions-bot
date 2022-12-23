@@ -52,16 +52,16 @@ func NewTendermintClient(
 		Active:  false,
 		Channel: make(chan types.Report),
 		Parsers: map[string]types.MessageParser{
-			"/cosmos.bank.v1beta1.MsgSend": func(data []byte, c chains.Chain) (types.Message, error) {
+			"/cosmos.bank.v1beta1.MsgSend": func(data []byte, c chains.Chain, height int64) (types.Message, error) {
 				return messages.ParseMsgSend(data, chain)
 			},
-			"/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward": func(data []byte, c chains.Chain) (types.Message, error) {
-				return messages.ParseMsgWithdrawDelegatorReward(data, chain)
+			"/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward": func(data []byte, c chains.Chain, height int64) (types.Message, error) {
+				return messages.ParseMsgWithdrawDelegatorReward(data, chain, height)
 			},
-			"/cosmos.staking.v1beta1.MsgDelegate": func(data []byte, c chains.Chain) (types.Message, error) {
+			"/cosmos.staking.v1beta1.MsgDelegate": func(data []byte, c chains.Chain, height int64) (types.Message, error) {
 				return messages.ParseMsgDelegate(data, chain)
 			},
-			"/ibc.applications.transfer.v1.MsgTransfer": func(data []byte, c chains.Chain) (types.Message, error) {
+			"/ibc.applications.transfer.v1.MsgTransfer": func(data []byte, c chains.Chain, height int64) (types.Message, error) {
 				return messages.ParseMsgTransfer(data, chain)
 			},
 		},
@@ -204,11 +204,11 @@ func (t *TendermintWebsocketClient) ProcessEvent(event jsonRpcTypes.RPCResponse)
 		var err error
 
 		if parser, ok := t.Parsers[message.TypeUrl]; ok {
-			msgParsed, err = parser(message.Value, t.Chain)
+			msgParsed, err = parser(message.Value, t.Chain, txResult.Height)
 			if err != nil {
 				t.Logger.Error().Err(err).Str("type", message.TypeUrl).Msg("Error parsing message")
-				msgParsed = &messages.MsgError{
-					Error: fmt.Errorf("Error parsing message: %s", err),
+				if t.Chain.LogUnknownMessages {
+					msgParsed = &messages.MsgError{Error: fmt.Errorf("Error parsing message: %s", err)}
 				}
 			}
 		} else {

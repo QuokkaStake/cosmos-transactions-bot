@@ -7,6 +7,7 @@ import (
 	"main/pkg/types/chains"
 	"main/pkg/types/responses"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -43,7 +44,39 @@ func (c *TendermintApiClient) GetValidator(address string) (*responses.Validator
 	return &response.Validator, nil
 }
 
+func (c *TendermintApiClient) GetDelegatorsRewardsAtBlock(
+	delegator string,
+	validator string,
+	block int64,
+) ([]responses.Reward, error) {
+	url := fmt.Sprintf(
+		"%s/cosmos/distribution/v1beta1/delegators/%s/rewards/%s",
+		c.URL,
+		delegator,
+		validator,
+	)
+
+	headers := map[string]string{
+		"x-cosmos-block-height": strconv.FormatInt(block, 10),
+	}
+
+	var response *responses.RewardsResponse
+	if err := c.GetWithHeaders(url, &response, headers); err != nil || response == nil {
+		return nil, err
+	}
+
+	return response.Rewards, nil
+}
+
 func (c *TendermintApiClient) Get(url string, target interface{}) error {
+	return c.GetWithHeaders(url, target, map[string]string{})
+}
+
+func (c *TendermintApiClient) GetWithHeaders(
+	url string,
+	target interface{},
+	headers map[string]string,
+) error {
 	client := &http.Client{
 		Timeout: time.Duration(c.Timeout) * time.Second,
 	}
@@ -52,6 +85,10 @@ func (c *TendermintApiClient) Get(url string, target interface{}) error {
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return err
+	}
+
+	for key, value := range headers {
+		req.Header.Set(key, value)
 	}
 
 	c.Logger.Trace().Str("url", url).Msg("Doing a query...")

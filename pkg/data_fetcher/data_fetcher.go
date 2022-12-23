@@ -7,6 +7,7 @@ import (
 	"main/pkg/tendermint/api"
 	"main/pkg/types/chains"
 	"main/pkg/types/responses"
+	"strconv"
 )
 
 type DataFetcher struct {
@@ -67,7 +68,7 @@ func (f *DataFetcher) GetValidator(address string) (*responses.Validator, bool) 
 			return cachedValidatorParsed, true
 		}
 
-		f.Logger.Error().Msg("Could not convert cached price to *stakingTypes.Validator")
+		f.Logger.Error().Msg("Could not convert cached validator to *stakingTypes.Validator")
 		return nil, false
 	}
 
@@ -84,4 +85,35 @@ func (f *DataFetcher) GetValidator(address string) (*responses.Validator, bool) 
 
 	f.Logger.Error().Msg("Could not connect to any nodes to get a validator")
 	return nil, true
+}
+
+func (f *DataFetcher) GetRewardsAtBlock(
+	delegator string,
+	validator string,
+	block int64,
+) ([]responses.Reward, bool) {
+	keyName := f.Chain.Name + "_rewards_" + delegator + "_" + validator + "_" + strconv.FormatInt(block, 10)
+
+	if cachedRewards, cachedRewardsPresent := f.Cache.Get(keyName); cachedRewardsPresent {
+		if cachedRewardsParsed, ok := cachedRewards.([]responses.Reward); ok {
+			return cachedRewardsParsed, true
+		}
+
+		f.Logger.Error().Msg("Could not convert cached rewards to []responses.Reward")
+		return []responses.Reward{}, false
+	}
+
+	for _, node := range f.TendermintApiClients {
+		notCachedValidator, err := node.GetDelegatorsRewardsAtBlock(delegator, validator, block-1)
+		if err != nil {
+			f.Logger.Error().Err(err).Msg("Error fetching rewards")
+			return []responses.Reward{}, false
+		}
+
+		f.Cache.Set(keyName, notCachedValidator)
+		return notCachedValidator, true
+	}
+
+	f.Logger.Error().Msg("Could not connect to any nodes to get rewards list")
+	return []responses.Reward{}, true
 }

@@ -8,18 +8,19 @@ import (
 )
 
 type Chain struct {
-	Name              string    `toml:"name"`
-	PrettyName        string    `toml:"pretty-name"`
-	TendermintNodes   []string  `toml:"tendermint-nodes"`
-	APINodes          []string  `toml:"api-nodes"`
-	Queries           []string  `toml:"queries"`
-	FiltersRaw        []string  `toml:"filters"`
-	MintscanPrefix    string    `toml:"mintscan-prefix"`
-	Explorer          *Explorer `toml:"explorer"`
-	CoingeckoCurrency string    `toml:"coingecko-currency"`
-	BaseDenom         string    `toml:"base-denom"`
-	DisplayDenom      string    `toml:"display-denom"`
-	DenomCoefficient  int64     `toml:"denom-coefficient" default:"1000000"`
+	Name               string    `toml:"name"`
+	PrettyName         string    `toml:"pretty-name"`
+	TendermintNodes    []string  `toml:"tendermint-nodes"`
+	APINodes           []string  `toml:"api-nodes"`
+	Queries            []string  `toml:"queries"`
+	FiltersRaw         []string  `toml:"filters"`
+	MintscanPrefix     string    `toml:"mintscan-prefix"`
+	Explorer           *Explorer `toml:"explorer"`
+	CoingeckoCurrency  string    `toml:"coingecko-currency"`
+	BaseDenom          string    `toml:"base-denom"`
+	DisplayDenom       string    `toml:"display-denom"`
+	DenomCoefficient   int64     `toml:"denom-coefficient" default:"1000000"`
+	LogUnknownMessages bool      `toml:"log-unknown-messages" default:"true"`
 
 	Filters Filters
 }

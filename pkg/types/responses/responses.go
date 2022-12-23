@@ -1,6 +1,8 @@
 package responses
 
-import "time"
+import (
+	"time"
+)
 
 type ValidatorResponse struct {
 	Validator Validator `json:"validator"`
@@ -42,4 +44,13 @@ type ValidatorCommissionRates struct {
 	Rate          string `json:"rate"`
 	MaxRate       string `json:"max_rate"`
 	MaxChangeRate string `json:"max_change_rate"`
+}
+
+type RewardsResponse struct {
+	Rewards []Reward `json:"rewards"`
+}
+
+type Reward struct {
+	Amount string `json:"amount"`
+	Denom  string `json:"denom"`
 }

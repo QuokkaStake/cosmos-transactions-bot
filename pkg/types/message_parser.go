@@ -4,4 +4,4 @@ import (
 	"main/pkg/types/chains"
 )
 
-type MessageParser func([]byte, chains.Chain) (Message, error)
+type MessageParser func([]byte, chains.Chain, int64) (Message, error)

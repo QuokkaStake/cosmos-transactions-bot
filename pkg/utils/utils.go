@@ -1,5 +1,7 @@
 package utils
 
+import "strconv"
+
 func Map[T any, V any](source []T, mapper func(T) V) []V {
 	destination := make([]V, len(source))
 
@@ -17,4 +19,13 @@ func Contains[T comparable](array []T, element T) bool {
 		}
 	}
 	return false
+}
+
+func StrToFloat64(s string) float64 {
+	f, err := strconv.ParseFloat(s, 64)
+	if err != nil {
+		return 0
+	}
+
+	return f
 }
