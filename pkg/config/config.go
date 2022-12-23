@@ -75,6 +75,11 @@ func GetConfig(path string) (*Config, error) {
 				BlockLinkPattern:       fmt.Sprintf("https://mintscan.io/%s/blocks/%%s", chain.MintscanPrefix),
 			}
 		}
+
+		chain.Filters = make([]chains.Filter, len(chain.FiltersRaw))
+		for index, filter := range chain.FiltersRaw {
+			chain.Filters[index] = chains.NewFilter(filter)
+		}
 	}
 
 	return configStruct, nil

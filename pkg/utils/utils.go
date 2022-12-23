@@ -9,3 +9,12 @@ func Map[T any, V any](source []T, mapper func(T) V) []V {
 
 	return destination
 }
+
+func Contains[T comparable](array []T, element T) bool {
+	for _, a := range array {
+		if a == element {
+			return true
+		}
+	}
+	return false
+}

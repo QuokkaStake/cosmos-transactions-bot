@@ -6,10 +6,11 @@ import (
 )
 
 type Tx struct {
-	Hash     chains.Link
-	Memo     string
-	Height   chains.Link
-	Messages []Message
+	Hash          chains.Link
+	Memo          string
+	Height        chains.Link
+	MessagesCount int
+	Messages      []Message
 }
 
 func (tx Tx) GetMessages() []Message {

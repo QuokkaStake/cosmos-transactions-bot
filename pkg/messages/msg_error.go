@@ -15,3 +15,7 @@ func (m MsgError) Type() string {
 func (m *MsgError) GetAdditionalData(fetcher data_fetcher.DataFetcher) {
 
 }
+
+func (m *MsgError) GetValues() map[string]string {
+	return map[string]string{}
+}

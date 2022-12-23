@@ -54,3 +54,11 @@ func (m *MsgSend) GetAdditionalData(fetcher data_fetcher.DataFetcher) {
 		amount.PriceUSD = amount.Value * price
 	}
 }
+
+func (m *MsgSend) GetValues() map[string]string {
+	return map[string]string{
+		"type": "MsgSend",
+		"from": m.From.Title,
+		"to":   m.To.Title,
+	}
+}

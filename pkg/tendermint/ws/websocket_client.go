@@ -26,7 +26,7 @@ type TendermintWebsocketClient struct {
 	Logger  zerolog.Logger
 	Chain   chains.Chain
 	URL     string
-	Filters []string
+	Queries []string
 	Client  *tmClient.WSClient
 	Active  bool
 	Error   error
@@ -48,7 +48,7 @@ func NewTendermintClient(
 			Logger(),
 		URL:     url,
 		Chain:   *chain,
-		Filters: chain.Filters,
+		Queries: chain.Queries,
 		Active:  false,
 		Channel: make(chan types.Report),
 		Parsers: map[string]types.MessageParser{
@@ -144,11 +144,11 @@ func (t *TendermintWebsocketClient) Stop() {
 func (t *TendermintWebsocketClient) SubscribeToUpdates() {
 	t.Logger.Trace().Msg("Subscribing to updates...")
 
-	for _, filter := range t.Filters {
-		if err := t.Client.Subscribe(context.Background(), filter); err != nil {
-			t.Logger.Error().Err(err).Str("filter", filter).Msg("Failed to subscribe to filter")
+	for _, query := range t.Queries {
+		if err := t.Client.Subscribe(context.Background(), query); err != nil {
+			t.Logger.Error().Err(err).Str("query", query).Msg("Failed to subscribe to query")
 		} else {
-			t.Logger.Info().Str("filter", filter).Msg("Listening for incoming transactions")
+			t.Logger.Info().Str("query", query).Msg("Listening for incoming transactions")
 		}
 	}
 }
@@ -217,16 +217,26 @@ func (t *TendermintWebsocketClient) ProcessEvent(event jsonRpcTypes.RPCResponse)
 			}
 		}
 
+		// filtering out messages we do not need
+		if !t.Chain.Filters.Matches(msgParsed.GetValues()) {
+			t.Logger.Debug().
+				Int64("height", txResult.Height).
+				Str("type", msgParsed.Type()).
+				Msg("Message is ignored by filters.")
+			msgParsed = nil
+		}
+
 		if msgParsed != nil {
 			txMessages = append(txMessages, msgParsed)
 		}
 	}
 
 	txParsed := types.Tx{
-		Hash:     t.Chain.GetTransactionLink(txHash),
-		Height:   t.Chain.GetBlockLink(txResult.Height),
-		Memo:     txProto.GetBody().GetMemo(),
-		Messages: txMessages,
+		Hash:          t.Chain.GetTransactionLink(txHash),
+		Height:        t.Chain.GetBlockLink(txResult.Height),
+		Memo:          txProto.GetBody().GetMemo(),
+		Messages:      txMessages,
+		MessagesCount: len(txProto.GetBody().GetMessages()),
 	}
 
 	if len(txParsed.Messages) > 0 {

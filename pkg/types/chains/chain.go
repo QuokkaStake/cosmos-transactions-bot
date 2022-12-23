@@ -2,7 +2,9 @@ package chains
 
 import (
 	"fmt"
+	"main/pkg/utils"
 	"strconv"
+	"strings"
 )
 
 type Chain struct {
@@ -10,13 +12,16 @@ type Chain struct {
 	PrettyName        string    `toml:"pretty-name"`
 	TendermintNodes   []string  `toml:"tendermint-nodes"`
 	APINodes          []string  `toml:"api-nodes"`
-	Filters           []string  `toml:"filters"`
+	Queries           []string  `toml:"queries"`
+	FiltersRaw        []string  `toml:"filters"`
 	MintscanPrefix    string    `toml:"mintscan-prefix"`
 	Explorer          *Explorer `toml:"explorer"`
 	CoingeckoCurrency string    `toml:"coingecko-currency"`
 	BaseDenom         string    `toml:"base-denom"`
 	DisplayDenom      string    `toml:"display-denom"`
 	DenomCoefficient  int64     `toml:"denom-coefficient" default:"1000000"`
+
+	Filters Filters
 }
 
 func (c *Chain) Validate() error {
@@ -32,8 +37,27 @@ func (c *Chain) Validate() error {
 		return fmt.Errorf("no API nodes provided")
 	}
 
-	if len(c.Filters) == 0 {
-		return fmt.Errorf("no filters provided")
+	if len(c.Queries) == 0 {
+		return fmt.Errorf("no queries provided")
+	}
+
+	for index, filter := range c.FiltersRaw {
+		if err := ValidateFilter(filter); err != nil {
+			return fmt.Errorf("Error in filter %d: %s", index, err)
+		}
+	}
+
+	return nil
+}
+
+func ValidateFilter(filter string) error {
+	split := strings.Split(filter, " ")
+	if len(split) != 3 {
+		return fmt.Errorf("filter should match pattern: <key> <operator> <value>")
+	}
+
+	if !utils.Contains([]string{"=", "!="}, split[1]) {
+		return fmt.Errorf("unknown operator %s, allowed are: '=', '!='", split[1])
 	}
 
 	return nil

@@ -38,3 +38,11 @@ func (m *MsgWithdrawDelegatorReward) GetAdditionalData(fetcher dataFetcher.DataF
 
 	m.ValidatorAddress.Title = validator.Description.Moniker
 }
+
+func (m *MsgWithdrawDelegatorReward) GetValues() map[string]string {
+	return map[string]string{
+		"type":      "MsgWithdrawDelegatorReward",
+		"delegator": m.DelegatorAddress.Title,
+		"validator": m.ValidatorAddress.Title,
+	}
+}

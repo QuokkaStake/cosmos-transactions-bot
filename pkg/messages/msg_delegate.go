@@ -47,3 +47,11 @@ func (m *MsgDelegate) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
 		m.Amount.PriceUSD = m.Amount.Value * price
 	}
 }
+
+func (m *MsgDelegate) GetValues() map[string]string {
+	return map[string]string{
+		"type":              "MsgDelegate",
+		"delegator_address": m.DelegatorAddress.Title,
+		"validator_address": m.ValidatorAddress.Title,
+	}
+}

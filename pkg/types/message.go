@@ -7,4 +7,5 @@ import (
 type Message interface {
 	Type() string
 	GetAdditionalData(data_fetcher.DataFetcher)
+	GetValues() map[string]string
 }
