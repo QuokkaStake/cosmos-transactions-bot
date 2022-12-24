@@ -3,7 +3,7 @@ package ws
 import (
 	"context"
 	"fmt"
-	"main/pkg/messages"
+	"main/pkg/converter"
 	"main/pkg/types"
 	"main/pkg/types/chains"
 	"reflect"
@@ -11,25 +11,20 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/cosmos/cosmos-sdk/types/tx"
-	"github.com/gogo/protobuf/proto"
 	"github.com/rs/zerolog"
-	"github.com/tendermint/tendermint/crypto/tmhash"
-	"github.com/tendermint/tendermint/libs/json"
-	coreTypes "github.com/tendermint/tendermint/rpc/core/types"
 	tmClient "github.com/tendermint/tendermint/rpc/jsonrpc/client"
 	jsonRpcTypes "github.com/tendermint/tendermint/rpc/jsonrpc/types"
-	tendermintTypes "github.com/tendermint/tendermint/types"
 )
 
 type TendermintWebsocketClient struct {
-	Logger  zerolog.Logger
-	Chain   chains.Chain
-	URL     string
-	Queries []string
-	Client  *tmClient.WSClient
-	Active  bool
-	Error   error
+	Logger    zerolog.Logger
+	Chain     chains.Chain
+	URL       string
+	Queries   []string
+	Client    *tmClient.WSClient
+	Converter *converter.Converter
+	Active    bool
+	Error     error
 
 	Parsers map[string]types.MessageParser
 	Channel chan types.Report
@@ -46,25 +41,12 @@ func NewTendermintClient(
 			Str("url", url).
 			Str("chain", chain.Name).
 			Logger(),
-		URL:     url,
-		Chain:   *chain,
-		Queries: chain.Queries,
-		Active:  false,
-		Channel: make(chan types.Report),
-		Parsers: map[string]types.MessageParser{
-			"/cosmos.bank.v1beta1.MsgSend": func(data []byte, c chains.Chain, height int64) (types.Message, error) {
-				return messages.ParseMsgSend(data, chain)
-			},
-			"/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward": func(data []byte, c chains.Chain, height int64) (types.Message, error) {
-				return messages.ParseMsgWithdrawDelegatorReward(data, chain, height)
-			},
-			"/cosmos.staking.v1beta1.MsgDelegate": func(data []byte, c chains.Chain, height int64) (types.Message, error) {
-				return messages.ParseMsgDelegate(data, chain)
-			},
-			"/ibc.applications.transfer.v1.MsgTransfer": func(data []byte, c chains.Chain, height int64) (types.Message, error) {
-				return messages.ParseMsgTransfer(data, chain)
-			},
-		},
+		URL:       url,
+		Chain:     *chain,
+		Queries:   chain.Queries,
+		Active:    false,
+		Channel:   make(chan types.Report),
+		Converter: converter.NewConverter(logger, *chain),
 	}
 }
 
@@ -154,89 +136,10 @@ func (t *TendermintWebsocketClient) SubscribeToUpdates() {
 }
 
 func (t *TendermintWebsocketClient) ProcessEvent(event jsonRpcTypes.RPCResponse) {
-	if event.Error != nil && event.Error.Message != "" {
-		t.Logger.Error().Str("msg", event.Error.Error()).Msg("Got error in RPC response")
-		t.Channel <- t.MakeReport(&types.TxError{Error: event.Error})
-		return
-	}
+	reportable := t.Converter.ParseEvent(event)
 
-	var resultEvent coreTypes.ResultEvent
-	if err := json.Unmarshal(event.Result, &resultEvent); err != nil {
-		t.Logger.Error().Err(err).Msg("Failed to parse event")
-		t.Channel <- t.MakeReport(&types.TxError{Error: event.Error})
-		return
-	}
-
-	if resultEvent.Data == nil {
-		t.Logger.Debug().Msg("Event does not have data, skipping.")
-		return
-	}
-
-	eventDataTx, ok := resultEvent.Data.(tendermintTypes.EventDataTx)
-	if !ok {
-		t.Logger.Debug().Msg("Could not convert tx result to EventDataTx.")
-		return
-	}
-
-	txResult := eventDataTx.TxResult
-	txHash := fmt.Sprintf("%X", tmhash.Sum(txResult.Tx))
-	var txProto tx.Tx
-
-	if err := proto.Unmarshal(txResult.Tx, &txProto); err != nil {
-		t.Logger.Error().Err(err).Msg("Could not parse tx")
-		t.Channel <- t.MakeReport(&types.TxError{Error: event.Error})
-		return
-	}
-
-	t.Logger.Debug().
-		Int64("height", txResult.Height).
-		Str("memo", txProto.GetBody().GetMemo()).
-		Str("hash", txHash).
-		Int("len", len(txProto.GetBody().Messages)).
-		Msg("Got transaction")
-
-	txMessages := []types.Message{}
-
-	for _, message := range txProto.GetBody().Messages {
-		t.Logger.Debug().Str("type", message.TypeUrl).Msg("Got message")
-
-		var msgParsed types.Message
-		var err error
-
-		if parser, ok := t.Parsers[message.TypeUrl]; ok {
-			msgParsed, err = parser(message.Value, t.Chain, txResult.Height)
-			if err != nil {
-				t.Logger.Error().Err(err).Str("type", message.TypeUrl).Msg("Error parsing message")
-				msgParsed = &messages.MsgError{Error: fmt.Errorf("Error parsing message: %s", err)}
-			}
-		} else if t.Chain.LogUnknownMessages {
-			t.Logger.Error().Err(err).Str("type", message.TypeUrl).Msg("Unsupported message type")
-			msgParsed = &messages.MsgError{Error: fmt.Errorf("Got unsupported message type: %s", message.TypeUrl)}
-		}
-
-		// filtering out messages we do not need
-		if msgParsed != nil {
-			if t.Chain.Filters.Matches(msgParsed.GetValues()) {
-				txMessages = append(txMessages, msgParsed)
-			} else {
-				t.Logger.Debug().
-					Int64("height", txResult.Height).
-					Str("type", msgParsed.Type()).
-					Msg("Message is ignored by filters.")
-			}
-		}
-	}
-
-	txParsed := types.Tx{
-		Hash:          t.Chain.GetTransactionLink(txHash),
-		Height:        t.Chain.GetBlockLink(txResult.Height),
-		Memo:          txProto.GetBody().GetMemo(),
-		Messages:      txMessages,
-		MessagesCount: len(txProto.GetBody().GetMessages()),
-	}
-
-	if len(txParsed.Messages) > 0 {
-		t.Channel <- t.MakeReport(&txParsed)
+	if reportable != nil {
+		t.Channel <- t.MakeReport(reportable)
 	}
 }
 

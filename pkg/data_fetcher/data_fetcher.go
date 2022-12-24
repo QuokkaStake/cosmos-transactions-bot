@@ -84,7 +84,7 @@ func (f *DataFetcher) GetValidator(address string) (*responses.Validator, bool) 
 	}
 
 	f.Logger.Error().Msg("Could not connect to any nodes to get a validator")
-	return nil, true
+	return nil, false
 }
 
 func (f *DataFetcher) GetRewardsAtBlock(
