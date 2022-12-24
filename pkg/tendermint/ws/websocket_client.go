@@ -207,27 +207,23 @@ func (t *TendermintWebsocketClient) ProcessEvent(event jsonRpcTypes.RPCResponse)
 			msgParsed, err = parser(message.Value, t.Chain, txResult.Height)
 			if err != nil {
 				t.Logger.Error().Err(err).Str("type", message.TypeUrl).Msg("Error parsing message")
-				if t.Chain.LogUnknownMessages {
-					msgParsed = &messages.MsgError{Error: fmt.Errorf("Error parsing message: %s", err)}
-				}
+				msgParsed = &messages.MsgError{Error: fmt.Errorf("Error parsing message: %s", err)}
 			}
-		} else {
-			msgParsed = &messages.MsgError{
-				Error: fmt.Errorf("Got unsupported message type: %s", message.TypeUrl),
-			}
+		} else if t.Chain.LogUnknownMessages {
+			t.Logger.Error().Err(err).Str("type", message.TypeUrl).Msg("Unsupported message type")
+			msgParsed = &messages.MsgError{Error: fmt.Errorf("Got unsupported message type: %s", message.TypeUrl)}
 		}
 
 		// filtering out messages we do not need
-		if !t.Chain.Filters.Matches(msgParsed.GetValues()) {
-			t.Logger.Debug().
-				Int64("height", txResult.Height).
-				Str("type", msgParsed.Type()).
-				Msg("Message is ignored by filters.")
-			msgParsed = nil
-		}
-
 		if msgParsed != nil {
-			txMessages = append(txMessages, msgParsed)
+			if t.Chain.Filters.Matches(msgParsed.GetValues()) {
+				txMessages = append(txMessages, msgParsed)
+			} else {
+				t.Logger.Debug().
+					Int64("height", txResult.Height).
+					Str("type", msgParsed.Type()).
+					Msg("Message is ignored by filters.")
+			}
 		}
 	}
 
