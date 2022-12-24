@@ -63,8 +63,7 @@ func (m *MsgWithdrawDelegatorReward) GetAdditionalData(fetcher dataFetcher.DataF
 		}
 	}
 
-	validator, found := fetcher.GetValidator(m.ValidatorAddress.Title)
-	if !found {
+	if validator, found := fetcher.GetValidator(m.ValidatorAddress.Title); found {
 		m.ValidatorAddress.Title = validator.Description.Moniker
 	}
 }
