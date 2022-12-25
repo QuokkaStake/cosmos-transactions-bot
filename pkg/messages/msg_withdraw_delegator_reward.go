@@ -24,7 +24,7 @@ func ParseMsgWithdrawDelegatorReward(data []byte, chain *chains.Chain, height in
 
 	return &MsgWithdrawDelegatorReward{
 		DelegatorAddress: chain.GetWalletLink(parsedMessage.DelegatorAddress),
-		ValidatorAddress: chain.GetWalletLink(parsedMessage.ValidatorAddress),
+		ValidatorAddress: chain.GetValidatorLink(parsedMessage.ValidatorAddress),
 		Height:           height,
 	}, nil
 }
@@ -35,8 +35,8 @@ func (m MsgWithdrawDelegatorReward) Type() string {
 
 func (m *MsgWithdrawDelegatorReward) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
 	rewards, found := fetcher.GetRewardsAtBlock(
-		m.DelegatorAddress.Title,
-		m.ValidatorAddress.Title,
+		m.DelegatorAddress.Value,
+		m.ValidatorAddress.Value,
 		m.Height,
 	)
 	if found {
@@ -63,7 +63,7 @@ func (m *MsgWithdrawDelegatorReward) GetAdditionalData(fetcher dataFetcher.DataF
 		}
 	}
 
-	if validator, found := fetcher.GetValidator(m.ValidatorAddress.Title); found {
+	if validator, found := fetcher.GetValidator(m.ValidatorAddress.Value); found {
 		m.ValidatorAddress.Title = validator.Description.Moniker
 	}
 }
@@ -71,7 +71,7 @@ func (m *MsgWithdrawDelegatorReward) GetAdditionalData(fetcher dataFetcher.DataF
 func (m *MsgWithdrawDelegatorReward) GetValues() map[string]string {
 	return map[string]string{
 		"type":      "MsgWithdrawDelegatorReward",
-		"delegator": m.DelegatorAddress.Title,
-		"validator": m.ValidatorAddress.Title,
+		"delegator": m.DelegatorAddress.Value,
+		"validator": m.ValidatorAddress.Value,
 	}
 }

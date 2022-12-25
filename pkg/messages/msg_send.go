@@ -58,7 +58,7 @@ func (m *MsgSend) GetAdditionalData(fetcher data_fetcher.DataFetcher) {
 func (m *MsgSend) GetValues() map[string]string {
 	return map[string]string{
 		"type": "MsgSend",
-		"from": m.From.Title,
-		"to":   m.To.Title,
+		"from": m.From.Value,
+		"to":   m.To.Value,
 	}
 }

@@ -196,11 +196,16 @@ func (reporter *TelegramReporter) BotReply(c tele.Context, msg string) error {
 }
 
 func (reporter *TelegramReporter) SerializeLink(link chains.Link) template.HTML {
-	if link.Href != "" {
-		return template.HTML(fmt.Sprintf("<a href='%s'>%s</a>", link.Href, link.Title))
+	value := link.Title
+	if value == "" {
+		value = link.Value
 	}
 
-	return template.HTML(link.Title)
+	if link.Href != "" {
+		return template.HTML(fmt.Sprintf("<a href='%s'>%s</a>", link.Href, value))
+	}
+
+	return template.HTML(value)
 }
 
 func (reporter *TelegramReporter) SerializeAmount(amount types.Amount) template.HTML {

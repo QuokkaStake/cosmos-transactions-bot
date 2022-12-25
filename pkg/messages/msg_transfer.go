@@ -26,7 +26,7 @@ func ParseMsgTransfer(data []byte, chain *chains.Chain) (*MsgTransfer, error) {
 			Denom: parsedMessage.Token.Denom,
 		},
 		Sender:   chain.GetWalletLink(parsedMessage.Sender),
-		Receiver: chains.Link{Title: parsedMessage.Receiver},
+		Receiver: chains.Link{Value: parsedMessage.Receiver},
 	}, nil
 }
 
@@ -46,7 +46,7 @@ func (m *MsgTransfer) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
 func (m *MsgTransfer) GetValues() map[string]string {
 	return map[string]string{
 		"type":     "MsgTransfer",
-		"sender":   m.Sender.Title,
-		"receiver": m.Receiver.Title,
+		"sender":   m.Sender.Value,
+		"receiver": m.Receiver.Value,
 	}
 }

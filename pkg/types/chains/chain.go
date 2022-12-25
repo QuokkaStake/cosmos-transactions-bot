@@ -74,40 +74,40 @@ func (c Chain) GetName() string {
 
 func (c Chain) GetWalletLink(address string) Link {
 	if c.Explorer == nil {
-		return Link{Title: address}
+		return Link{Value: address}
 	}
 
 	return Link{
 		Href:  fmt.Sprintf(c.Explorer.WalletLinkPattern, address),
-		Title: address,
+		Value: address,
 	}
 }
 
 func (c Chain) GetValidatorLink(address string) Link {
 	if c.Explorer == nil {
-		return Link{Title: address}
+		return Link{Value: address}
 	}
 
 	return Link{
 		Href:  fmt.Sprintf(c.Explorer.ValidatorLinkPattern, address),
-		Title: address,
+		Value: address,
 	}
 }
 
 func (c Chain) GetProposalLink(proposalID string) Link {
 	if c.Explorer == nil {
-		return Link{Title: proposalID}
+		return Link{Value: proposalID}
 	}
 
 	return Link{
 		Href:  fmt.Sprintf(c.Explorer.ProposalLinkPattern, proposalID),
-		Title: proposalID,
+		Value: proposalID,
 	}
 }
 
 func (c Chain) GetTransactionLink(hash string) Link {
 	if c.Explorer == nil {
-		return Link{Title: hash}
+		return Link{Value: hash}
 	}
 
 	return Link{
@@ -120,11 +120,11 @@ func (c Chain) GetBlockLink(height int64) Link {
 	heightStr := strconv.FormatInt(height, 10)
 
 	if c.Explorer == nil {
-		return Link{Title: heightStr}
+		return Link{Value: heightStr}
 	}
 
 	return Link{
 		Href:  fmt.Sprintf(c.Explorer.BlockLinkPattern, heightStr),
-		Title: heightStr,
+		Value: heightStr,
 	}
 }

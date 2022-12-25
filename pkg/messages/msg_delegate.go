@@ -22,7 +22,7 @@ func ParseMsgDelegate(data []byte, chain *chains.Chain) (*MsgDelegate, error) {
 
 	return &MsgDelegate{
 		DelegatorAddress: chain.GetWalletLink(parsedMessage.DelegatorAddress),
-		ValidatorAddress: chain.GetWalletLink(parsedMessage.ValidatorAddress),
+		ValidatorAddress: chain.GetValidatorLink(parsedMessage.ValidatorAddress),
 		Amount: &types.Amount{
 			Value: float64(parsedMessage.Amount.Amount.Int64()),
 			Denom: parsedMessage.Amount.Denom,
@@ -35,7 +35,7 @@ func (m MsgDelegate) Type() string {
 }
 
 func (m *MsgDelegate) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
-	validator, found := fetcher.GetValidator(m.ValidatorAddress.Title)
+	validator, found := fetcher.GetValidator(m.ValidatorAddress.Value)
 	if found {
 		m.ValidatorAddress.Title = validator.Description.Moniker
 	}
@@ -51,7 +51,7 @@ func (m *MsgDelegate) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
 func (m *MsgDelegate) GetValues() map[string]string {
 	return map[string]string{
 		"type":              "MsgDelegate",
-		"delegator_address": m.DelegatorAddress.Title,
-		"validator_address": m.ValidatorAddress.Title,
+		"delegator_address": m.DelegatorAddress.Value,
+		"validator_address": m.ValidatorAddress.Value,
 	}
 }
