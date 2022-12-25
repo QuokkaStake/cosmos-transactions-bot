@@ -68,6 +68,21 @@ func (c *TendermintApiClient) GetDelegatorsRewardsAtBlock(
 	return response.Rewards, nil
 }
 
+func (c *TendermintApiClient) GetProposal(id string) (*responses.Proposal, error) {
+	url := fmt.Sprintf(
+		"%s/cosmos/gov/v1beta1/proposals/%s",
+		c.URL,
+		id,
+	)
+
+	var response *responses.ProposalResponse
+	if err := c.Get(url, &response); err != nil {
+		return nil, err
+	}
+
+	return &response.Proposal, nil
+}
+
 func (c *TendermintApiClient) Get(url string, target interface{}) error {
 	return c.GetWithHeaders(url, target, map[string]string{})
 }

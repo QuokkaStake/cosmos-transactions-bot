@@ -54,3 +54,20 @@ type Reward struct {
 	Amount string `json:"amount"`
 	Denom  string `json:"denom"`
 }
+
+type ProposalResponse struct {
+	Proposal Proposal `json:"proposal"`
+}
+
+type Proposal struct {
+	ProposalID    string          `json:"proposal_id"`
+	Content       ProposalContent `json:"content"`
+	Status        string          `json:"status"`
+	VotingEndTime time.Time       `json:"voting_end_time"`
+}
+
+type ProposalContent struct {
+	Type        string `json:"@type"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+}

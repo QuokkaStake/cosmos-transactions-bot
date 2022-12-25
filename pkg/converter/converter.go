@@ -35,6 +35,9 @@ func NewConverter(logger *zerolog.Logger, chain chains.Chain) *Converter {
 		"/ibc.applications.transfer.v1.MsgTransfer": func(data []byte, c chains.Chain, height int64) (types.Message, error) {
 			return messages.ParseMsgTransfer(data, &c)
 		},
+		"/cosmos.gov.v1beta1.MsgVote": func(data []byte, c chains.Chain, height int64) (types.Message, error) {
+			return messages.ParseMsgVote(data, &c)
+		},
 	}
 
 	return &Converter{

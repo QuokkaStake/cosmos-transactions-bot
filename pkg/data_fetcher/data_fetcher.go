@@ -115,5 +115,32 @@ func (f *DataFetcher) GetRewardsAtBlock(
 	}
 
 	f.Logger.Error().Msg("Could not connect to any nodes to get rewards list")
-	return []responses.Reward{}, true
+	return []responses.Reward{}, false
+}
+
+func (f *DataFetcher) GetProposal(id string) (*responses.Proposal, bool) {
+	keyName := f.Chain.Name + "_proposal_" + id
+
+	if cachedEntry, cachedEntryPresent := f.Cache.Get(keyName); cachedEntryPresent {
+		if cachedEntryParsed, ok := cachedEntry.(*responses.Proposal); ok {
+			return cachedEntryParsed, true
+		}
+
+		f.Logger.Error().Msg("Could not convert cached proposal to responses.Proposal")
+		return nil, false
+	}
+
+	for _, node := range f.TendermintApiClients {
+		notCachedEntry, err := node.GetProposal(id)
+		if err != nil {
+			f.Logger.Error().Err(err).Msg("Error fetching proposal")
+			return nil, false
+		}
+
+		f.Cache.Set(keyName, notCachedEntry)
+		return notCachedEntry, true
+	}
+
+	f.Logger.Error().Msg("Could not connect to any nodes to get proposal")
+	return nil, false
 }
