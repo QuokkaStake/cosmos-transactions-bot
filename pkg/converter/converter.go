@@ -2,9 +2,11 @@ package converter
 
 import (
 	"fmt"
+	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/types/tx"
 	"github.com/gogo/protobuf/proto"
 	"github.com/rs/zerolog"
+	abciTypes "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 	"github.com/tendermint/tendermint/libs/json"
 	coreTypes "github.com/tendermint/tendermint/rpc/core/types"
@@ -89,32 +91,8 @@ func (c *Converter) ParseEvent(event jsonRpcTypes.RPCResponse) types.Reportable 
 	txMessages := []types.Message{}
 
 	for _, message := range txProto.GetBody().Messages {
-		c.Logger.Debug().Str("type", message.TypeUrl).Msg("Got message")
-
-		var msgParsed types.Message
-		var err error
-
-		if parser, ok := c.Parsers[message.TypeUrl]; ok {
-			msgParsed, err = parser(message.Value, c.Chain, txResult.Height)
-			if err != nil {
-				c.Logger.Error().Err(err).Str("type", message.TypeUrl).Msg("Error parsing message")
-				msgParsed = &messages.MsgError{Error: fmt.Errorf("Error parsing message: %s", err)}
-			}
-		} else if c.Chain.LogUnknownMessages {
-			c.Logger.Error().Err(err).Str("type", message.TypeUrl).Msg("Unsupported message type")
-			msgParsed = &messages.MsgError{Error: fmt.Errorf("Got unsupported message type: %s", message.TypeUrl)}
-		}
-
-		// filtering out messages we do not need
-		if msgParsed != nil {
-			if c.Chain.Filters.Matches(msgParsed.GetValues()) {
-				txMessages = append(txMessages, msgParsed)
-			} else {
-				c.Logger.Debug().
-					Int64("height", txResult.Height).
-					Str("type", msgParsed.Type()).
-					Msg("Message is ignored by filters.")
-			}
+		if msgParsed := c.ParseMessage(message, txResult); msgParsed != nil {
+			txMessages = append(txMessages, msgParsed)
 		}
 	}
 
@@ -129,4 +107,34 @@ func (c *Converter) ParseEvent(event jsonRpcTypes.RPCResponse) types.Reportable 
 		Messages:      txMessages,
 		MessagesCount: len(txProto.GetBody().GetMessages()),
 	}
+}
+
+func (c *Converter) ParseMessage(message *codecTypes.Any, txResult abciTypes.TxResult) types.Message {
+	c.Logger.Debug().Str("type", message.TypeUrl).Msg("Got message")
+
+	parser, ok := c.Parsers[message.TypeUrl]
+	if !ok {
+		c.Logger.Error().Str("type", message.TypeUrl).Msg("Unsupported message type")
+		if c.Chain.LogUnknownMessages {
+			return &messages.MsgError{Error: fmt.Errorf("Got unsupported message type: %s", message.TypeUrl)}
+		} else {
+			return nil
+		}
+	}
+
+	msgParsed, err := parser(message.Value, c.Chain, txResult.Height)
+	if err != nil {
+		c.Logger.Error().Err(err).Str("type", message.TypeUrl).Msg("Error parsing message")
+		return &messages.MsgError{Error: fmt.Errorf("Error parsing message: %s", err)}
+	}
+
+	if !c.Chain.Filters.Matches(msgParsed.GetValues()) {
+		c.Logger.Debug().
+			Int64("height", txResult.Height).
+			Str("type", msgParsed.Type()).
+			Msg("Message is ignored by filters.")
+		return nil
+	}
+
+	return msgParsed
 }
