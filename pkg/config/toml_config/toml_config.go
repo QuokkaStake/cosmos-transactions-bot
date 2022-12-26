@@ -15,7 +15,9 @@ type Chain struct {
 	Queries            []string  `toml:"queries"`
 	Filters            []string  `toml:"filters"`
 	MintscanPrefix     string    `toml:"mintscan-prefix"`
-	Explorer           *Explorer `toml:"explorer"`
+	PingPrefix         string    `toml:"ping-prefix"`
+	PingBaseUrl        string    `toml:"ping-base-url" default:"https://ping.pub"`
+	Explorer           *Explorer `toml:"explorer" default:"-"`
 	CoingeckoCurrency  string    `toml:"coingecko-currency"`
 	BaseDenom          string    `toml:"base-denom"`
 	DisplayDenom       string    `toml:"display-denom"`
@@ -51,8 +53,11 @@ func (c *Chain) Validate() error {
 
 func (c *Chain) ToAppConfigChain() *types.Chain {
 	var supportedExplorer types.SupportedExplorer
+
 	if c.MintscanPrefix != "" {
 		supportedExplorer = &types.MintscanExplorer{Prefix: c.MintscanPrefix}
+	} else if c.PingPrefix != "" {
+		supportedExplorer = &types.PingExplorer{Prefix: c.PingPrefix, BaseUrl: c.PingBaseUrl}
 	}
 
 	var explorer *types.Explorer

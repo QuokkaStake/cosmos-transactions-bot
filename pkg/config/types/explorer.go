@@ -27,3 +27,18 @@ func (e *MintscanExplorer) ToExplorer() *Explorer {
 		BlockLinkPattern:       fmt.Sprintf("https://mintscan.io/%s/blocks/%%s", e.Prefix),
 	}
 }
+
+type PingExplorer struct {
+	Prefix  string
+	BaseUrl string
+}
+
+func (e *PingExplorer) ToExplorer() *Explorer {
+	return &Explorer{
+		ProposalLinkPattern:    fmt.Sprintf("%s/%s/gov/%%s", e.BaseUrl, e.Prefix),
+		WalletLinkPattern:      fmt.Sprintf("%s/%s/account/%%s", e.BaseUrl, e.Prefix),
+		ValidatorLinkPattern:   fmt.Sprintf("%s/%s/staking/%%s", e.BaseUrl, e.Prefix),
+		TransactionLinkPattern: fmt.Sprintf("%s/%s/tx/%%s", e.BaseUrl, e.Prefix),
+		BlockLinkPattern:       fmt.Sprintf("%s/%s/blocks/%%s", e.BaseUrl, e.Prefix),
+	}
+}

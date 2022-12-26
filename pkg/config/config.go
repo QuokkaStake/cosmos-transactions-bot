@@ -2,6 +2,7 @@ package config
 
 import (
 	"github.com/BurntSushi/toml"
+	"github.com/creasty/defaults"
 	tomlConfig "main/pkg/config/toml_config"
 	"main/pkg/config/types"
 	"main/pkg/utils"
@@ -47,6 +48,10 @@ func GetConfig(path string) (*AppConfig, error) {
 
 	configStruct := &tomlConfig.TomlConfig{}
 	if _, err = toml.Decode(configString, configStruct); err != nil {
+		return nil, err
+	}
+
+	if err = defaults.Set(configStruct); err != nil {
 		return nil, err
 	}
 
