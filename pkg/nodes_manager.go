@@ -88,6 +88,7 @@ func (m *NodesManager) Listen() {
 						m.Logger.Trace().
 							Str("hash", msg.Reportable.GetHash()).
 							Msg("Message already received, not sending again.")
+						m.Mutex.Unlock()
 						continue
 					}
 
