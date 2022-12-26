@@ -50,19 +50,16 @@ func (c *Chain) Validate() error {
 }
 
 func (c *Chain) ToAppConfigChain() *types.Chain {
-	var explorer *types.Explorer
-	if c.Explorer != nil {
-		explorer = c.Explorer.ToAppConfigExplorer()
+	var supportedExplorer types.SupportedExplorer
+	if c.MintscanPrefix != "" {
+		supportedExplorer = &types.MintscanExplorer{Prefix: c.MintscanPrefix}
 	}
 
-	if c.MintscanPrefix != "" {
-		explorer = &types.Explorer{
-			ProposalLinkPattern:    fmt.Sprintf("https://mintscan.io/%s/proposals/%%s", c.MintscanPrefix),
-			WalletLinkPattern:      fmt.Sprintf("https://mintscan.io/%s/account/%%s", c.MintscanPrefix),
-			ValidatorLinkPattern:   fmt.Sprintf("https://mintscan.io/%s/validators/%%s", c.MintscanPrefix),
-			TransactionLinkPattern: fmt.Sprintf("https://mintscan.io/%s/txs/%%s", c.MintscanPrefix),
-			BlockLinkPattern:       fmt.Sprintf("https://mintscan.io/%s/blocks/%%s", c.MintscanPrefix),
-		}
+	var explorer *types.Explorer
+	if supportedExplorer != nil {
+		explorer = supportedExplorer.ToExplorer()
+	} else if explorer != nil {
+		explorer = c.Explorer.ToAppConfigExplorer()
 	}
 
 	filters := make([]types.Filter, len(c.Filters))
@@ -78,6 +75,7 @@ func (c *Chain) ToAppConfigChain() *types.Chain {
 		Queries:            c.Queries,
 		Filters:            filters,
 		Explorer:           explorer,
+		SupportedExplorer:  supportedExplorer,
 		CoingeckoCurrency:  c.CoingeckoCurrency,
 		BaseDenom:          c.BaseDenom,
 		DisplayDenom:       c.DisplayDenom,
