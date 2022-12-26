@@ -1,7 +1,9 @@
 <strong>New transaction on chain {{ .Report.Chain.GetName }}</strong>
 Hash: {{ SerializeLink .Report.Reportable.Hash }}
 Height: {{ SerializeLink .Report.Reportable.Height }}
+{{- if .Report.Reportable.Memo }}
 Memo: {{ .Report.Reportable.Memo }}
+{{- end }}
 
 Messages:
 {{- range $msgId, $msg := .Msgs }}

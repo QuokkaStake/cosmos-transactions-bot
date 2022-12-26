@@ -1,6 +1,8 @@
 package responses
 
 import (
+	"encoding/json"
+	"fmt"
 	"time"
 )
 
@@ -70,4 +72,39 @@ type ProposalContent struct {
 	Type        string `json:"@type"`
 	Title       string `json:"title"`
 	Description string `json:"description"`
+}
+
+type StakingParamsResponse struct {
+	Params StakingParams `json:"params"`
+}
+
+type StakingParams struct {
+	UnbondingTime Duration `json:"unbonding_time"`
+}
+
+// Golang cannot properly deserialize string into time.Duration, that's why this workaround.
+// Cheers to https://biscuit.ninja/posts/go-unmarshalling-json-into-time-duration/
+type Duration struct {
+	time.Duration
+}
+
+func (duration *Duration) UnmarshalJSON(b []byte) error {
+	var unmarshalledJson interface{}
+
+	err := json.Unmarshal(b, &unmarshalledJson)
+	if err != nil {
+		return err
+	}
+
+	switch value := unmarshalledJson.(type) {
+	case string:
+		duration.Duration, err = time.ParseDuration(value)
+		if err != nil {
+			return err
+		}
+	default:
+		return fmt.Errorf("invalid duration: %#v", unmarshalledJson)
+	}
+
+	return nil
 }

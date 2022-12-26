@@ -83,6 +83,17 @@ func (c *TendermintApiClient) GetProposal(id string) (*responses.Proposal, error
 	return &response.Proposal, nil
 }
 
+func (c *TendermintApiClient) GetStakingParams() (*responses.StakingParams, error) {
+	url := fmt.Sprintf("%s/cosmos/staking/v1beta1/params", c.URL)
+
+	var response *responses.StakingParamsResponse
+	if err := c.Get(url, &response); err != nil {
+		return nil, err
+	}
+
+	return &response.Params, nil
+}
+
 func (c *TendermintApiClient) Get(url string, target interface{}) error {
 	return c.GetWithHeaders(url, target, map[string]string{})
 }

@@ -1,0 +1,7 @@
+<strong>Undelegate</strong>
+Delegator: {{ SerializeLink .DelegatorAddress }}
+Validator: {{ SerializeLink .ValidatorAddress }}
+{{- if not .UndelegateFinishTime.IsZero }}
+Undelegate finish time: {{ SerializeDate .UndelegateFinishTime }}
+{{- end }}
+Amount: {{ SerializeAmount .Amount }}

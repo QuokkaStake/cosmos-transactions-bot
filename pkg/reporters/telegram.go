@@ -84,6 +84,7 @@ func (reporter TelegramReporter) GetTemplate(name string) (*template.Template, e
 	t, err := template.New(filename).Funcs(template.FuncMap{
 		"SerializeLink":   reporter.SerializeLink,
 		"SerializeAmount": reporter.SerializeAmount,
+		"SerializeDate":   reporter.SerializeDate,
 	}).ParseFS(templatesFs, "templates/telegram/"+filename)
 	if err != nil {
 		return nil, err
@@ -223,4 +224,8 @@ func (reporter *TelegramReporter) SerializeAmount(amount types.Amount) template.
 		amount.Value,
 		amount.Denom,
 	))
+}
+
+func (reporter *TelegramReporter) SerializeDate(date time.Time) template.HTML {
+	return template.HTML(date.Format(time.RFC822))
 }

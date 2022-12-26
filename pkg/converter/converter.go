@@ -29,6 +29,7 @@ func NewConverter(logger *zerolog.Logger, chain *configTypes.Chain) *Converter {
 		"/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward": messages.ParseMsgWithdrawDelegatorReward,
 		"/cosmos.staking.v1beta1.MsgDelegate":                     messages.ParseMsgDelegate,
 		"/cosmos.staking.v1beta1.MsgBeginRedelegate":              messages.ParseMsgBeginRedelegate,
+		"/cosmos.staking.v1beta1.MsgUndelegate":                   messages.ParseMsgUndelegate,
 		"/ibc.applications.transfer.v1.MsgTransfer":               messages.ParseMsgTransfer,
 		"/cosmos.gov.v1beta1.MsgVote":                             messages.ParseMsgVote,
 	}
@@ -104,8 +105,6 @@ func (c *Converter) ParseEvent(event jsonRpcTypes.RPCResponse) types.Reportable 
 }
 
 func (c *Converter) ParseMessage(message *codecTypes.Any, txResult abciTypes.TxResult) types.Message {
-	c.Logger.Debug().Str("type", message.TypeUrl).Msg("Got message")
-
 	parser, ok := c.Parsers[message.TypeUrl]
 	if !ok {
 		c.Logger.Error().Str("type", message.TypeUrl).Msg("Unsupported message type")
@@ -130,5 +129,6 @@ func (c *Converter) ParseMessage(message *codecTypes.Any, txResult abciTypes.TxR
 		return nil
 	}
 
+	c.Logger.Debug().Str("type", message.TypeUrl).Msg("Got message")
 	return msgParsed
 }

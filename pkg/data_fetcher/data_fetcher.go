@@ -144,3 +144,30 @@ func (f *DataFetcher) GetProposal(id string) (*responses.Proposal, bool) {
 	f.Logger.Error().Msg("Could not connect to any nodes to get proposal")
 	return nil, false
 }
+
+func (f *DataFetcher) GetStakingParams() (*responses.StakingParams, bool) {
+	keyName := f.Chain.Name + "_staking_params"
+
+	if cachedEntry, cachedEntryPresent := f.Cache.Get(keyName); cachedEntryPresent {
+		if cachedEntryParsed, ok := cachedEntry.(*responses.StakingParams); ok {
+			return cachedEntryParsed, true
+		}
+
+		f.Logger.Error().Msg("Could not convert cached staking params to *responses.StakingParams")
+		return nil, false
+	}
+
+	for _, node := range f.TendermintApiClients {
+		notCachedEntry, err := node.GetStakingParams()
+		if err != nil {
+			f.Logger.Error().Err(err).Msg("Error fetching staking params")
+			continue
+		}
+
+		f.Cache.Set(keyName, notCachedEntry)
+		return notCachedEntry, true
+	}
+
+	f.Logger.Error().Msg("Could not connect to any nodes to get staking params")
+	return nil, false
+}
