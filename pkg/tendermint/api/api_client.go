@@ -25,7 +25,7 @@ func NewTendermintApiClient(logger *zerolog.Logger, url string, chain *types.Cha
 			Str("chain", chain.Name).
 			Logger(),
 		URL:     url,
-		Timeout: 10 * time.Second,
+		Timeout: 60 * time.Second,
 	}
 }
 

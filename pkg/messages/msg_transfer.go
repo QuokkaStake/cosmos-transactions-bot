@@ -3,18 +3,18 @@ package messages
 import (
 	ibcTypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
 	"github.com/gogo/protobuf/proto"
-	types2 "main/pkg/config/types"
+	configTypes "main/pkg/config/types"
 	dataFetcher "main/pkg/data_fetcher"
 	"main/pkg/types"
 )
 
 type MsgTransfer struct {
 	Token    *types.Amount
-	Sender   types2.Link
-	Receiver types2.Link
+	Sender   configTypes.Link
+	Receiver configTypes.Link
 }
 
-func ParseMsgTransfer(data []byte, chain *types2.Chain) (*MsgTransfer, error) {
+func ParseMsgTransfer(data []byte, chain *configTypes.Chain, height int64) (types.Message, error) {
 	var parsedMessage ibcTypes.MsgTransfer
 	if err := proto.Unmarshal(data, &parsedMessage); err != nil {
 		return nil, err
@@ -26,7 +26,7 @@ func ParseMsgTransfer(data []byte, chain *types2.Chain) (*MsgTransfer, error) {
 			Denom: parsedMessage.Token.Denom,
 		},
 		Sender:   chain.GetWalletLink(parsedMessage.Sender),
-		Receiver: types2.Link{Value: parsedMessage.Receiver},
+		Receiver: configTypes.Link{Value: parsedMessage.Receiver},
 	}, nil
 }
 

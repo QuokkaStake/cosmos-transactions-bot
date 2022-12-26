@@ -76,7 +76,7 @@ func (f *DataFetcher) GetValidator(address string) (*responses.Validator, bool) 
 		notCachedValidator, err := node.GetValidator(address)
 		if err != nil {
 			f.Logger.Error().Msg("Error fetching validator")
-			return nil, false
+			continue
 		}
 
 		f.Cache.Set(keyName, notCachedValidator)
@@ -107,7 +107,7 @@ func (f *DataFetcher) GetRewardsAtBlock(
 		notCachedValidator, err := node.GetDelegatorsRewardsAtBlock(delegator, validator, block-1)
 		if err != nil {
 			f.Logger.Error().Err(err).Msg("Error fetching rewards")
-			return []responses.Reward{}, false
+			continue
 		}
 
 		f.Cache.Set(keyName, notCachedValidator)
@@ -134,7 +134,7 @@ func (f *DataFetcher) GetProposal(id string) (*responses.Proposal, bool) {
 		notCachedEntry, err := node.GetProposal(id)
 		if err != nil {
 			f.Logger.Error().Err(err).Msg("Error fetching proposal")
-			return nil, false
+			continue
 		}
 
 		f.Cache.Set(keyName, notCachedEntry)

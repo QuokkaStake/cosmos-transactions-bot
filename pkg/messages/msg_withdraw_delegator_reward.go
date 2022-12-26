@@ -3,20 +3,20 @@ package messages
 import (
 	cosmosDistributionTypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/gogo/protobuf/proto"
-	types2 "main/pkg/config/types"
+	configTypes "main/pkg/config/types"
 	dataFetcher "main/pkg/data_fetcher"
 	"main/pkg/types"
 	"main/pkg/utils"
 )
 
 type MsgWithdrawDelegatorReward struct {
-	DelegatorAddress types2.Link
-	ValidatorAddress types2.Link
+	DelegatorAddress configTypes.Link
+	ValidatorAddress configTypes.Link
 	Height           int64
 	Amount           []*types.Amount
 }
 
-func ParseMsgWithdrawDelegatorReward(data []byte, chain *types2.Chain, height int64) (*MsgWithdrawDelegatorReward, error) {
+func ParseMsgWithdrawDelegatorReward(data []byte, chain *configTypes.Chain, height int64) (types.Message, error) {
 	var parsedMessage cosmosDistributionTypes.MsgWithdrawDelegatorReward
 	if err := proto.Unmarshal(data, &parsedMessage); err != nil {
 		return nil, err

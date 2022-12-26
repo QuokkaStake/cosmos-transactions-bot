@@ -3,18 +3,18 @@ package messages
 import (
 	cosmosStakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/gogo/protobuf/proto"
-	types2 "main/pkg/config/types"
+	configTypes "main/pkg/config/types"
 	dataFetcher "main/pkg/data_fetcher"
 	"main/pkg/types"
 )
 
 type MsgDelegate struct {
-	DelegatorAddress types2.Link
-	ValidatorAddress types2.Link
+	DelegatorAddress configTypes.Link
+	ValidatorAddress configTypes.Link
 	Amount           *types.Amount
 }
 
-func ParseMsgDelegate(data []byte, chain *types2.Chain) (*MsgDelegate, error) {
+func ParseMsgDelegate(data []byte, chain *configTypes.Chain, height int64) (types.Message, error) {
 	var parsedMessage cosmosStakingTypes.MsgDelegate
 	if err := proto.Unmarshal(data, &parsedMessage); err != nil {
 		return nil, err

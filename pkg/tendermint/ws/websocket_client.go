@@ -3,7 +3,7 @@ package ws
 import (
 	"context"
 	"fmt"
-	types2 "main/pkg/config/types"
+	configTypes "main/pkg/config/types"
 	"main/pkg/converter"
 	"main/pkg/types"
 	"reflect"
@@ -18,7 +18,7 @@ import (
 
 type TendermintWebsocketClient struct {
 	Logger    zerolog.Logger
-	Chain     types2.Chain
+	Chain     configTypes.Chain
 	URL       string
 	Queries   []string
 	Client    *tmClient.WSClient
@@ -33,7 +33,7 @@ type TendermintWebsocketClient struct {
 func NewTendermintClient(
 	logger *zerolog.Logger,
 	url string,
-	chain *types2.Chain,
+	chain *configTypes.Chain,
 ) *TendermintWebsocketClient {
 	return &TendermintWebsocketClient{
 		Logger: logger.With().
@@ -46,7 +46,7 @@ func NewTendermintClient(
 		Queries:   chain.Queries,
 		Active:    false,
 		Channel:   make(chan types.Report),
-		Converter: converter.NewConverter(logger, *chain),
+		Converter: converter.NewConverter(logger, chain),
 	}
 }
 
@@ -78,7 +78,7 @@ func (t *TendermintWebsocketClient) Listen() {
 			t.Logger.Info().Msg("Reconnecting...")
 			t.SubscribeToUpdates()
 		}),
-		tmClient.PingPeriod(5*time.Second),
+		tmClient.PingPeriod(1*time.Second),
 	)
 	if err != nil {
 		t.Logger.Error().Err(err).Msg("Failed to create a client")
@@ -137,7 +137,6 @@ func (t *TendermintWebsocketClient) SubscribeToUpdates() {
 
 func (t *TendermintWebsocketClient) ProcessEvent(event jsonRpcTypes.RPCResponse) {
 	reportable := t.Converter.ParseEvent(event)
-
 	if reportable != nil {
 		t.Channel <- t.MakeReport(reportable)
 	}

@@ -12,38 +12,32 @@ import (
 	coreTypes "github.com/tendermint/tendermint/rpc/core/types"
 	jsonRpcTypes "github.com/tendermint/tendermint/rpc/jsonrpc/types"
 	tendermintTypes "github.com/tendermint/tendermint/types"
-	types2 "main/pkg/config/types"
+	configTypes "main/pkg/config/types"
 	"main/pkg/messages"
 	"main/pkg/types"
 )
 
 type Converter struct {
 	Logger  zerolog.Logger
-	Chain   types2.Chain
+	Chain   *configTypes.Chain
 	Parsers map[string]types.MessageParser
 }
 
-func NewConverter(logger *zerolog.Logger, chain types2.Chain) *Converter {
+func NewConverter(logger *zerolog.Logger, chain *configTypes.Chain) *Converter {
 	parsers := map[string]types.MessageParser{
-		"/cosmos.bank.v1beta1.MsgSend": func(data []byte, c types2.Chain, height int64) (types.Message, error) {
-			return messages.ParseMsgSend(data, &c)
-		},
-		"/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward": func(data []byte, c types2.Chain, height int64) (types.Message, error) {
-			return messages.ParseMsgWithdrawDelegatorReward(data, &c, height)
-		},
-		"/cosmos.staking.v1beta1.MsgDelegate": func(data []byte, c types2.Chain, height int64) (types.Message, error) {
-			return messages.ParseMsgDelegate(data, &c)
-		},
-		"/ibc.applications.transfer.v1.MsgTransfer": func(data []byte, c types2.Chain, height int64) (types.Message, error) {
-			return messages.ParseMsgTransfer(data, &c)
-		},
-		"/cosmos.gov.v1beta1.MsgVote": func(data []byte, c types2.Chain, height int64) (types.Message, error) {
-			return messages.ParseMsgVote(data, &c)
-		},
+		"/cosmos.bank.v1beta1.MsgSend":                            messages.ParseMsgSend,
+		"/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward": messages.ParseMsgWithdrawDelegatorReward,
+		"/cosmos.staking.v1beta1.MsgDelegate":                     messages.ParseMsgDelegate,
+		"/cosmos.staking.v1beta1.MsgBeginRedelegate":              messages.ParseMsgBeginRedelegate,
+		"/ibc.applications.transfer.v1.MsgTransfer":               messages.ParseMsgTransfer,
+		"/cosmos.gov.v1beta1.MsgVote":                             messages.ParseMsgVote,
 	}
 
 	return &Converter{
-		Logger:  logger.With().Str("component", "converter").Logger(),
+		Logger: logger.With().
+			Str("component", "converter").
+			Str("chain", chain.Name).
+			Logger(),
 		Parsers: parsers,
 		Chain:   chain,
 	}
