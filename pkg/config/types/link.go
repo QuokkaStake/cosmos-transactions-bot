@@ -1,4 +1,4 @@
-package chains
+package types
 
 type Link struct {
 	Href  string

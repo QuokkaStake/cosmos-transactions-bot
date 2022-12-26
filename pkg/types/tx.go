@@ -1,14 +1,14 @@
 package types
 
 import (
+	"main/pkg/config/types"
 	"main/pkg/data_fetcher"
-	"main/pkg/types/chains"
 )
 
 type Tx struct {
-	Hash          chains.Link
+	Hash          types.Link
 	Memo          string
-	Height        chains.Link
+	Height        types.Link
 	MessagesCount int
 	Messages      []Message
 }

@@ -48,7 +48,7 @@ type NodesManager struct {
 	Mutex   sync.Mutex
 }
 
-func NewNodesManager(logger *zerolog.Logger, config *config.Config) *NodesManager {
+func NewNodesManager(logger *zerolog.Logger, config *config.AppConfig) *NodesManager {
 	nodes := make(map[string][]*ws.TendermintWebsocketClient, len(config.Chains))
 
 	for _, chain := range config.Chains {

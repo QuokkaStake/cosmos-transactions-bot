@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/rs/zerolog"
-	"main/pkg/types/chains"
+	"main/pkg/config/types"
 	"main/pkg/types/responses"
 	"net/http"
 	"strconv"
@@ -17,7 +17,7 @@ type TendermintApiClient struct {
 	Timeout time.Duration
 }
 
-func NewTendermintApiClient(logger *zerolog.Logger, url string, chain *chains.Chain) *TendermintApiClient {
+func NewTendermintApiClient(logger *zerolog.Logger, url string, chain *types.Chain) *TendermintApiClient {
 	return &TendermintApiClient{
 		Logger: logger.With().
 			Str("component", "tendermint_api_client").

@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"html/template"
 	"main/pkg/config"
+	types2 "main/pkg/config/types"
 	"main/pkg/types"
-	"main/pkg/types/chains"
 	"strings"
 	"time"
 
@@ -195,7 +195,7 @@ func (reporter *TelegramReporter) BotReply(c tele.Context, msg string) error {
 	return nil
 }
 
-func (reporter *TelegramReporter) SerializeLink(link chains.Link) template.HTML {
+func (reporter *TelegramReporter) SerializeLink(link types2.Link) template.HTML {
 	value := link.Title
 	if value == "" {
 		value = link.Value

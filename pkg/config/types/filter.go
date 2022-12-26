@@ -1,4 +1,4 @@
-package chains
+package types
 
 import "strings"
 

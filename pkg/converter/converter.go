@@ -12,32 +12,32 @@ import (
 	coreTypes "github.com/tendermint/tendermint/rpc/core/types"
 	jsonRpcTypes "github.com/tendermint/tendermint/rpc/jsonrpc/types"
 	tendermintTypes "github.com/tendermint/tendermint/types"
+	types2 "main/pkg/config/types"
 	"main/pkg/messages"
 	"main/pkg/types"
-	"main/pkg/types/chains"
 )
 
 type Converter struct {
 	Logger  zerolog.Logger
-	Chain   chains.Chain
+	Chain   types2.Chain
 	Parsers map[string]types.MessageParser
 }
 
-func NewConverter(logger *zerolog.Logger, chain chains.Chain) *Converter {
+func NewConverter(logger *zerolog.Logger, chain types2.Chain) *Converter {
 	parsers := map[string]types.MessageParser{
-		"/cosmos.bank.v1beta1.MsgSend": func(data []byte, c chains.Chain, height int64) (types.Message, error) {
+		"/cosmos.bank.v1beta1.MsgSend": func(data []byte, c types2.Chain, height int64) (types.Message, error) {
 			return messages.ParseMsgSend(data, &c)
 		},
-		"/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward": func(data []byte, c chains.Chain, height int64) (types.Message, error) {
+		"/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward": func(data []byte, c types2.Chain, height int64) (types.Message, error) {
 			return messages.ParseMsgWithdrawDelegatorReward(data, &c, height)
 		},
-		"/cosmos.staking.v1beta1.MsgDelegate": func(data []byte, c chains.Chain, height int64) (types.Message, error) {
+		"/cosmos.staking.v1beta1.MsgDelegate": func(data []byte, c types2.Chain, height int64) (types.Message, error) {
 			return messages.ParseMsgDelegate(data, &c)
 		},
-		"/ibc.applications.transfer.v1.MsgTransfer": func(data []byte, c chains.Chain, height int64) (types.Message, error) {
+		"/ibc.applications.transfer.v1.MsgTransfer": func(data []byte, c types2.Chain, height int64) (types.Message, error) {
 			return messages.ParseMsgTransfer(data, &c)
 		},
-		"/cosmos.gov.v1beta1.MsgVote": func(data []byte, c chains.Chain, height int64) (types.Message, error) {
+		"/cosmos.gov.v1beta1.MsgVote": func(data []byte, c types2.Chain, height int64) (types.Message, error) {
 			return messages.ParseMsgVote(data, &c)
 		},
 	}

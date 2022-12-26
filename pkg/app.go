@@ -4,7 +4,7 @@ import (
 	"github.com/rs/zerolog"
 	"main/pkg/config"
 	"main/pkg/data_fetcher"
-	logger2 "main/pkg/logger"
+	"main/pkg/logger"
 	"main/pkg/reporters"
 	"os"
 	"os/signal"
@@ -18,22 +18,22 @@ type App struct {
 	DataFetchers map[string]*data_fetcher.DataFetcher
 }
 
-func NewApp(config *config.Config) *App {
-	logger := logger2.GetLogger(config.LogConfig)
+func NewApp(config *config.AppConfig) *App {
+	log := logger.GetLogger(config.LogConfig)
 
-	nodesManager := NewNodesManager(logger, config)
+	nodesManager := NewNodesManager(log, config)
 
 	reporters := []reporters.Reporter{
-		reporters.NewTelegramReporter(config.TelegramConfig, logger),
+		reporters.NewTelegramReporter(config.TelegramConfig, log),
 	}
 
 	dataFetchers := make(map[string]*data_fetcher.DataFetcher, len(config.Chains))
 	for _, chain := range config.Chains {
-		dataFetchers[chain.Name] = data_fetcher.NewDataFetcher(logger, chain)
+		dataFetchers[chain.Name] = data_fetcher.NewDataFetcher(log, chain)
 	}
 
 	return &App{
-		Logger:       logger.With().Str("component", "telegram_reporter").Logger(),
+		Logger:       log.With().Str("component", "telegram_reporter").Logger(),
 		Reporters:    reporters,
 		NodesManager: nodesManager,
 		DataFetchers: dataFetchers,

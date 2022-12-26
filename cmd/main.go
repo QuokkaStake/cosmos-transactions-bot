@@ -13,10 +13,6 @@ func Execute(configPath string) {
 		logger.GetDefaultLogger().Fatal().Err(err).Msg("Could not load config")
 	}
 
-	if err = config.Validate(); err != nil {
-		logger.GetDefaultLogger().Fatal().Err(err).Msg("Provided config is invalid!")
-	}
-
 	app := pkg.NewApp(config)
 	app.Start()
 }

@@ -1,16 +1,16 @@
 package config
 
 import (
-	"fmt"
 	"github.com/BurntSushi/toml"
-	"github.com/mcuadros/go-defaults"
-	"main/pkg/types/chains"
+	tomlConfig "main/pkg/config/toml_config"
+	"main/pkg/config/types"
+	"main/pkg/utils"
 	"os"
 )
 
-type Chains []*chains.Chain
+type Chains []*types.Chain
 
-func (c Chains) FindByName(name string) *chains.Chain {
+func (c Chains) FindByName(name string) *types.Chain {
 	for _, chain := range c {
 		if chain.Name == name {
 			return chain
@@ -20,37 +20,24 @@ func (c Chains) FindByName(name string) *chains.Chain {
 	return nil
 }
 
-type Config struct {
-	TelegramConfig TelegramConfig `toml:"telegram"`
-	LogConfig      LogConfig      `toml:"log"`
-	Chains         Chains         `toml:"chains"`
+type AppConfig struct {
+	Path           string
+	TelegramConfig TelegramConfig
+	LogConfig      LogConfig
+	Chains         Chains
 }
 
 type TelegramConfig struct {
-	TelegramChat  int64  `toml:"chat"`
-	TelegramToken string `toml:"token"`
+	TelegramChat  int64
+	TelegramToken string
 }
 
 type LogConfig struct {
-	LogLevel   string `toml:"level" default:"info"`
-	JSONOutput bool   `toml:"json" default:"false"`
+	LogLevel   string
+	JSONOutput bool
 }
 
-func (c *Config) Validate() error {
-	if len(c.Chains) == 0 {
-		return fmt.Errorf("no chains provided")
-	}
-
-	for index, chain := range c.Chains {
-		if err := chain.Validate(); err != nil {
-			return fmt.Errorf("error in chain %d: %s", index, err)
-		}
-	}
-
-	return nil
-}
-
-func GetConfig(path string) (*Config, error) {
+func GetConfig(path string) (*AppConfig, error) {
 	configBytes, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
@@ -58,29 +45,31 @@ func GetConfig(path string) (*Config, error) {
 
 	configString := string(configBytes)
 
-	configStruct := &Config{}
+	configStruct := &tomlConfig.TomlConfig{}
 	if _, err = toml.Decode(configString, configStruct); err != nil {
 		return nil, err
 	}
 
-	defaults.SetDefaults(configStruct)
-
-	for _, chain := range configStruct.Chains {
-		if chain.MintscanPrefix != "" {
-			chain.Explorer = &chains.Explorer{
-				ProposalLinkPattern:    fmt.Sprintf("https://mintscan.io/%s/proposals/%%s", chain.MintscanPrefix),
-				WalletLinkPattern:      fmt.Sprintf("https://mintscan.io/%s/account/%%s", chain.MintscanPrefix),
-				ValidatorLinkPattern:   fmt.Sprintf("https://mintscan.io/%s/validators/%%s", chain.MintscanPrefix),
-				TransactionLinkPattern: fmt.Sprintf("https://mintscan.io/%s/txs/%%s", chain.MintscanPrefix),
-				BlockLinkPattern:       fmt.Sprintf("https://mintscan.io/%s/blocks/%%s", chain.MintscanPrefix),
-			}
-		}
-
-		chain.Filters = make([]chains.Filter, len(chain.FiltersRaw))
-		for index, filter := range chain.FiltersRaw {
-			chain.Filters[index] = chains.NewFilter(filter)
-		}
+	if err := configStruct.Validate(); err != nil {
+		return nil, err
 	}
 
-	return configStruct, nil
+	return FromTomlConfig(configStruct, path), nil
+}
+
+func FromTomlConfig(c *tomlConfig.TomlConfig, path string) *AppConfig {
+	return &AppConfig{
+		Path: path,
+		TelegramConfig: TelegramConfig{
+			TelegramChat:  c.TelegramConfig.TelegramChat,
+			TelegramToken: c.TelegramConfig.TelegramToken,
+		},
+		LogConfig: LogConfig{
+			LogLevel:   c.LogConfig.LogLevel,
+			JSONOutput: c.LogConfig.JSONOutput,
+		},
+		Chains: utils.Map(c.Chains, func(c *tomlConfig.Chain) *types.Chain {
+			return c.ToAppConfigChain()
+		}),
+	}
 }

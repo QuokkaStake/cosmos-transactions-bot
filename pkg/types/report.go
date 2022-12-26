@@ -1,9 +1,11 @@
 package types
 
-import "main/pkg/types/chains"
+import (
+	"main/pkg/config/types"
+)
 
 type Report struct {
-	Chain      chains.Chain
+	Chain      types.Chain
 	Node       string
 	Reportable Reportable
 }

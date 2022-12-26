@@ -1,4 +1,4 @@
-package chains
+package types
 
 type Explorer struct {
 	ProposalLinkPattern    string `toml:"proposal-link-pattern"`

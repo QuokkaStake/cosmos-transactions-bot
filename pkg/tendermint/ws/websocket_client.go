@@ -3,9 +3,9 @@ package ws
 import (
 	"context"
 	"fmt"
+	types2 "main/pkg/config/types"
 	"main/pkg/converter"
 	"main/pkg/types"
-	"main/pkg/types/chains"
 	"reflect"
 	"strings"
 	"time"
@@ -18,7 +18,7 @@ import (
 
 type TendermintWebsocketClient struct {
 	Logger    zerolog.Logger
-	Chain     chains.Chain
+	Chain     types2.Chain
 	URL       string
 	Queries   []string
 	Client    *tmClient.WSClient
@@ -33,7 +33,7 @@ type TendermintWebsocketClient struct {
 func NewTendermintClient(
 	logger *zerolog.Logger,
 	url string,
-	chain *chains.Chain,
+	chain *types2.Chain,
 ) *TendermintWebsocketClient {
 	return &TendermintWebsocketClient{
 		Logger: logger.With().

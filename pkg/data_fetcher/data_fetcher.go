@@ -3,9 +3,9 @@ package data_fetcher
 import (
 	"github.com/rs/zerolog"
 	"main/pkg/cache"
+	"main/pkg/config/types"
 	priceFetchers "main/pkg/price_fetchers"
 	"main/pkg/tendermint/api"
-	"main/pkg/types/chains"
 	"main/pkg/types/responses"
 	"strconv"
 )
@@ -13,12 +13,12 @@ import (
 type DataFetcher struct {
 	Logger               zerolog.Logger
 	Cache                *cache.Cache
-	Chain                *chains.Chain
+	Chain                *types.Chain
 	PriceFetcher         priceFetchers.PriceFetcher
 	TendermintApiClients []*api.TendermintApiClient
 }
 
-func NewDataFetcher(logger *zerolog.Logger, chain *chains.Chain) *DataFetcher {
+func NewDataFetcher(logger *zerolog.Logger, chain *types.Chain) *DataFetcher {
 	tendermintApiClients := make([]*api.TendermintApiClient, len(chain.APINodes))
 	for index, node := range chain.APINodes {
 		tendermintApiClients[index] = api.NewTendermintApiClient(logger, node, chain)

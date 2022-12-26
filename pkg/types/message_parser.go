@@ -1,7 +1,7 @@
 package types
 
 import (
-	"main/pkg/types/chains"
+	"main/pkg/config/types"
 )
 
-type MessageParser func([]byte, chains.Chain, int64) (Message, error)
+type MessageParser func([]byte, types.Chain, int64) (Message, error)

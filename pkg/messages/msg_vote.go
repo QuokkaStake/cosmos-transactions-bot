@@ -4,20 +4,20 @@ import (
 	"fmt"
 	cosmosGovTypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	"github.com/gogo/protobuf/proto"
+	"main/pkg/config/types"
 	dataFetcher "main/pkg/data_fetcher"
-	"main/pkg/types/chains"
 	"main/pkg/types/responses"
 	"strconv"
 )
 
 type MsgVote struct {
-	Voter      chains.Link
-	ProposalID chains.Link
+	Voter      types.Link
+	ProposalID types.Link
 	Proposal   *responses.Proposal
 	Option     string
 }
 
-func ParseMsgVote(data []byte, chain *chains.Chain) (*MsgVote, error) {
+func ParseMsgVote(data []byte, chain *types.Chain) (*MsgVote, error) {
 	var parsedMessage cosmosGovTypes.MsgVote
 	if err := proto.Unmarshal(data, &parsedMessage); err != nil {
 		return nil, err
