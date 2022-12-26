@@ -110,7 +110,7 @@ func (c *Converter) ParseMessage(message *codecTypes.Any, txResult abciTypes.TxR
 	if !ok {
 		c.Logger.Error().Str("type", message.TypeUrl).Msg("Unsupported message type")
 		if c.Chain.LogUnknownMessages {
-			return &messages.MsgError{Error: fmt.Errorf("Got unsupported message type: %s", message.TypeUrl)}
+			return &messages.MsgUnsupportedMessage{MsgType: message.TypeUrl}
 		} else {
 			return nil
 		}
