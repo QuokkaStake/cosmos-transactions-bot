@@ -22,7 +22,7 @@ type Chain struct {
 	BaseDenom          string    `toml:"base-denom"`
 	DisplayDenom       string    `toml:"display-denom"`
 	DenomCoefficient   int64     `toml:"denom-coefficient" default:"1000000"`
-	LogUnknownMessages bool      `toml:"log-unknown-messages" default:"true"`
+	LogUnknownMessages bool      `toml:"log-unknown-messages" default:"false"`
 }
 
 func (c *Chain) Validate() error {
