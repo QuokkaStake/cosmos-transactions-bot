@@ -57,6 +57,19 @@ type Reward struct {
 	Denom  string `json:"denom"`
 }
 
+type CommissionResponse struct {
+	Commission CommissionObject `json:"commission"`
+}
+
+type CommissionObject struct {
+	Commission []Commission `json:"commission"`
+}
+
+type Commission struct {
+	Amount string `json:"amount"`
+	Denom  string `json:"denom"`
+}
+
 type ProposalResponse struct {
 	Proposal Proposal `json:"proposal"`
 }

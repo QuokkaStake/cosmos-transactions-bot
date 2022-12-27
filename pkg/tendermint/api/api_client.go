@@ -68,6 +68,28 @@ func (c *TendermintApiClient) GetDelegatorsRewardsAtBlock(
 	return response.Rewards, nil
 }
 
+func (c *TendermintApiClient) GetValidatorCommissionAtBlock(
+	validator string,
+	block int64,
+) ([]responses.Commission, error) {
+	url := fmt.Sprintf(
+		"%s/cosmos/distribution/v1beta1/validators/%s/commission",
+		c.URL,
+		validator,
+	)
+
+	headers := map[string]string{
+		"x-cosmos-block-height": strconv.FormatInt(block, 10),
+	}
+
+	var response *responses.CommissionResponse
+	if err := c.GetWithHeaders(url, &response, headers); err != nil || response == nil {
+		return nil, err
+	}
+
+	return response.Commission.Commission, nil
+}
+
 func (c *TendermintApiClient) GetProposal(id string) (*responses.Proposal, error) {
 	url := fmt.Sprintf(
 		"%s/cosmos/gov/v1beta1/proposals/%s",
