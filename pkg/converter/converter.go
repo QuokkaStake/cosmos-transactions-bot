@@ -29,12 +29,13 @@ func NewConverter(logger *zerolog.Logger, chain *configTypes.Chain) *Converter {
 		"/cosmos.bank.v1beta1.MsgMultiSend":                           messages.ParseMsgMultiSend,
 		"/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward":     messages.ParseMsgWithdrawDelegatorReward,
 		"/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission": messages.ParseMsgWithdrawValidatorCommission,
+		"/cosmos.gov.v1beta1.MsgVote":                                 messages.ParseMsgVote,
 		"/cosmos.staking.v1beta1.MsgDelegate":                         messages.ParseMsgDelegate,
 		"/cosmos.staking.v1beta1.MsgBeginRedelegate":                  messages.ParseMsgBeginRedelegate,
 		"/cosmos.staking.v1beta1.MsgUndelegate":                       messages.ParseMsgUndelegate,
 		"/ibc.applications.transfer.v1.MsgTransfer":                   messages.ParseMsgTransfer,
 		"/ibc.core.channel.v1.MsgRecvPacket":                          messages.ParseMsgRecvPacket,
-		"/cosmos.gov.v1beta1.MsgVote":                                 messages.ParseMsgVote,
+		"/ibc.core.client.v1.MsgUpdateClient":                         messages.ParseMsgUpdateClient,
 	}
 
 	return &Converter{
