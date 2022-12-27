@@ -1,10 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+<strong>Multi send</strong>
+Inputs:
+{{- range $inputId, $input := .Inputs }}
+From: {{ SerializeLink $input.Address }}
+Amounts:
+{{- range $amountId, $amount := $input.Amount }}
+- {{ SerializeAmount $amount }}
+{{- end }}
+{{- end }}
+
+Outputs:
+{{- range $outputId, $output := .Outputs }}
+From: {{ SerializeLink $output.Address }}
+Amounts:
+{{- range $amountId, $amount := $output.Amount }}
+- {{ SerializeAmount $amount }}
+{{- end }}
+{{- end }}
