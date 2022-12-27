@@ -11,14 +11,15 @@ import (
 	"main/pkg/utils"
 )
 
-type MsgRecvPacket struct {
+type MsgAcknowledgement struct {
 	Token    *types.Amount
 	Sender   configTypes.Link
 	Receiver configTypes.Link
+	Signer   configTypes.Link
 }
 
-func ParseMsgRecvPacket(data []byte, chain *configTypes.Chain, height int64) (types.Message, error) {
-	var parsedMessage ibcChannelTypes.MsgRecvPacket
+func ParseMsgAcknowledgement(data []byte, chain *configTypes.Chain, height int64) (types.Message, error) {
+	var parsedMessage ibcChannelTypes.MsgAcknowledgement
 	if err := proto.Unmarshal(data, &parsedMessage); err != nil {
 		return nil, err
 	}
@@ -28,21 +29,22 @@ func ParseMsgRecvPacket(data []byte, chain *configTypes.Chain, height int64) (ty
 		return nil, err
 	}
 
-	return &MsgRecvPacket{
+	return &MsgAcknowledgement{
 		Token: &types.Amount{
 			Value: utils.StrToFloat64(packetData.Amount),
 			Denom: packetData.Denom,
 		},
-		Sender:   configTypes.Link{Value: packetData.Sender},
-		Receiver: chain.GetWalletLink(packetData.Receiver),
+		Sender:   chain.GetWalletLink(packetData.Sender),
+		Receiver: configTypes.Link{Value: packetData.Receiver},
+		Signer:   chain.GetWalletLink(parsedMessage.Signer),
 	}, nil
 }
 
-func (m MsgRecvPacket) Type() string {
-	return "MsgRecvPacket"
+func (m MsgAcknowledgement) Type() string {
+	return "MsgAcknowledgement"
 }
 
-func (m *MsgRecvPacket) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
+func (m *MsgAcknowledgement) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
 	price, found := fetcher.GetPrice()
 	if found && m.Token.Denom == fetcher.Chain.BaseDenom {
 		m.Token.Value /= float64(fetcher.Chain.DenomCoefficient)
@@ -51,10 +53,11 @@ func (m *MsgRecvPacket) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
 	}
 }
 
-func (m *MsgRecvPacket) GetValues() event.EventValues {
+func (m *MsgAcknowledgement) GetValues() event.EventValues {
 	return []event.EventValue{
-		{Key: "type", Value: "MsgRecvPacket"},
+		{Key: "type", Value: "MsgAcknowledgement"},
 		{Key: "sender", Value: m.Sender.Value},
 		{Key: "receiver", Value: m.Receiver.Value},
+		{Key: "signer", Value: m.Signer.Value},
 	}
 }

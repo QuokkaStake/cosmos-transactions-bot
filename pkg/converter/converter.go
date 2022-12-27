@@ -34,6 +34,7 @@ func NewConverter(logger *zerolog.Logger, chain *configTypes.Chain) *Converter {
 		"/cosmos.staking.v1beta1.MsgBeginRedelegate":                  messages.ParseMsgBeginRedelegate,
 		"/cosmos.staking.v1beta1.MsgUndelegate":                       messages.ParseMsgUndelegate,
 		"/ibc.applications.transfer.v1.MsgTransfer":                   messages.ParseMsgTransfer,
+		"/ibc.core.channel.v1.MsgAcknowledgement":                     messages.ParseMsgAcknowledgement,
 		"/ibc.core.channel.v1.MsgRecvPacket":                          messages.ParseMsgRecvPacket,
 		"/ibc.core.client.v1.MsgUpdateClient":                         messages.ParseMsgUpdateClient,
 	}
