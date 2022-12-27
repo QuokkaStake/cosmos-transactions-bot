@@ -6,6 +6,7 @@ import (
 	"main/pkg/data_fetcher"
 	"main/pkg/logger"
 	"main/pkg/reporters"
+	"main/pkg/reporters/telegram"
 	"os"
 	"os/signal"
 	"syscall"
@@ -24,7 +25,7 @@ func NewApp(config *config.AppConfig) *App {
 	nodesManager := NewNodesManager(log, config)
 
 	reporters := []reporters.Reporter{
-		reporters.NewTelegramReporter(config.TelegramConfig, log),
+		telegram.NewTelegramReporter(config.TelegramConfig, log),
 	}
 
 	dataFetchers := make(map[string]*data_fetcher.DataFetcher, len(config.Chains))

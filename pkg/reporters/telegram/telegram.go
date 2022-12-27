@@ -1,4 +1,4 @@
-package reporters
+package telegram
 
 import (
 	"bytes"
@@ -28,7 +28,7 @@ const (
 	MaxMessageSize = 4096
 )
 
-//go:embed templates/telegram*
+//go:embed templates/*
 var templatesFs embed.FS
 
 type TelegramSerializedReport struct {
@@ -85,7 +85,7 @@ func (reporter TelegramReporter) GetTemplate(name string) (*template.Template, e
 		"SerializeLink":   reporter.SerializeLink,
 		"SerializeAmount": reporter.SerializeAmount,
 		"SerializeDate":   reporter.SerializeDate,
-	}).ParseFS(templatesFs, "templates/telegram/"+filename)
+	}).ParseFS(templatesFs, "templates/"+filename)
 	if err != nil {
 		return nil, err
 	}

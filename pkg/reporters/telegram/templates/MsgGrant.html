@@ -1,0 +1,7 @@
+<strong>AuthZ grant</strong>
+Grantee: {{ SerializeLink .Grantee }}
+Granter: {{ SerializeLink .Granter }}
+Type: <code>{{ .GrantType }}</code>
+{{- if .Expiration }}
+Expires at: {{ SerializeDate .Expiration }}
+{{- end }}

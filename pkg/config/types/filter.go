@@ -2,6 +2,7 @@ package types
 
 import (
 	"main/pkg/types/event"
+	"main/pkg/utils"
 	"strings"
 )
 
@@ -17,7 +18,7 @@ func NewFilter(filter string) Filter {
 	return Filter{
 		Key:      split[0],
 		Operator: split[1],
-		Value:    split[2],
+		Value:    utils.Dequotify(split[2]),
 	}
 }
 

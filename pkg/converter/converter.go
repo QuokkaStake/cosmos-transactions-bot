@@ -25,6 +25,7 @@ type Converter struct {
 
 func NewConverter(logger *zerolog.Logger, chain *configTypes.Chain) *Converter {
 	parsers := map[string]types.MessageParser{
+		"/cosmos.authz.v1beta1.MsgGrant":                              messages.ParseMsgGrant,
 		"/cosmos.bank.v1beta1.MsgSend":                                messages.ParseMsgSend,
 		"/cosmos.bank.v1beta1.MsgMultiSend":                           messages.ParseMsgMultiSend,
 		"/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward":     messages.ParseMsgWithdrawDelegatorReward,
