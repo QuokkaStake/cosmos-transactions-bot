@@ -1,11 +1,12 @@
 package types
 
 import (
-	"main/pkg/data_fetcher"
+	dataFetcher "main/pkg/data_fetcher"
+	"main/pkg/types/event"
 )
 
 type Message interface {
 	Type() string
-	GetAdditionalData(data_fetcher.DataFetcher)
-	GetValues() map[string]string
+	GetAdditionalData(dataFetcher.DataFetcher)
+	GetValues() event.EventValues
 }

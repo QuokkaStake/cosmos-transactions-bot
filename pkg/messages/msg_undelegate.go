@@ -6,6 +6,7 @@ import (
 	configTypes "main/pkg/config/types"
 	dataFetcher "main/pkg/data_fetcher"
 	"main/pkg/types"
+	"main/pkg/types/event"
 	"time"
 )
 
@@ -53,10 +54,10 @@ func (m *MsgUndelegate) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
 	}
 }
 
-func (m *MsgUndelegate) GetValues() map[string]string {
-	return map[string]string{
-		"type":              "MsgUndelegate",
-		"delegator_address": m.DelegatorAddress.Value,
-		"validator_address": m.ValidatorAddress.Value,
+func (m *MsgUndelegate) GetValues() event.EventValues {
+	return []event.EventValue{
+		{Key: "type", Value: "MsgUndelegate"},
+		{Key: "delegator_address", Value: m.DelegatorAddress.Value},
+		{Key: "validator_address", Value: m.ValidatorAddress.Value},
 	}
 }

@@ -2,6 +2,7 @@ package messages
 
 import (
 	"main/pkg/data_fetcher"
+	"main/pkg/types/event"
 )
 
 type MsgUnsupportedMessage struct {
@@ -16,6 +17,6 @@ func (m *MsgUnsupportedMessage) GetAdditionalData(fetcher data_fetcher.DataFetch
 
 }
 
-func (m *MsgUnsupportedMessage) GetValues() map[string]string {
-	return map[string]string{}
+func (m *MsgUnsupportedMessage) GetValues() event.EventValues {
+	return []event.EventValue{}
 }

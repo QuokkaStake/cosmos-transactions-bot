@@ -7,6 +7,7 @@ import (
 	configTypes "main/pkg/config/types"
 	dataFetcher "main/pkg/data_fetcher"
 	"main/pkg/types"
+	"main/pkg/types/event"
 	"main/pkg/types/responses"
 	"strconv"
 )
@@ -45,10 +46,10 @@ func (m *MsgVote) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
 	}
 }
 
-func (m *MsgVote) GetValues() map[string]string {
-	return map[string]string{
-		"type":        "MsgVote",
-		"voter":       m.Voter.Value,
-		"proposal_id": m.ProposalID.Value,
+func (m *MsgVote) GetValues() event.EventValues {
+	return []event.EventValue{
+		{Key: "type", Value: "MsgVote"},
+		{Key: "voter", Value: m.Voter.Value},
+		{Key: "proposal_id", Value: m.ProposalID.Value},
 	}
 }

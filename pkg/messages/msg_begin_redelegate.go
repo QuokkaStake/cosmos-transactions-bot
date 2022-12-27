@@ -6,6 +6,7 @@ import (
 	configTypes "main/pkg/config/types"
 	dataFetcher "main/pkg/data_fetcher"
 	"main/pkg/types"
+	"main/pkg/types/event"
 )
 
 type MsgBeginRedelegate struct {
@@ -52,11 +53,11 @@ func (m *MsgBeginRedelegate) GetAdditionalData(fetcher dataFetcher.DataFetcher) 
 	}
 }
 
-func (m *MsgBeginRedelegate) GetValues() map[string]string {
-	return map[string]string{
-		"type":                  "MsgBeginRedelegate",
-		"delegator_address":     m.DelegatorAddress.Value,
-		"validator_src_address": m.ValidatorSrcAddress.Value,
-		"validator_dst_address": m.ValidatorDstAddress.Value,
+func (m *MsgBeginRedelegate) GetValues() event.EventValues {
+	return []event.EventValue{
+		{Key: "type", Value: "MsgBeginRedelegate"},
+		{Key: "delegator_address", Value: m.DelegatorAddress.Value},
+		{Key: "validator_src_address", Value: m.ValidatorSrcAddress.Value},
+		{Key: "validator_dst_address", Value: m.ValidatorDstAddress.Value},
 	}
 }

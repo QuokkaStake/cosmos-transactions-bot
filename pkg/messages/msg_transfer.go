@@ -6,6 +6,7 @@ import (
 	configTypes "main/pkg/config/types"
 	dataFetcher "main/pkg/data_fetcher"
 	"main/pkg/types"
+	"main/pkg/types/event"
 )
 
 type MsgTransfer struct {
@@ -43,10 +44,10 @@ func (m *MsgTransfer) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
 	}
 }
 
-func (m *MsgTransfer) GetValues() map[string]string {
-	return map[string]string{
-		"type":     "MsgTransfer",
-		"sender":   m.Sender.Value,
-		"receiver": m.Receiver.Value,
+func (m *MsgTransfer) GetValues() event.EventValues {
+	return []event.EventValue{
+		{Key: "type", Value: "MsgTransfer"},
+		{Key: "sender", Value: m.Sender.Value},
+		{Key: "receiver", Value: m.Receiver.Value},
 	}
 }

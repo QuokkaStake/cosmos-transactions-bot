@@ -1,6 +1,9 @@
 package types
 
-import "strings"
+import (
+	"main/pkg/types/event"
+	"strings"
+)
 
 type Filter struct {
 	Key      string
@@ -18,26 +21,26 @@ func NewFilter(filter string) Filter {
 	}
 }
 
-func (f Filter) Matches(values map[string]string) bool {
-	value, found := values[f.Key]
-	if !found {
-		return true
+func (f Filter) Matches(values event.EventValues) bool {
+	for _, value := range values {
+		if value.Key != f.Key {
+			continue
+		}
+
+		if f.Operator == "=" && f.Value != value.Value {
+			return false
+		}
+		if f.Operator == "!=" && f.Value == value.Value {
+			return false
+		}
 	}
 
-	switch f.Operator {
-	case "=":
-		return value == f.Value
-	case "!=":
-		return value != f.Value
-	}
-
-	// should not reach here
-	panic("Received unexpected operator: " + f.Operator)
+	return true
 }
 
 type Filters []Filter
 
-func (f Filters) Matches(values map[string]string) bool {
+func (f Filters) Matches(values event.EventValues) bool {
 	if len(f) == 0 {
 		return true
 	}

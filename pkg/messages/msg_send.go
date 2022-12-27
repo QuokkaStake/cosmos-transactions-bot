@@ -7,6 +7,7 @@ import (
 	configTypes "main/pkg/config/types"
 	"main/pkg/data_fetcher"
 	"main/pkg/types"
+	"main/pkg/types/event"
 	"main/pkg/utils"
 )
 
@@ -55,10 +56,10 @@ func (m *MsgSend) GetAdditionalData(fetcher data_fetcher.DataFetcher) {
 	}
 }
 
-func (m *MsgSend) GetValues() map[string]string {
-	return map[string]string{
-		"type": "MsgSend",
-		"from": m.From.Value,
-		"to":   m.To.Value,
+func (m *MsgSend) GetValues() event.EventValues {
+	return []event.EventValue{
+		{Key: "type", Value: "MsgSend"},
+		{Key: "from", Value: m.From.Value},
+		{Key: "to", Value: m.To.Value},
 	}
 }

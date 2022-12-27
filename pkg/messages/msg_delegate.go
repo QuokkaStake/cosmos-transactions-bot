@@ -6,6 +6,7 @@ import (
 	configTypes "main/pkg/config/types"
 	dataFetcher "main/pkg/data_fetcher"
 	"main/pkg/types"
+	"main/pkg/types/event"
 )
 
 type MsgDelegate struct {
@@ -48,10 +49,10 @@ func (m *MsgDelegate) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
 	}
 }
 
-func (m *MsgDelegate) GetValues() map[string]string {
-	return map[string]string{
-		"type":              "MsgDelegate",
-		"delegator_address": m.DelegatorAddress.Value,
-		"validator_address": m.ValidatorAddress.Value,
+func (m *MsgDelegate) GetValues() event.EventValues {
+	return []event.EventValue{
+		{Key: "type", Value: "MsgDelegate"},
+		{Key: "delegator_address", Value: m.DelegatorAddress.Value},
+		{Key: "validator_address", Value: m.ValidatorAddress.Value},
 	}
 }

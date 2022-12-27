@@ -6,6 +6,7 @@ import (
 	configTypes "main/pkg/config/types"
 	dataFetcher "main/pkg/data_fetcher"
 	"main/pkg/types"
+	"main/pkg/types/event"
 	"main/pkg/utils"
 )
 
@@ -65,9 +66,9 @@ func (m *MsgWithdrawValidatorCommission) GetAdditionalData(fetcher dataFetcher.D
 	}
 }
 
-func (m *MsgWithdrawValidatorCommission) GetValues() map[string]string {
-	return map[string]string{
-		"type":      "MsgWithdrawValidatorCommission",
-		"validator": m.ValidatorAddress.Value,
+func (m *MsgWithdrawValidatorCommission) GetValues() event.EventValues {
+	return []event.EventValue{
+		{Key: "type", Value: "MsgWithdrawValidatorCommission"},
+		{Key: "validator", Value: m.ValidatorAddress.Value},
 	}
 }
