@@ -2,7 +2,6 @@ package ws
 
 import (
 	"context"
-	"fmt"
 	configTypes "main/pkg/config/types"
 	"main/pkg/converter"
 	"main/pkg/types"
@@ -54,7 +53,7 @@ func (t *TendermintWebsocketClient) Status() types.TendermintRPCStatus {
 	if t.Client == nil {
 		return types.TendermintRPCStatus{
 			Success: false,
-			Error:   fmt.Errorf("Tendermint RPC not initialized"),
+			Error:   t.Error,
 		}
 	}
 
@@ -82,6 +81,7 @@ func (t *TendermintWebsocketClient) Listen() {
 	)
 	if err != nil {
 		t.Logger.Error().Err(err).Msg("Failed to create a client")
+		t.Error = err
 		return
 	}
 

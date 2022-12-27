@@ -1,6 +1,7 @@
 package messages
 
 import (
+	cosmosTypes "github.com/cosmos/cosmos-sdk/types"
 	ibcClientTypes "github.com/cosmos/ibc-go/v6/modules/core/02-client/types"
 	"github.com/gogo/protobuf/proto"
 	configTypes "main/pkg/config/types"
@@ -36,7 +37,7 @@ func (m *MsgUpdateClient) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
 
 func (m *MsgUpdateClient) GetValues() event.EventValues {
 	return []event.EventValue{
-		{Key: "type", Value: "MsgUpdateClient"},
+		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, "/ibc.core.client.v1.MsgUpdateClient"),
 		{Key: "signer", Value: m.Signer.Value},
 		{Key: "client_id", Value: m.ClientID},
 	}

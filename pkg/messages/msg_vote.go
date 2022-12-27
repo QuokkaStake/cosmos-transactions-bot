@@ -2,6 +2,7 @@ package messages
 
 import (
 	"fmt"
+	cosmosTypes "github.com/cosmos/cosmos-sdk/types"
 	cosmosGovTypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	"github.com/gogo/protobuf/proto"
 	configTypes "main/pkg/config/types"
@@ -48,7 +49,7 @@ func (m *MsgVote) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
 
 func (m *MsgVote) GetValues() event.EventValues {
 	return []event.EventValue{
-		{Key: "type", Value: "MsgVote"},
+		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, "/cosmos.gov.v1beta1.MsgVote"),
 		{Key: "voter", Value: m.Voter.Value},
 		{Key: "proposal_id", Value: m.ProposalID.Value},
 	}

@@ -1,6 +1,7 @@
 package messages
 
 import (
+	cosmosTypes "github.com/cosmos/cosmos-sdk/types"
 	ibcTypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
 	"github.com/gogo/protobuf/proto"
 	configTypes "main/pkg/config/types"
@@ -46,7 +47,7 @@ func (m *MsgTransfer) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
 
 func (m *MsgTransfer) GetValues() event.EventValues {
 	return []event.EventValue{
-		{Key: "type", Value: "MsgTransfer"},
+		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, "/ibc.applications.transfer.v1.MsgTransfer"),
 		{Key: "sender", Value: m.Sender.Value},
 		{Key: "receiver", Value: m.Receiver.Value},
 	}

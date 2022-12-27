@@ -1,6 +1,7 @@
 package messages
 
 import (
+	cosmosTypes "github.com/cosmos/cosmos-sdk/types"
 	cosmosDistributionTypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/gogo/protobuf/proto"
 	configTypes "main/pkg/config/types"
@@ -68,7 +69,7 @@ func (m *MsgWithdrawValidatorCommission) GetAdditionalData(fetcher dataFetcher.D
 
 func (m *MsgWithdrawValidatorCommission) GetValues() event.EventValues {
 	return []event.EventValue{
-		{Key: "type", Value: "MsgWithdrawValidatorCommission"},
+		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission"),
 		{Key: "validator", Value: m.ValidatorAddress.Value},
 	}
 }

@@ -90,6 +90,6 @@ func (m *MsgMultiSend) GetAdditionalData(fetcher data_fetcher.DataFetcher) {
 
 func (m *MsgMultiSend) GetValues() event.EventValues {
 	return []event.EventValue{
-		{Key: "type", Value: "MsgMultiSend"},
+		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, "/cosmos.bank.v1beta1.MsgMultiSend"),
 	}
 }

@@ -58,8 +58,11 @@ func (m *MsgSend) GetAdditionalData(fetcher data_fetcher.DataFetcher) {
 
 func (m *MsgSend) GetValues() event.EventValues {
 	return []event.EventValue{
-		{Key: "type", Value: "MsgSend"},
-		{Key: "from", Value: m.From.Value},
-		{Key: "to", Value: m.To.Value},
+		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, "/cosmos.bank.v1beta1.MsgSend"),
+		event.From(cosmosBankTypes.EventTypeTransfer, cosmosBankTypes.AttributeKeySpender, m.From.Value),
+		event.From(cosmosBankTypes.EventTypeTransfer, cosmosBankTypes.AttributeKeyRecipient, m.To.Value),
+		event.From(cosmosBankTypes.EventTypeCoinSpent, cosmosBankTypes.AttributeKeySpender, m.From.Value),
+		event.From(cosmosBankTypes.EventTypeCoinReceived, cosmosBankTypes.AttributeKeyReceiver, m.To.Value),
+		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeySender, m.From.Value),
 	}
 }

@@ -1,6 +1,7 @@
 package messages
 
 import (
+	cosmosTypes "github.com/cosmos/cosmos-sdk/types"
 	cosmosStakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/gogo/protobuf/proto"
 	configTypes "main/pkg/config/types"
@@ -56,7 +57,7 @@ func (m *MsgUndelegate) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
 
 func (m *MsgUndelegate) GetValues() event.EventValues {
 	return []event.EventValue{
-		{Key: "type", Value: "MsgUndelegate"},
+		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, "/cosmos.staking.v1beta1.MsgUndelegate"),
 		{Key: "delegator_address", Value: m.DelegatorAddress.Value},
 		{Key: "validator_address", Value: m.ValidatorAddress.Value},
 	}

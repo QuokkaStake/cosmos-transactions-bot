@@ -5,4 +5,11 @@ type EventValue struct {
 	Value string
 }
 
+func From(namespace, key, value string) EventValue {
+	return EventValue{
+		Key:   namespace + "." + key,
+		Value: value,
+	}
+}
+
 type EventValues []EventValue

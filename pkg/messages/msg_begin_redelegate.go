@@ -1,6 +1,7 @@
 package messages
 
 import (
+	cosmosTypes "github.com/cosmos/cosmos-sdk/types"
 	cosmosStakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/gogo/protobuf/proto"
 	configTypes "main/pkg/config/types"
@@ -55,7 +56,7 @@ func (m *MsgBeginRedelegate) GetAdditionalData(fetcher dataFetcher.DataFetcher) 
 
 func (m *MsgBeginRedelegate) GetValues() event.EventValues {
 	return []event.EventValue{
-		{Key: "type", Value: "MsgBeginRedelegate"},
+		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, "/cosmos.staking.v1beta1.MsgBeginRedelegate"),
 		{Key: "delegator_address", Value: m.DelegatorAddress.Value},
 		{Key: "validator_src_address", Value: m.ValidatorSrcAddress.Value},
 		{Key: "validator_dst_address", Value: m.ValidatorDstAddress.Value},
