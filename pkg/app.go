@@ -5,6 +5,7 @@ import (
 	"main/pkg/config"
 	"main/pkg/data_fetcher"
 	"main/pkg/logger"
+	nodesManager "main/pkg/nodes_manager"
 	"main/pkg/reporters"
 	"main/pkg/reporters/telegram"
 	"os"
@@ -14,7 +15,7 @@ import (
 
 type App struct {
 	Logger       zerolog.Logger
-	NodesManager *NodesManager
+	NodesManager *nodesManager.NodesManager
 	Reporters    []reporters.Reporter
 	DataFetchers map[string]*data_fetcher.DataFetcher
 }
@@ -22,10 +23,10 @@ type App struct {
 func NewApp(config *config.AppConfig) *App {
 	log := logger.GetLogger(config.LogConfig)
 
-	nodesManager := NewNodesManager(log, config)
+	nodesManager := nodesManager.NewNodesManager(log, config)
 
 	reporters := []reporters.Reporter{
-		telegram.NewTelegramReporter(config.TelegramConfig, log),
+		telegram.NewTelegramReporter(config.TelegramConfig, log, nodesManager),
 	}
 
 	dataFetchers := make(map[string]*data_fetcher.DataFetcher, len(config.Chains))

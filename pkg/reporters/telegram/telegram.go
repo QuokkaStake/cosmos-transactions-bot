@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"main/pkg/config"
 	configTypes "main/pkg/config/types"
+	nodesManager "main/pkg/nodes_manager"
 	"main/pkg/types"
 	"main/pkg/utils"
 	"strings"
@@ -20,9 +21,10 @@ type TelegramReporter struct {
 	TelegramToken string
 	TelegramChat  int64
 
-	TelegramBot *tele.Bot
-	Logger      zerolog.Logger
-	Templates   map[string]*template.Template
+	TelegramBot  *tele.Bot
+	Logger       zerolog.Logger
+	Templates    map[string]*template.Template
+	NodesManager *nodesManager.NodesManager
 }
 
 const (
@@ -40,12 +42,14 @@ type TelegramSerializedReport struct {
 func NewTelegramReporter(
 	config config.TelegramConfig,
 	logger *zerolog.Logger,
+	nodesManager *nodesManager.NodesManager,
 ) *TelegramReporter {
 	return &TelegramReporter{
 		TelegramToken: config.TelegramToken,
 		TelegramChat:  config.TelegramChat,
 		Logger:        logger.With().Str("component", "telegram_reporter").Logger(),
 		Templates:     make(map[string]*template.Template, 0),
+		NodesManager:  nodesManager,
 	}
 }
 
@@ -63,6 +67,8 @@ func (reporter *TelegramReporter) Init() {
 		reporter.Logger.Warn().Err(err).Msg("Could not create Telegram bot")
 		return
 	}
+
+	bot.Handle("/status", reporter.HandleListNodesStatus)
 
 	reporter.TelegramBot = bot
 	go reporter.TelegramBot.Start()

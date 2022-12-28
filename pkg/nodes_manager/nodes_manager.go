@@ -1,4 +1,4 @@
-package pkg
+package nodes_manager
 
 import (
 	"main/pkg/config"
