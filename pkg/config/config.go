@@ -30,8 +30,9 @@ type AppConfig struct {
 }
 
 type TelegramConfig struct {
-	TelegramChat  int64
-	TelegramToken string
+	Chat   int64
+	Token  string
+	Admins []int64
 }
 
 type LogConfig struct {
@@ -67,8 +68,9 @@ func FromTomlConfig(c *tomlConfig.TomlConfig, path string) *AppConfig {
 	return &AppConfig{
 		Path: path,
 		TelegramConfig: TelegramConfig{
-			TelegramChat:  c.TelegramConfig.TelegramChat,
-			TelegramToken: c.TelegramConfig.TelegramToken,
+			Chat:   c.TelegramConfig.Chat,
+			Token:  c.TelegramConfig.Token,
+			Admins: c.TelegramConfig.Admins,
 		},
 		LogConfig: LogConfig{
 			LogLevel:   c.LogConfig.LogLevel,

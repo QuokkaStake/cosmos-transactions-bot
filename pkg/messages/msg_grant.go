@@ -1,21 +1,26 @@
 package messages
 
 import (
+	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cosmosTypes "github.com/cosmos/cosmos-sdk/types"
 	cosmosAuthzTypes "github.com/cosmos/cosmos-sdk/x/authz"
+	cosmosStakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/gogo/protobuf/proto"
 	configTypes "main/pkg/config/types"
 	dataFetcher "main/pkg/data_fetcher"
 	"main/pkg/types"
 	"main/pkg/types/event"
+	"main/pkg/utils"
 	"time"
 )
 
 type Authorization interface{}
 
 type StakeAuthorization struct {
-	MaxTokens         *types.Amount
-	AuthorizationType string
+	MaxTokens          *types.Amount
+	AuthorizationType  string
+	Validators         []configTypes.Link
+	ValidatorsListType string
 }
 
 type MsgGrant struct {

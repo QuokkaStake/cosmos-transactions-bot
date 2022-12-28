@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"embed"
 	"fmt"
+	"gopkg.in/telebot.v3/middleware"
 	"html/template"
 	"main/pkg/config"
 	configTypes "main/pkg/config/types"
@@ -18,8 +19,9 @@ import (
 )
 
 type TelegramReporter struct {
-	TelegramToken string
-	TelegramChat  int64
+	Token  string
+	Chat   int64
+	Admins []int64
 
 	TelegramBot  *tele.Bot
 	Logger       zerolog.Logger
@@ -45,27 +47,33 @@ func NewTelegramReporter(
 	nodesManager *nodesManager.NodesManager,
 ) *TelegramReporter {
 	return &TelegramReporter{
-		TelegramToken: config.TelegramToken,
-		TelegramChat:  config.TelegramChat,
-		Logger:        logger.With().Str("component", "telegram_reporter").Logger(),
-		Templates:     make(map[string]*template.Template, 0),
-		NodesManager:  nodesManager,
+		Token:        config.Token,
+		Chat:         config.Chat,
+		Admins:       config.Admins,
+		Logger:       logger.With().Str("component", "telegram_reporter").Logger(),
+		Templates:    make(map[string]*template.Template, 0),
+		NodesManager: nodesManager,
 	}
 }
 
 func (reporter *TelegramReporter) Init() {
-	if reporter.TelegramToken == "" || reporter.TelegramChat == 0 {
+	if reporter.Token == "" || reporter.Chat == 0 {
 		reporter.Logger.Debug().Msg("Telegram credentials not set, not creating Telegram reporter.")
 		return
 	}
 
 	bot, err := tele.NewBot(tele.Settings{
-		Token:  reporter.TelegramToken,
+		Token:  reporter.Token,
 		Poller: &tele.LongPoller{Timeout: 10 * time.Second},
 	})
 	if err != nil {
 		reporter.Logger.Warn().Err(err).Msg("Could not create Telegram bot")
 		return
+	}
+
+	if len(reporter.Admins) > 0 {
+		reporter.Logger.Debug().Msg("Using admins whitelist")
+		bot.Use(middleware.Whitelist(reporter.Admins...))
 	}
 
 	bot.Handle("/status", reporter.HandleListNodesStatus)
@@ -75,13 +83,13 @@ func (reporter *TelegramReporter) Init() {
 }
 
 func (reporter TelegramReporter) Enabled() bool {
-	return reporter.TelegramToken != "" && reporter.TelegramChat != 0
+	return reporter.Token != "" && reporter.Chat != 0
 }
 
 func (reporter TelegramReporter) GetTemplate(name string) (*template.Template, error) {
-	if template, ok := reporter.Templates[name]; ok {
+	if cachedTemplate, ok := reporter.Templates[name]; ok {
 		reporter.Logger.Trace().Str("type", name).Msg("Using cached template")
-		return template, nil
+		return cachedTemplate, nil
 	}
 
 	reporter.Logger.Trace().Str("type", name).Msg("Loading template")
@@ -106,14 +114,14 @@ func (reporter TelegramReporter) GetTemplate(name string) (*template.Template, e
 func (reporter *TelegramReporter) SerializeReport(e TelegramSerializedReport) (string, error) {
 	reportableType := e.Report.Reportable.Type()
 
-	template, err := reporter.GetTemplate(reportableType)
+	foundTemplate, err := reporter.GetTemplate(reportableType)
 	if err != nil {
 		reporter.Logger.Error().Err(err).Str("type", reportableType).Msg("Error loading template")
 		return "", err
 	}
 
 	var buffer bytes.Buffer
-	err = template.Execute(&buffer, e)
+	err = foundTemplate.Execute(&buffer, e)
 	if err != nil {
 		reporter.Logger.Error().Err(err).Str("type", reportableType).Msg("Error rendering template")
 		return "", err
@@ -162,7 +170,7 @@ func (reporter TelegramReporter) Send(report types.Report) error {
 
 	_, err = reporter.TelegramBot.Send(
 		&tele.User{
-			ID: reporter.TelegramChat,
+			ID: reporter.Chat,
 		},
 		reportString,
 		tele.ModeHTML,

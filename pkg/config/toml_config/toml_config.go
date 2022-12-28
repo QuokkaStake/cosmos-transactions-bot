@@ -129,8 +129,9 @@ type TomlConfig struct {
 }
 
 type TelegramConfig struct {
-	TelegramChat  int64  `toml:"chat"`
-	TelegramToken string `toml:"token"`
+	Chat   int64   `toml:"chat"`
+	Token  string  `toml:"token"`
+	Admins []int64 `toml:"admins"`
 }
 
 type LogConfig struct {
