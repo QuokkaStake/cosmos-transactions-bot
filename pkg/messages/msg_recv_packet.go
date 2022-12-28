@@ -40,7 +40,7 @@ func ParseMsgRecvPacket(data []byte, chain *configTypes.Chain, height int64) (ty
 }
 
 func (m MsgRecvPacket) Type() string {
-	return "MsgRecvPacket"
+	return "/ibc.core.channel.v1.MsgRecvPacket"
 }
 
 func (m *MsgRecvPacket) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
@@ -54,7 +54,7 @@ func (m *MsgRecvPacket) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
 
 func (m *MsgRecvPacket) GetValues() event.EventValues {
 	return []event.EventValue{
-		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, "/ibc.core.channel.v1.MsgRecvPacket"),
+		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, m.Type()),
 		{Key: "sender", Value: m.Sender.Value},
 		{Key: "receiver", Value: m.Receiver.Value},
 	}

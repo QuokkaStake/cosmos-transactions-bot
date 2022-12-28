@@ -8,6 +8,7 @@ import (
 	"main/pkg/config"
 	configTypes "main/pkg/config/types"
 	"main/pkg/types"
+	"main/pkg/utils"
 	"strings"
 	"time"
 
@@ -79,7 +80,7 @@ func (reporter TelegramReporter) GetTemplate(name string) (*template.Template, e
 
 	reporter.Logger.Trace().Str("type", name).Msg("Loading template")
 
-	filename := fmt.Sprintf("%s.html", name)
+	filename := fmt.Sprintf("%s.html", utils.RemoveFirstSlash(name))
 
 	t, err := template.New(filename).Funcs(template.FuncMap{
 		"SerializeLink":   reporter.SerializeLink,

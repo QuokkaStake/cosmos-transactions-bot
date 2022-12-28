@@ -34,7 +34,7 @@ func ParseMsgVote(data []byte, chain *configTypes.Chain, height int64) (types.Me
 }
 
 func (m MsgVote) Type() string {
-	return "MsgVote"
+	return "/cosmos.gov.v1beta1.MsgVote"
 }
 
 func (m *MsgVote) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
@@ -49,7 +49,7 @@ func (m *MsgVote) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
 
 func (m *MsgVote) GetValues() event.EventValues {
 	return []event.EventValue{
-		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, "/cosmos.gov.v1beta1.MsgVote"),
+		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, m.Type()),
 		{Key: "voter", Value: m.Voter.Value},
 		{Key: "proposal_id", Value: m.ProposalID.Value},
 	}

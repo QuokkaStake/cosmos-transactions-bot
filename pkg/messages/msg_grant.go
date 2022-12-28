@@ -41,7 +41,7 @@ func ParseMsgGrant(data []byte, chain *configTypes.Chain, height int64) (types.M
 }
 
 func (m MsgGrant) Type() string {
-	return "MsgGrant"
+	return "/cosmos.authz.v1beta1.MsgGrant"
 }
 
 func (m *MsgGrant) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
@@ -50,6 +50,6 @@ func (m *MsgGrant) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
 
 func (m *MsgGrant) GetValues() event.EventValues {
 	return []event.EventValue{
-		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, "/cosmos.authz.v1beta1.MsgGrant"),
+		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, m.Type()),
 	}
 }

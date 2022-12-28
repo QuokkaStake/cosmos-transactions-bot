@@ -54,7 +54,7 @@ func ParseMsgMultiSend(data []byte, chain *configTypes.Chain, height int64) (typ
 }
 
 func (m MsgMultiSend) Type() string {
-	return "MsgMultiSend"
+	return "/cosmos.bank.v1beta1.MsgMultiSend"
 }
 
 func (m *MsgMultiSend) GetAdditionalData(fetcher data_fetcher.DataFetcher) {
@@ -90,6 +90,6 @@ func (m *MsgMultiSend) GetAdditionalData(fetcher data_fetcher.DataFetcher) {
 
 func (m *MsgMultiSend) GetValues() event.EventValues {
 	return []event.EventValue{
-		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, "/cosmos.bank.v1beta1.MsgMultiSend"),
+		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, m.Type()),
 	}
 }

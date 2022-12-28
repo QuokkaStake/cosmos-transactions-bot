@@ -30,7 +30,7 @@ func ParseMsgWithdrawValidatorCommission(data []byte, chain *configTypes.Chain, 
 }
 
 func (m MsgWithdrawValidatorCommission) Type() string {
-	return "MsgWithdrawValidatorCommission"
+	return "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission"
 }
 
 func (m *MsgWithdrawValidatorCommission) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
@@ -69,7 +69,7 @@ func (m *MsgWithdrawValidatorCommission) GetAdditionalData(fetcher dataFetcher.D
 
 func (m *MsgWithdrawValidatorCommission) GetValues() event.EventValues {
 	return []event.EventValue{
-		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission"),
+		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, m.Type()),
 		{Key: "validator", Value: m.ValidatorAddress.Value},
 	}
 }

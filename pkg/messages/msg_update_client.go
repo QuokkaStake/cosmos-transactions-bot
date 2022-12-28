@@ -28,7 +28,7 @@ func ParseMsgUpdateClient(data []byte, chain *configTypes.Chain, height int64) (
 }
 
 func (m MsgUpdateClient) Type() string {
-	return "MsgUpdateClient"
+	return "/ibc.core.client.v1.MsgUpdateClient"
 }
 
 func (m *MsgUpdateClient) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
@@ -37,7 +37,7 @@ func (m *MsgUpdateClient) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
 
 func (m *MsgUpdateClient) GetValues() event.EventValues {
 	return []event.EventValue{
-		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, "/ibc.core.client.v1.MsgUpdateClient"),
+		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, m.Type()),
 		{Key: "signer", Value: m.Signer.Value},
 		{Key: "client_id", Value: m.ClientID},
 	}

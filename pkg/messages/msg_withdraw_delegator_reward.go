@@ -32,7 +32,7 @@ func ParseMsgWithdrawDelegatorReward(data []byte, chain *configTypes.Chain, heig
 }
 
 func (m MsgWithdrawDelegatorReward) Type() string {
-	return "MsgWithdrawDelegatorReward"
+	return "/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward"
 }
 
 func (m *MsgWithdrawDelegatorReward) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
@@ -72,7 +72,7 @@ func (m *MsgWithdrawDelegatorReward) GetAdditionalData(fetcher dataFetcher.DataF
 
 func (m *MsgWithdrawDelegatorReward) GetValues() event.EventValues {
 	return []event.EventValue{
-		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, "/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward"),
+		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, m.Type()),
 		{Key: "delegator_address", Value: m.DelegatorAddress.Value},
 		{Key: "validator_address", Value: m.ValidatorAddress.Value},
 	}

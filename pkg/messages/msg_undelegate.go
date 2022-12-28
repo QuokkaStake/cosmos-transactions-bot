@@ -35,7 +35,7 @@ func ParseMsgUndelegate(data []byte, chain *configTypes.Chain, height int64) (ty
 }
 
 func (m MsgUndelegate) Type() string {
-	return "MsgUndelegate"
+	return "/cosmos.staking.v1beta1.MsgUndelegate"
 }
 
 func (m *MsgUndelegate) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
@@ -57,7 +57,7 @@ func (m *MsgUndelegate) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
 
 func (m *MsgUndelegate) GetValues() event.EventValues {
 	return []event.EventValue{
-		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, "/cosmos.staking.v1beta1.MsgUndelegate"),
+		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, m.Type()),
 		{Key: "delegator_address", Value: m.DelegatorAddress.Value},
 		{Key: "validator_address", Value: m.ValidatorAddress.Value},
 	}

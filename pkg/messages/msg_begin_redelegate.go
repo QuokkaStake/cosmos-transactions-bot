@@ -35,7 +35,7 @@ func ParseMsgBeginRedelegate(data []byte, chain *configTypes.Chain, height int64
 }
 
 func (m MsgBeginRedelegate) Type() string {
-	return "MsgBeginRedelegate"
+	return "/cosmos.staking.v1beta1.MsgBeginRedelegate"
 }
 
 func (m *MsgBeginRedelegate) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
@@ -56,7 +56,7 @@ func (m *MsgBeginRedelegate) GetAdditionalData(fetcher dataFetcher.DataFetcher) 
 
 func (m *MsgBeginRedelegate) GetValues() event.EventValues {
 	return []event.EventValue{
-		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, "/cosmos.staking.v1beta1.MsgBeginRedelegate"),
+		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, m.Type()),
 		{Key: "delegator_address", Value: m.DelegatorAddress.Value},
 		{Key: "validator_src_address", Value: m.ValidatorSrcAddress.Value},
 		{Key: "validator_dst_address", Value: m.ValidatorDstAddress.Value},

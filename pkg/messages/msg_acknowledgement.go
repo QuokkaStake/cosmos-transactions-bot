@@ -42,7 +42,7 @@ func ParseMsgAcknowledgement(data []byte, chain *configTypes.Chain, height int64
 }
 
 func (m MsgAcknowledgement) Type() string {
-	return "MsgAcknowledgement"
+	return "/ibc.core.channel.v1.MsgAcknowledgement"
 }
 
 func (m *MsgAcknowledgement) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
@@ -56,7 +56,7 @@ func (m *MsgAcknowledgement) GetAdditionalData(fetcher dataFetcher.DataFetcher) 
 
 func (m *MsgAcknowledgement) GetValues() event.EventValues {
 	return []event.EventValue{
-		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, "/ibc.core.channel.v1.MsgAcknowledgement"),
+		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, m.Type()),
 		{Key: "sender", Value: m.Sender.Value},
 		{Key: "receiver", Value: m.Receiver.Value},
 		{Key: "signer", Value: m.Signer.Value},

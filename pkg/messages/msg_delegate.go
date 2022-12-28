@@ -33,7 +33,7 @@ func ParseMsgDelegate(data []byte, chain *configTypes.Chain, height int64) (type
 }
 
 func (m MsgDelegate) Type() string {
-	return "MsgDelegate"
+	return "/cosmos.staking.v1beta1.MsgDelegate"
 }
 
 func (m *MsgDelegate) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
@@ -52,7 +52,7 @@ func (m *MsgDelegate) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
 
 func (m *MsgDelegate) GetValues() event.EventValues {
 	return []event.EventValue{
-		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, "/cosmos.staking.v1beta1.MsgDelegate"),
+		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, m.Type()),
 		{Key: "delegator_address", Value: m.DelegatorAddress.Value},
 		{Key: "validator_address", Value: m.ValidatorAddress.Value},
 	}

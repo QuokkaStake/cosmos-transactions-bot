@@ -40,3 +40,15 @@ func Dequotify(str string) string {
 
 	return str
 }
+
+func RemoveFirstSlash(str string) string {
+	if len(str) == 0 {
+		return str
+	}
+
+	if str[0] == '/' {
+		return str[1:]
+	}
+
+	return str
+}

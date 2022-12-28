@@ -33,7 +33,7 @@ func ParseMsgTransfer(data []byte, chain *configTypes.Chain, height int64) (type
 }
 
 func (m MsgTransfer) Type() string {
-	return "MsgTransfer"
+	return "/ibc.applications.transfer.v1.MsgTransfer"
 }
 
 func (m *MsgTransfer) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
@@ -47,7 +47,7 @@ func (m *MsgTransfer) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
 
 func (m *MsgTransfer) GetValues() event.EventValues {
 	return []event.EventValue{
-		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, "/ibc.applications.transfer.v1.MsgTransfer"),
+		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, m.Type()),
 		{Key: "sender", Value: m.Sender.Value},
 		{Key: "receiver", Value: m.Receiver.Value},
 	}
