@@ -76,6 +76,8 @@ func (reporter *TelegramReporter) Init() {
 		bot.Use(middleware.Whitelist(reporter.Admins...))
 	}
 
+	bot.Handle("/help", reporter.HandleHelp)
+	bot.Handle("/start", reporter.HandleHelp)
 	bot.Handle("/status", reporter.HandleListNodesStatus)
 
 	reporter.TelegramBot = bot
@@ -111,23 +113,26 @@ func (reporter TelegramReporter) GetTemplate(name string) (*template.Template, e
 	return t, nil
 }
 
-func (reporter *TelegramReporter) SerializeReport(e TelegramSerializedReport) (string, error) {
-	reportableType := e.Report.Reportable.Type()
-
-	foundTemplate, err := reporter.GetTemplate(reportableType)
+func (reporter *TelegramReporter) Render(templateName string, data interface{}) (string, error) {
+	template, err := reporter.GetTemplate(templateName)
 	if err != nil {
-		reporter.Logger.Error().Err(err).Str("type", reportableType).Msg("Error loading template")
+		reporter.Logger.Error().Err(err).Str("type", templateName).Msg("Error loading template")
 		return "", err
 	}
 
 	var buffer bytes.Buffer
-	err = foundTemplate.Execute(&buffer, e)
+	err = template.Execute(&buffer, data)
 	if err != nil {
-		reporter.Logger.Error().Err(err).Str("type", reportableType).Msg("Error rendering template")
+		reporter.Logger.Error().Err(err).Str("type", templateName).Msg("Error rendering template")
 		return "", err
 	}
 
-	return buffer.String(), nil
+	return buffer.String(), err
+}
+
+func (reporter *TelegramReporter) SerializeReport(e TelegramSerializedReport) (string, error) {
+	reportableType := e.Report.Reportable.Type()
+	return reporter.Render(reportableType, e)
 }
 
 func (reporter *TelegramReporter) SerializeMessage(msg types.Message) template.HTML {
