@@ -17,7 +17,7 @@ type MsgVote struct {
 	Voter      configTypes.Link
 	ProposalID configTypes.Link
 	Proposal   *responses.Proposal
-	Option     string
+	Option     cosmosGovTypes.VoteOption
 }
 
 func ParseMsgVote(data []byte, chain *configTypes.Chain, height int64) (types.Message, error) {
@@ -29,7 +29,7 @@ func ParseMsgVote(data []byte, chain *configTypes.Chain, height int64) (types.Me
 	return &MsgVote{
 		Voter:      chain.GetWalletLink(parsedMessage.Voter),
 		ProposalID: chain.GetProposalLink(strconv.FormatUint(parsedMessage.ProposalId, 10)),
-		Option:     parsedMessage.Option.String(),
+		Option:     parsedMessage.Option,
 	}, nil
 }
 
@@ -44,6 +44,21 @@ func (m *MsgVote) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
 		m.ProposalID.Title = fmt.Sprintf("#%s: %s", m.ProposalID.Value, proposal.Content.Title)
 	} else {
 		m.ProposalID.Title = fmt.Sprintf("#%s", m.ProposalID.Value)
+	}
+}
+
+func (m *MsgVote) GetVote() string {
+	switch m.Option {
+	case cosmosGovTypes.OptionYes:
+		return "Yes"
+	case cosmosGovTypes.OptionAbstain:
+		return "Abstain"
+	case cosmosGovTypes.OptionNo:
+		return "No"
+	case cosmosGovTypes.OptionNoWithVeto:
+		return "No with veto"
+	default:
+		return m.Option.String()
 	}
 }
 
