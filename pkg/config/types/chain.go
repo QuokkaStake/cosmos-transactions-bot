@@ -2,8 +2,9 @@ package types
 
 import (
 	"fmt"
-	"github.com/rs/zerolog"
 	"strconv"
+
+	"github.com/rs/zerolog"
 )
 
 type Chain struct {

@@ -1,10 +1,11 @@
 package nodes_manager
 
 import (
+	"sync"
+
 	"main/pkg/config"
 	"main/pkg/tendermint/ws"
 	"main/pkg/types"
-	"sync"
 
 	"github.com/rs/zerolog"
 )

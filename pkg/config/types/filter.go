@@ -1,9 +1,10 @@
 package types
 
 import (
+	"strings"
+
 	"main/pkg/types/event"
 	"main/pkg/utils"
-	"strings"
 )
 
 type Filter struct {

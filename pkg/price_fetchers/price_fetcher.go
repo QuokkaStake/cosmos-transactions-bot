@@ -1,8 +1,9 @@
 package price_fetchers
 
 import (
-	"github.com/rs/zerolog"
 	"main/pkg/config/types"
+
+	"github.com/rs/zerolog"
 )
 
 type PriceFetcher interface {

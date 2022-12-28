@@ -14,7 +14,6 @@ func (m MsgError) Type() string {
 }
 
 func (m *MsgError) GetAdditionalData(fetcher data_fetcher.DataFetcher) {
-
 }
 
 func (m *MsgError) GetValues() event.EventValues {

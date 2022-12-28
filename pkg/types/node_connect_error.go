@@ -23,5 +23,4 @@ func (e NodeConnectError) GetHash() string {
 }
 
 func (e *NodeConnectError) GetAdditionalData(fetcher data_fetcher.DataFetcher) {
-
 }

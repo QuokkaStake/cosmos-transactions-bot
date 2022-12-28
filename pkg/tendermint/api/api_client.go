@@ -3,12 +3,14 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/rs/zerolog"
-	"main/pkg/config/types"
-	"main/pkg/types/responses"
 	"net/http"
 	"strconv"
 	"time"
+
+	"main/pkg/config/types"
+	"main/pkg/types/responses"
+
+	"github.com/rs/zerolog"
 )
 
 type TendermintApiClient struct {
@@ -126,7 +128,7 @@ func (c *TendermintApiClient) GetWithHeaders(
 	headers map[string]string,
 ) error {
 	client := &http.Client{
-		Timeout: time.Duration(c.Timeout) * time.Second,
+		Timeout: c.Timeout * time.Second,
 	}
 	start := time.Now()
 

@@ -1,16 +1,18 @@
 package pkg
 
 import (
-	"github.com/rs/zerolog"
+	"os"
+	"os/signal"
+	"syscall"
+
 	"main/pkg/config"
 	"main/pkg/data_fetcher"
 	"main/pkg/logger"
 	nodesManager "main/pkg/nodes_manager"
 	"main/pkg/reporters"
 	"main/pkg/reporters/telegram"
-	"os"
-	"os/signal"
-	"syscall"
+
+	"github.com/rs/zerolog"
 )
 
 type App struct {
@@ -43,7 +45,6 @@ func NewApp(config *config.AppConfig) *App {
 }
 
 func (a *App) Start() {
-
 	for _, reporter := range a.Reporters {
 		reporter.Init()
 		if reporter.Enabled() {

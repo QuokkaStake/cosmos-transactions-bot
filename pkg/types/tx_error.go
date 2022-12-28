@@ -21,5 +21,4 @@ func (txError TxError) GetHash() string {
 }
 
 func (txError *TxError) GetAdditionalData(fetcher data_fetcher.DataFetcher) {
-
 }

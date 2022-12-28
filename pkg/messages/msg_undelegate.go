@@ -1,14 +1,16 @@
 package messages
 
 import (
-	cosmosTypes "github.com/cosmos/cosmos-sdk/types"
-	cosmosStakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/gogo/protobuf/proto"
+	"time"
+
 	configTypes "main/pkg/config/types"
 	dataFetcher "main/pkg/data_fetcher"
 	"main/pkg/types"
 	"main/pkg/types/event"
-	"time"
+
+	cosmosTypes "github.com/cosmos/cosmos-sdk/types"
+	cosmosStakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/gogo/protobuf/proto"
 )
 
 type MsgUndelegate struct {

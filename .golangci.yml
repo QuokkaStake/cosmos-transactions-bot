@@ -39,3 +39,4 @@ linters:
     - gosec
     - stylecheck
     - gosimple
+    - ireturn

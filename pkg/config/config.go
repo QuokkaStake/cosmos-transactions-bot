@@ -1,13 +1,15 @@
 package config
 
 import (
-	"github.com/BurntSushi/toml"
-	"github.com/creasty/defaults"
-	"github.com/rs/zerolog"
+	"os"
+
 	tomlConfig "main/pkg/config/toml_config"
 	"main/pkg/config/types"
 	"main/pkg/utils"
-	"os"
+
+	"github.com/BurntSushi/toml"
+	"github.com/creasty/defaults"
+	"github.com/rs/zerolog"
 )
 
 type Chains []*types.Chain

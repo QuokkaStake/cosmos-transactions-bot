@@ -1,8 +1,9 @@
 package telegram
 
 import (
-	tele "gopkg.in/telebot.v3"
 	"main/pkg/types"
+
+	tele "gopkg.in/telebot.v3"
 )
 
 func (reporter *TelegramReporter) HandleListNodesStatus(c tele.Context) error {

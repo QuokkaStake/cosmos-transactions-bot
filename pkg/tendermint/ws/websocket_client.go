@@ -2,13 +2,14 @@ package ws
 
 import (
 	"context"
-	configTypes "main/pkg/config/types"
-	"main/pkg/converter"
-	"main/pkg/types"
 	"reflect"
 	"strings"
 	"time"
 	"unsafe"
+
+	configTypes "main/pkg/config/types"
+	"main/pkg/converter"
+	"main/pkg/types"
 
 	"github.com/rs/zerolog"
 	tmClient "github.com/tendermint/tendermint/rpc/jsonrpc/client"

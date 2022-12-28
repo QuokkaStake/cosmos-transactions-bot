@@ -4,15 +4,17 @@ import (
 	"bytes"
 	"embed"
 	"fmt"
-	"gopkg.in/telebot.v3/middleware"
 	"html/template"
+	"strings"
+	"time"
+
+	"gopkg.in/telebot.v3/middleware"
+
 	"main/pkg/config"
 	configTypes "main/pkg/config/types"
 	nodesManager "main/pkg/nodes_manager"
 	"main/pkg/types"
 	"main/pkg/utils"
-	"strings"
-	"time"
 
 	"github.com/rs/zerolog"
 	tele "gopkg.in/telebot.v3"
@@ -167,7 +169,6 @@ func (reporter TelegramReporter) Send(report types.Report) error {
 	}
 
 	reportString, err := reporter.SerializeReport(reportSerialized)
-
 	if err != nil {
 		reporter.Logger.Error().Err(err).Msg("Could not serialize Telegram message to report")
 		return err

@@ -1,8 +1,9 @@
 package cache
 
 import (
-	"github.com/rs/zerolog"
 	"time"
+
+	"github.com/rs/zerolog"
 )
 
 type CacheEntry struct {

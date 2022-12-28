@@ -1,17 +1,19 @@
 package messages
 
 import (
-	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
-	cosmosTypes "github.com/cosmos/cosmos-sdk/types"
-	cosmosAuthzTypes "github.com/cosmos/cosmos-sdk/x/authz"
-	cosmosStakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/gogo/protobuf/proto"
+	"time"
+
 	configTypes "main/pkg/config/types"
 	dataFetcher "main/pkg/data_fetcher"
 	"main/pkg/types"
 	"main/pkg/types/event"
 	"main/pkg/utils"
-	"time"
+
+	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
+	cosmosTypes "github.com/cosmos/cosmos-sdk/types"
+	cosmosAuthzTypes "github.com/cosmos/cosmos-sdk/x/authz"
+	cosmosStakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/gogo/protobuf/proto"
 )
 
 type Authorization interface{}
@@ -50,7 +52,6 @@ func (m MsgGrant) Type() string {
 }
 
 func (m *MsgGrant) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
-
 }
 
 func (m *MsgGrant) GetValues() event.EventValues {

@@ -2,9 +2,10 @@ package types
 
 import (
 	"fmt"
+	"strconv"
+
 	"main/pkg/config/types"
 	"main/pkg/data_fetcher"
-	"strconv"
 )
 
 type Tx struct {

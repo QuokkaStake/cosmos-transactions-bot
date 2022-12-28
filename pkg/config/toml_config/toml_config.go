@@ -2,9 +2,10 @@ package toml_config
 
 import (
 	"fmt"
+	"strings"
+
 	"main/pkg/config/types"
 	"main/pkg/utils"
-	"strings"
 )
 
 type Chain struct {

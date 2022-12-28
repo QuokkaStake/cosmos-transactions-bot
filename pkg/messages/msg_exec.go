@@ -1,14 +1,15 @@
 package messages
 
 import (
-	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
-	cosmosTypes "github.com/cosmos/cosmos-sdk/types"
-	cosmosAuthzTypes "github.com/cosmos/cosmos-sdk/x/authz"
-	"github.com/gogo/protobuf/proto"
 	configTypes "main/pkg/config/types"
 	dataFetcher "main/pkg/data_fetcher"
 	"main/pkg/types"
 	"main/pkg/types/event"
+
+	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
+	cosmosTypes "github.com/cosmos/cosmos-sdk/types"
+	cosmosAuthzTypes "github.com/cosmos/cosmos-sdk/x/authz"
+	"github.com/gogo/protobuf/proto"
 )
 
 type MsgExec struct {

@@ -14,7 +14,6 @@ func (m MsgUnsupportedMessage) Type() string {
 }
 
 func (m *MsgUnsupportedMessage) GetAdditionalData(fetcher data_fetcher.DataFetcher) {
-
 }
 
 func (m *MsgUnsupportedMessage) GetValues() event.EventValues {
