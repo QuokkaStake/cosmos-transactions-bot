@@ -82,6 +82,7 @@ func (t *TendermintWebsocketClient) Listen() {
 	if err != nil {
 		t.Logger.Error().Err(err).Msg("Failed to create a client")
 		t.Error = err
+		t.Channel <- t.MakeReport(&types.NodeConnectError{Error: err, URL: t.URL, Chain: t.Chain.GetName()})
 		return
 	}
 
@@ -97,6 +98,7 @@ func (t *TendermintWebsocketClient) Listen() {
 
 	if err = client.Start(); err != nil {
 		t.Error = err
+		t.Channel <- t.MakeReport(&types.NodeConnectError{Error: err, URL: t.URL, Chain: t.Chain.GetName()})
 		t.Logger.Warn().Err(err).Msg("Error connecting to node")
 	} else {
 		t.Logger.Debug().Msg("Connected to a node")
