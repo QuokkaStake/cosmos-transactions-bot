@@ -70,6 +70,6 @@ func (m *MsgWithdrawValidatorCommission) GetAdditionalData(fetcher dataFetcher.D
 func (m *MsgWithdrawValidatorCommission) GetValues() event.EventValues {
 	return []event.EventValue{
 		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, m.Type()),
-		{Key: "validator", Value: m.ValidatorAddress.Value},
+		event.From(cosmosDistributionTypes.EventTypeWithdrawCommission, cosmosDistributionTypes.AttributeKeyValidator, m.ValidatorAddress.Value),
 	}
 }

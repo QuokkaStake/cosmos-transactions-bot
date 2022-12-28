@@ -38,7 +38,6 @@ func (m *MsgUpdateClient) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
 func (m *MsgUpdateClient) GetValues() event.EventValues {
 	return []event.EventValue{
 		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, m.Type()),
-		{Key: "signer", Value: m.Signer.Value},
-		{Key: "client_id", Value: m.ClientID},
+		event.From(ibcClientTypes.EventTypeUpdateClient, ibcClientTypes.AttributeKeyClientID, m.ClientID),
 	}
 }

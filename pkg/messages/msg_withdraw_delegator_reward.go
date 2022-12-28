@@ -73,7 +73,6 @@ func (m *MsgWithdrawDelegatorReward) GetAdditionalData(fetcher dataFetcher.DataF
 func (m *MsgWithdrawDelegatorReward) GetValues() event.EventValues {
 	return []event.EventValue{
 		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, m.Type()),
-		{Key: "delegator_address", Value: m.DelegatorAddress.Value},
-		{Key: "validator_address", Value: m.ValidatorAddress.Value},
+		event.From(cosmosDistributionTypes.EventTypeWithdrawRewards, cosmosDistributionTypes.AttributeKeyValidator, m.ValidatorAddress.Value),
 	}
 }

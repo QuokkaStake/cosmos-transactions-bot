@@ -89,7 +89,24 @@ func (m *MsgMultiSend) GetAdditionalData(fetcher data_fetcher.DataFetcher) {
 }
 
 func (m *MsgMultiSend) GetValues() event.EventValues {
-	return []event.EventValue{
+	values := []event.EventValue{
 		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, m.Type()),
 	}
+
+	for _, input := range m.Inputs {
+		values = append(values, []event.EventValue{
+			event.From(cosmosBankTypes.EventTypeTransfer, cosmosBankTypes.AttributeKeySpender, input.Address.Value),
+			event.From(cosmosBankTypes.EventTypeCoinSpent, cosmosBankTypes.AttributeKeySpender, input.Address.Value),
+			event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeySender, input.Address.Value),
+		}...)
+	}
+
+	for _, output := range m.Outputs {
+		values = append(values, []event.EventValue{
+			event.From(cosmosBankTypes.EventTypeTransfer, cosmosBankTypes.AttributeKeyRecipient, output.Address.Value),
+			event.From(cosmosBankTypes.EventTypeCoinReceived, cosmosBankTypes.AttributeKeyReceiver, output.Address.Value),
+		}...)
+	}
+
+	return values
 }
