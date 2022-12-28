@@ -3,6 +3,7 @@ package config
 import (
 	"github.com/BurntSushi/toml"
 	"github.com/creasty/defaults"
+	"github.com/rs/zerolog"
 	tomlConfig "main/pkg/config/toml_config"
 	"main/pkg/config/types"
 	"main/pkg/utils"
@@ -76,5 +77,11 @@ func FromTomlConfig(c *tomlConfig.TomlConfig, path string) *AppConfig {
 		Chains: utils.Map(c.Chains, func(c *tomlConfig.Chain) *types.Chain {
 			return c.ToAppConfigChain()
 		}),
+	}
+}
+
+func (c *AppConfig) DisplayWarnings(log *zerolog.Logger) {
+	for _, chain := range c.Chains {
+		chain.DisplayWarnings(log)
 	}
 }

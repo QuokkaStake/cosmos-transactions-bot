@@ -2,6 +2,7 @@ package types
 
 import (
 	"fmt"
+	"github.com/rs/zerolog"
 	"strconv"
 )
 
@@ -84,5 +85,23 @@ func (c Chain) GetBlockLink(height int64) Link {
 	return Link{
 		Href:  fmt.Sprintf(c.Explorer.BlockLinkPattern, heightStr),
 		Value: heightStr,
+	}
+}
+
+func (c Chain) DisplayWarnings(log *zerolog.Logger) {
+	if c.BaseDenom == "" {
+		log.Warn().Str("chain", c.Name).Msg("Base denom not set, denoms won't be displayed correctly.")
+	}
+
+	if c.DisplayDenom == "" {
+		log.Warn().Str("chain", c.Name).Msg("Display denom not set, denoms won't be displayed correctly.")
+	}
+
+	if c.CoingeckoCurrency == "" {
+		log.Warn().Str("chain", c.Name).Msg("Coingecko currency not set, prices in USD won't be displayed.")
+	}
+
+	if c.Explorer == nil {
+		log.Warn().Str("chain", c.Name).Msg("Explorer config not set, links won't be generated.")
 	}
 }

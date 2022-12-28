@@ -34,7 +34,7 @@ func NewApp(config *config.AppConfig) *App {
 	}
 
 	return &App{
-		Logger:       log.With().Str("component", "telegram_reporter").Logger(),
+		Logger:       log.With().Str("component", "app").Logger(),
 		Reporters:    reporters,
 		NodesManager: nodesManager,
 		DataFetchers: dataFetchers,
