@@ -89,9 +89,10 @@ func (reporter TelegramReporter) GetTemplate(name string) (*template.Template, e
 	filename := fmt.Sprintf("%s.html", utils.RemoveFirstSlash(name))
 
 	t, err := template.New(filename).Funcs(template.FuncMap{
-		"SerializeLink":   reporter.SerializeLink,
-		"SerializeAmount": reporter.SerializeAmount,
-		"SerializeDate":   reporter.SerializeDate,
+		"SerializeLink":    reporter.SerializeLink,
+		"SerializeAmount":  reporter.SerializeAmount,
+		"SerializeDate":    reporter.SerializeDate,
+		"SerializeMessage": reporter.SerializeMessage,
 	}).ParseFS(templatesFs, "templates/"+filename)
 	if err != nil {
 		return nil, err
@@ -153,6 +154,7 @@ func (reporter TelegramReporter) Send(report types.Report) error {
 	}
 
 	reportString, err := reporter.SerializeReport(reportSerialized)
+
 	if err != nil {
 		reporter.Logger.Error().Err(err).Msg("Could not serialize Telegram message to report")
 		return err
@@ -183,7 +185,7 @@ func (reporter *TelegramReporter) BotReply(c tele.Context, msg string) error {
 	var sb strings.Builder
 
 	for _, line := range msgsByNewline {
-		if sb.Len()+len(line) > MaxMessageSize {
+		if sb.Len()+len(line) >= MaxMessageSize {
 			if err := c.Reply(sb.String(), tele.ModeHTML); err != nil {
 				reporter.Logger.Error().Err(err).Msg("Could not send Telegram message")
 				return err

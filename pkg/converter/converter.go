@@ -25,6 +25,7 @@ type Converter struct {
 
 func NewConverter(logger *zerolog.Logger, chain *configTypes.Chain) *Converter {
 	parsers := map[string]types.MessageParser{
+		"/cosmos.authz.v1beta1.MsgExec":                               messages.ParseMsgExec,
 		"/cosmos.authz.v1beta1.MsgGrant":                              messages.ParseMsgGrant,
 		"/cosmos.bank.v1beta1.MsgSend":                                messages.ParseMsgSend,
 		"/cosmos.bank.v1beta1.MsgMultiSend":                           messages.ParseMsgMultiSend,
@@ -92,7 +93,7 @@ func (c *Converter) ParseEvent(event jsonRpcTypes.RPCResponse) types.Reportable 
 	txMessages := []types.Message{}
 
 	for _, message := range txProto.GetBody().Messages {
-		if msgParsed := c.ParseMessage(message, txResult); msgParsed != nil {
+		if msgParsed := c.ParseMessage(message, txResult, true); msgParsed != nil {
 			txMessages = append(txMessages, msgParsed)
 		}
 	}
@@ -110,7 +111,11 @@ func (c *Converter) ParseEvent(event jsonRpcTypes.RPCResponse) types.Reportable 
 	}
 }
 
-func (c *Converter) ParseMessage(message *codecTypes.Any, txResult abciTypes.TxResult) types.Message {
+func (c *Converter) ParseMessage(
+	message *codecTypes.Any,
+	txResult abciTypes.TxResult,
+	useIgnoreFilters bool,
+) types.Message {
 	parser, ok := c.Parsers[message.TypeUrl]
 	if !ok {
 		c.Logger.Error().Str("type", message.TypeUrl).Msg("Unsupported message type")
@@ -127,7 +132,16 @@ func (c *Converter) ParseMessage(message *codecTypes.Any, txResult abciTypes.TxR
 		return &messages.MsgError{Error: fmt.Errorf("Error parsing message: %s", err)}
 	}
 
-	if !c.Chain.Filters.Matches(msgParsed.GetValues()) {
+	// MsgExec contains a bunch of other messages
+	if msgExec, ok := msgParsed.(*messages.MsgExec); ok {
+		for _, msgInExec := range msgExec.RawMessages {
+			if msgExecParsed := c.ParseMessage(msgInExec, txResult, false); msgParsed != nil {
+				msgExec.Messages = append(msgExec.Messages, msgExecParsed)
+			}
+		}
+	}
+
+	if useIgnoreFilters && !c.Chain.Filters.Matches(msgParsed.GetValues()) {
 		c.Logger.Debug().
 			Int64("height", txResult.Height).
 			Str("type", msgParsed.Type()).

@@ -1,0 +1,8 @@
+<strong>AuthZ exec</strong>
+Grantee: {{ SerializeLink .Grantee }}
+AuthZ messages ({{ len .Messages }}):
+-----------------------------------------
+{{ range $msgId, $msg := .Messages }}
+{{ SerializeMessage $msg }}
+{{- end }}
+-----------------------------------------
