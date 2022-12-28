@@ -1,8 +1,10 @@
 package types
 
 import (
+	"fmt"
 	"main/pkg/config/types"
 	"main/pkg/data_fetcher"
+	"strconv"
 )
 
 type Tx struct {
@@ -29,4 +31,12 @@ func (tx *Tx) GetAdditionalData(fetcher data_fetcher.DataFetcher) {
 	for _, msg := range tx.Messages {
 		msg.GetAdditionalData(fetcher)
 	}
+}
+
+func (tx *Tx) GetMessagesLabel() string {
+	if len(tx.Messages) == tx.MessagesCount {
+		return strconv.Itoa(tx.MessagesCount)
+	}
+
+	return fmt.Sprintf("%d, %d skipped", tx.MessagesCount, tx.MessagesCount-len(tx.Messages))
 }

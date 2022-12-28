@@ -5,7 +5,7 @@ Height: {{ SerializeLink .Report.Reportable.Height }}
 Memo: {{ .Report.Reportable.Memo }}
 {{- end }}
 
-Messages:
+Messages ({{ .Report.Reportable.GetMessagesLabel }}):
 {{- range $msgId, $msg := .Msgs }}
 {{ $msg }}
 {{- end}}
