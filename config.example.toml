@@ -1,0 +1,85 @@
+# Logging configuration
+[log]
+# Log level. Set to "debug" or "trace" to make it more verbose, or to "warn"/"error" to make it less verbose.
+# Defaults to "info"
+level = "info"
+# If true, all logs would be displayed in JSON. Useful if you are using centralized logging
+# solutions like ELK. Defaults to false.
+json = false
+
+# Telegram reporter configuration. See README.md for more details
+[telegram]
+# Telegram bot token.
+token = "xxx:yyy"
+# Chat ID to send reports to.
+chat = 12345
+# A list of user IDs that are allowed to contact the bot. The bot won't respond to others
+# if this list is not empty. Strongly recommended to not leave it out, as otherwise
+# anyone would be able to use your bot.
+admins = [67890]
+
+# Per-chain configuration. There can be multiple chains.
+[[chains]]
+# Chain codename, required.
+name = "cosmos"
+# Chain pretty name, optional. If provided, would be used in reports, if not,
+# codename would be used.
+pretty-name = "Cosmos Hub"
+# Tendermint RPC nodes to subscribe to. At least one is required, better to have multiple ones
+# as a failover.
+tendermint-nodes = [
+    "https://rpc.cosmos.freak12techno.io:443",
+]
+# API nodes to get blockchain data (validators, proposals etc.) from.
+api-nodes = [
+    "https://api.cosmos.freak12techno.io",
+]
+# Queries, see README.md for details.
+queries = [
+    "tx.height > 0"
+]
+# Filter, see README.md for details.
+filters = [
+    "message.action = '/cosmos.gov.v1beta1.MsgVote'",
+]
+# Base denom, display denom, denom coefficient and coingecko-currency are required for price calculation.
+# Example: imagine you have 10,000,000uatom at your wallet, and the ATOM price is 10$.
+# Then if you set it as base-denom = "uatom", display-denom = "atom",
+# denom-coefficient = 1000000, 10,000,000uatom would be converted to 10 atom,
+# and given ATOM price, it would be converted to 100$.
+base-denom = "uatom"
+display-denom = "atom"
+# Defaults to 1000000
+denom-coefficient = 1000000
+coingecko-currency = "cosmos"
+# If set to true and there is a message not supported by this app,
+# it would post a message about that, otherwise it would ignore such a message.
+# Defaults to false.
+log-unknown-messages = true
+# Explorer configuration.
+# Priorities:
+# 1) ping.pub
+# 2) mintscan
+# 3) custom explorer
+# So if you have a custom explorer, ping.pub and mintscan params specified, ping.pub ones would be used.
+
+# Mintscan prefix to generate links. Required for mintscan explorer.
+mintscan-prefix = "cosmos"
+# Ping.pub prefix to generate links. Required for ping.pub explorer.
+ping-prefix = "cosmos"
+# Ping.pub base URL to generate links. Defaults to "https://ping.pub"
+ping-base-url = "https://ping.pub"
+# Custom explorer configuration. %s would be replaced by ID of something (proposal, wallet, etc.)
+# All fields are optional.
+[chains.explorer]
+# A pattern for proposal link for explorer.
+proposal-link-pattern = "https://mintscan.io/cosmos/proposals/%s"
+# A pattern for wallet links for the explorer.
+wallet-link-pattern = "https://mintscan.io/cosmos/account/%s"
+# A pattern for transaction links for the explorer.
+transaction-link-pattern = "https://mintscan.io/cosmos/txs/%s"
+# A pattern for block links for the explorer.
+block-link-pattern = "https://mintscan.io/cosmos/blocks/%s"
+# A pattern for validator links for the explorer.
+validator-link-pattern = "https://mintscan.io/cosmos/validators/%s"
+
