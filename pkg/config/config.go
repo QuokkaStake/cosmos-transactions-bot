@@ -84,8 +84,50 @@ func FromTomlConfig(c *tomlConfig.TomlConfig, path string) *AppConfig {
 	}
 }
 
+func (c *AppConfig) ToTomlConfig() *tomlConfig.TomlConfig {
+	return &tomlConfig.TomlConfig{
+		TelegramConfig: tomlConfig.TelegramConfig{
+			Chat:   c.TelegramConfig.Chat,
+			Token:  c.TelegramConfig.Token,
+			Admins: c.TelegramConfig.Admins,
+		},
+		LogConfig: tomlConfig.LogConfig{
+			LogLevel:   c.LogConfig.LogLevel,
+			JSONOutput: c.LogConfig.JSONOutput,
+		},
+		Chains: utils.Map(c.Chains, func(c *types.Chain) *tomlConfig.Chain {
+			return tomlConfig.FromAppConfigChain(c)
+		}),
+	}
+}
+
 func (c *AppConfig) DisplayWarnings(log *zerolog.Logger) {
 	for _, chain := range c.Chains {
 		chain.DisplayWarnings(log)
 	}
+}
+
+func (c *AppConfig) Save() error {
+	configStruct := c.ToTomlConfig()
+
+	f, err := os.Create(c.Path)
+	if err != nil {
+		return err
+	}
+	if err := toml.NewEncoder(f).Encode(configStruct); err != nil {
+		return err
+	}
+	return f.Close()
+}
+
+func (c *AppConfig) GetConfigAsString() (string, error) {
+	configStruct := c.ToTomlConfig()
+
+	buffer := new(bytes.Buffer)
+
+	if err := toml.NewEncoder(buffer).Encode(configStruct); err != nil {
+		return "", err
+	}
+
+	return buffer.String(), nil
 }

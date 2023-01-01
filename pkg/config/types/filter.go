@@ -1,6 +1,7 @@
 package types
 
 import (
+	"fmt"
 	"strings"
 
 	"main/pkg/types/event"
@@ -21,6 +22,10 @@ func NewFilter(filter string) Filter {
 		Operator: split[1],
 		Value:    utils.Dequotify(split[2]),
 	}
+}
+
+func (f Filter) ToString() string {
+	return fmt.Sprintf("%s %s '%s'", f.Key, f.Operator, f.Value)
 }
 
 func (f Filter) Matches(values event.EventValues) bool {

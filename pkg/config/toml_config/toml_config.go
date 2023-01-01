@@ -90,6 +90,43 @@ func (c *Chain) ToAppConfigChain() *types.Chain {
 	}
 }
 
+func FromAppConfigChain(c *types.Chain) *Chain {
+	chain := &Chain{
+		Name:               c.Name,
+		PrettyName:         c.PrettyName,
+		TendermintNodes:    c.TendermintNodes,
+		APINodes:           c.APINodes,
+		Queries:            c.Queries,
+		CoingeckoCurrency:  c.CoingeckoCurrency,
+		BaseDenom:          c.BaseDenom,
+		DisplayDenom:       c.DisplayDenom,
+		DenomCoefficient:   c.DenomCoefficient,
+		LogUnknownMessages: c.LogUnknownMessages,
+	}
+
+	if c.SupportedExplorer == nil && c.Explorer != nil {
+		chain.Explorer = &Explorer{
+			ProposalLinkPattern:    c.Explorer.ProposalLinkPattern,
+			WalletLinkPattern:      c.Explorer.WalletLinkPattern,
+			ValidatorLinkPattern:   c.Explorer.ValidatorLinkPattern,
+			TransactionLinkPattern: c.Explorer.TransactionLinkPattern,
+			BlockLinkPattern:       c.Explorer.BlockLinkPattern,
+		}
+	} else if mintscan, ok := c.SupportedExplorer.(*types.MintscanExplorer); ok {
+		chain.MintscanPrefix = mintscan.Prefix
+	} else if ping, ok := c.SupportedExplorer.(*types.PingExplorer); ok {
+		chain.PingPrefix = ping.Prefix
+		chain.PingBaseUrl = ping.BaseUrl
+	}
+
+	chain.Filters = make([]string, len(c.Filters))
+	for index, filter := range c.Filters {
+		chain.Filters[index] = filter.ToString()
+	}
+
+	return chain
+}
+
 func ValidateFilter(filter string) error {
 	split := strings.Split(filter, " ")
 	if len(split) != 3 {
