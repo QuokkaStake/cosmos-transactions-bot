@@ -28,7 +28,7 @@ func NewApp(config *config.AppConfig) *App {
 	nodesManager := nodesManager.NewNodesManager(log, config)
 
 	reporters := []reporters.Reporter{
-		telegram.NewTelegramReporter(config.TelegramConfig, log, nodesManager),
+		telegram.NewTelegramReporter(config, log, nodesManager),
 	}
 
 	dataFetchers := make(map[string]*data_fetcher.DataFetcher, len(config.Chains))

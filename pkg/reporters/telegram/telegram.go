@@ -29,6 +29,7 @@ type TelegramReporter struct {
 	Logger       zerolog.Logger
 	Templates    map[string]*template.Template
 	NodesManager *nodesManager.NodesManager
+	Config       *config.AppConfig
 }
 
 const (
@@ -44,14 +45,15 @@ type TelegramSerializedReport struct {
 }
 
 func NewTelegramReporter(
-	config config.TelegramConfig,
+	config *config.AppConfig,
 	logger *zerolog.Logger,
 	nodesManager *nodesManager.NodesManager,
 ) *TelegramReporter {
 	return &TelegramReporter{
-		Token:        config.Token,
-		Chat:         config.Chat,
-		Admins:       config.Admins,
+		Token:        config.TelegramConfig.Token,
+		Chat:         config.TelegramConfig.Chat,
+		Admins:       config.TelegramConfig.Admins,
+		Config:       config,
 		Logger:       logger.With().Str("component", "telegram_reporter").Logger(),
 		Templates:    make(map[string]*template.Template, 0),
 		NodesManager: nodesManager,
@@ -81,6 +83,7 @@ func (reporter *TelegramReporter) Init() {
 	bot.Handle("/help", reporter.HandleHelp)
 	bot.Handle("/start", reporter.HandleHelp)
 	bot.Handle("/status", reporter.HandleListNodesStatus)
+	bot.Handle("/config", reporter.HandleGetConfig)
 
 	reporter.TelegramBot = bot
 	go reporter.TelegramBot.Start()
