@@ -51,6 +51,10 @@ func (m *MsgRecvPacket) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
 		m.Token.Denom = fetcher.Chain.DisplayDenom
 		m.Token.PriceUSD = m.Token.Value * price
 	}
+
+	if alias := fetcher.AliasManager.Get(fetcher.Chain.Name, m.Receiver.Value); alias != "" {
+		m.Receiver.Title = alias
+	}
 }
 
 func (m *MsgRecvPacket) GetValues() event.EventValues {

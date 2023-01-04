@@ -44,6 +44,10 @@ func (m *MsgTransfer) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
 		m.Token.Denom = fetcher.Chain.DisplayDenom
 		m.Token.PriceUSD = m.Token.Value * price
 	}
+
+	if alias := fetcher.AliasManager.Get(fetcher.Chain.Name, m.Sender.Value); alias != "" {
+		m.Sender.Title = alias
+	}
 }
 
 func (m *MsgTransfer) GetValues() event.EventValues {

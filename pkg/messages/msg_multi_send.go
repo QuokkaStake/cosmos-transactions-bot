@@ -65,6 +65,10 @@ func (m *MsgMultiSend) GetAdditionalData(fetcher data_fetcher.DataFetcher) {
 	}
 
 	for _, input := range m.Inputs {
+		if alias := fetcher.AliasManager.Get(fetcher.Chain.Name, input.Address.Value); alias != "" {
+			input.Address.Title = alias
+		}
+
 		for _, amount := range input.Amount {
 			if amount.Denom != fetcher.Chain.BaseDenom {
 				continue
@@ -77,6 +81,10 @@ func (m *MsgMultiSend) GetAdditionalData(fetcher data_fetcher.DataFetcher) {
 	}
 
 	for _, output := range m.Outputs {
+		if alias := fetcher.AliasManager.Get(fetcher.Chain.Name, output.Address.Value); alias != "" {
+			output.Address.Title = alias
+		}
+
 		for _, amount := range output.Amount {
 			if amount.Denom != fetcher.Chain.BaseDenom {
 				continue

@@ -52,6 +52,13 @@ func (m MsgGrant) Type() string {
 }
 
 func (m *MsgGrant) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
+	if alias := fetcher.AliasManager.Get(fetcher.Chain.Name, m.Grantee.Value); alias != "" {
+		m.Grantee.Title = alias
+	}
+
+	if alias := fetcher.AliasManager.Get(fetcher.Chain.Name, m.Granter.Value); alias != "" {
+		m.Granter.Title = alias
+	}
 }
 
 func (m *MsgGrant) GetValues() event.EventValues {

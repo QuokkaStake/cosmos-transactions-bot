@@ -33,6 +33,9 @@ func (m MsgUpdateClient) Type() string {
 }
 
 func (m *MsgUpdateClient) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
+	if alias := fetcher.AliasManager.Get(fetcher.Chain.Name, m.Signer.Value); alias != "" {
+		m.Signer.Title = alias
+	}
 }
 
 func (m *MsgUpdateClient) GetValues() event.EventValues {

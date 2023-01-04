@@ -69,6 +69,10 @@ func (m *MsgWithdrawDelegatorReward) GetAdditionalData(fetcher dataFetcher.DataF
 	if validator, found := fetcher.GetValidator(m.ValidatorAddress.Value); found {
 		m.ValidatorAddress.Title = validator.Description.Moniker
 	}
+
+	if alias := fetcher.AliasManager.Get(fetcher.Chain.Name, m.DelegatorAddress.Value); alias != "" {
+		m.DelegatorAddress.Title = alias
+	}
 }
 
 func (m *MsgWithdrawDelegatorReward) GetValues() event.EventValues {

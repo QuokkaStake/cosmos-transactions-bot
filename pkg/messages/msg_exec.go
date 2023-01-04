@@ -36,6 +36,10 @@ func (m MsgExec) Type() string {
 }
 
 func (m *MsgExec) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
+	if alias := fetcher.AliasManager.Get(fetcher.Chain.Name, m.Grantee.Value); alias != "" {
+		m.Grantee.Title = alias
+	}
+
 	for _, message := range m.Messages {
 		if message != nil {
 			message.GetAdditionalData(fetcher)

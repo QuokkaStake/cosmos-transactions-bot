@@ -48,6 +48,10 @@ func (m *MsgVote) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
 	} else {
 		m.ProposalID.Title = fmt.Sprintf("#%s", m.ProposalID.Value)
 	}
+
+	if alias := fetcher.AliasManager.Get(fetcher.Chain.Name, m.Voter.Value); alias != "" {
+		m.Voter.Title = alias
+	}
 }
 
 func (m *MsgVote) GetVote() string {
