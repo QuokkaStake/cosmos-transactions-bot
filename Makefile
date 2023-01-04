@@ -1,2 +1,5 @@
 build:
-	go build cmd/main.go
+	go build cmd/cosmos-transactions-bot.go
+
+install:
+	go install cmd/cosmos-transactions-bot.go
