@@ -1,6 +1,7 @@
 package data_fetcher
 
 import (
+	"main/pkg/alias_manager"
 	"strconv"
 
 	"main/pkg/cache"
@@ -17,10 +18,11 @@ type DataFetcher struct {
 	Cache                *cache.Cache
 	Chain                *types.Chain
 	PriceFetcher         priceFetchers.PriceFetcher
+	AliasManager         *alias_manager.AliasManager
 	TendermintApiClients []*api.TendermintApiClient
 }
 
-func NewDataFetcher(logger *zerolog.Logger, chain *types.Chain) *DataFetcher {
+func NewDataFetcher(logger *zerolog.Logger, chain *types.Chain, aliasManager *alias_manager.AliasManager) *DataFetcher {
 	tendermintApiClients := make([]*api.TendermintApiClient, len(chain.APINodes))
 	for index, node := range chain.APINodes {
 		tendermintApiClients[index] = api.NewTendermintApiClient(logger, node, chain)
@@ -35,6 +37,7 @@ func NewDataFetcher(logger *zerolog.Logger, chain *types.Chain) *DataFetcher {
 		PriceFetcher:         priceFetchers.GetPriceFetcher(logger, chain),
 		Chain:                chain,
 		TendermintApiClients: tendermintApiClients,
+		AliasManager:         aliasManager,
 	}
 }
 

@@ -36,7 +36,7 @@ func NewApp(config *config.AppConfig) *App {
 
 	dataFetchers := make(map[string]*data_fetcher.DataFetcher, len(config.Chains))
 	for _, chain := range config.Chains {
-		dataFetchers[chain.Name] = data_fetcher.NewDataFetcher(log, chain)
+		dataFetchers[chain.Name] = data_fetcher.NewDataFetcher(log, chain, aliasManager)
 	}
 
 	return &App{

@@ -183,15 +183,7 @@ func (reporter TelegramReporter) Send(report types.Report) error {
 		return err
 	}
 
-	_, err = reporter.TelegramBot.Send(
-		&tele.User{
-			ID: reporter.Chat,
-		},
-		reportString,
-		tele.ModeHTML,
-		tele.NoPreview,
-	)
-	if err != nil {
+	if err := reporter.BotSend(reportString); err != nil {
 		reporter.Logger.Err(err).Msg("Could not send Telegram message")
 		return err
 	}
@@ -200,6 +192,46 @@ func (reporter TelegramReporter) Send(report types.Report) error {
 
 func (reporter TelegramReporter) Name() string {
 	return "telegram-reporter"
+}
+
+func (reporter *TelegramReporter) BotSend(msg string) error {
+	msgsByNewline := strings.Split(msg, "\n")
+
+	var sb strings.Builder
+
+	for _, line := range msgsByNewline {
+		if sb.Len()+len(line) >= MaxMessageSize {
+			if _, err := reporter.TelegramBot.Send(
+				&tele.User{
+					ID: reporter.Chat,
+				},
+				msg,
+				tele.ModeHTML,
+				tele.NoPreview,
+			); err != nil {
+				reporter.Logger.Error().Err(err).Msg("Could not send Telegram message")
+				return err
+			}
+
+			sb.Reset()
+		}
+
+		sb.WriteString(line + "\n")
+	}
+
+	if _, err := reporter.TelegramBot.Send(
+		&tele.User{
+			ID: reporter.Chat,
+		},
+		msg,
+		tele.ModeHTML,
+		tele.NoPreview,
+	); err != nil {
+		reporter.Logger.Error().Err(err).Msg("Could not send Telegram message")
+		return err
+	}
+
+	return nil
 }
 
 func (reporter *TelegramReporter) BotReply(c tele.Context, msg string) error {
