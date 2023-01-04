@@ -5,6 +5,7 @@ import (
 	"embed"
 	"fmt"
 	"html/template"
+	"main/pkg/alias_manager"
 	"strings"
 	"time"
 
@@ -30,6 +31,7 @@ type TelegramReporter struct {
 	Templates    map[string]*template.Template
 	NodesManager *nodesManager.NodesManager
 	Config       *config.AppConfig
+	AliasManager *alias_manager.AliasManager
 }
 
 const (
@@ -48,6 +50,7 @@ func NewTelegramReporter(
 	config *config.AppConfig,
 	logger *zerolog.Logger,
 	nodesManager *nodesManager.NodesManager,
+	aliasManager *alias_manager.AliasManager,
 ) *TelegramReporter {
 	return &TelegramReporter{
 		Token:        config.TelegramConfig.Token,
@@ -57,6 +60,7 @@ func NewTelegramReporter(
 		Logger:       logger.With().Str("component", "telegram_reporter").Logger(),
 		Templates:    make(map[string]*template.Template, 0),
 		NodesManager: nodesManager,
+		AliasManager: aliasManager,
 	}
 }
 
@@ -84,6 +88,7 @@ func (reporter *TelegramReporter) Init() {
 	bot.Handle("/start", reporter.HandleHelp)
 	bot.Handle("/status", reporter.HandleListNodesStatus)
 	bot.Handle("/config", reporter.HandleGetConfig)
+	bot.Handle("/alias", reporter.HandleSetAlias)
 
 	reporter.TelegramBot = bot
 	go reporter.TelegramBot.Start()

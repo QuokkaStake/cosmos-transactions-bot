@@ -1,6 +1,7 @@
 package pkg
 
 import (
+	"main/pkg/alias_manager"
 	"os"
 	"os/signal"
 	"syscall"
@@ -24,11 +25,13 @@ type App struct {
 
 func NewApp(config *config.AppConfig) *App {
 	log := logger.GetLogger(config.LogConfig)
+	aliasManager := alias_manager.NewAliasManager(log, config)
+	aliasManager.Load()
 
 	nodesManager := nodesManager.NewNodesManager(log, config)
 
 	reporters := []reporters.Reporter{
-		telegram.NewTelegramReporter(config, log, nodesManager),
+		telegram.NewTelegramReporter(config, log, nodesManager, aliasManager),
 	}
 
 	dataFetchers := make(map[string]*data_fetcher.DataFetcher, len(config.Chains))

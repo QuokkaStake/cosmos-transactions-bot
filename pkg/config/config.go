@@ -27,6 +27,7 @@ func (c Chains) FindByName(name string) *types.Chain {
 
 type AppConfig struct {
 	Path           string
+	AliasesPath    string
 	TelegramConfig TelegramConfig
 	LogConfig      LogConfig
 	Chains         Chains
@@ -69,7 +70,8 @@ func GetConfig(path string) (*AppConfig, error) {
 
 func FromTomlConfig(c *tomlConfig.TomlConfig, path string) *AppConfig {
 	return &AppConfig{
-		Path: path,
+		Path:        path,
+		AliasesPath: c.AliasesPath,
 		TelegramConfig: TelegramConfig{
 			Chat:   c.TelegramConfig.Chat,
 			Token:  c.TelegramConfig.Token,
@@ -87,6 +89,7 @@ func FromTomlConfig(c *tomlConfig.TomlConfig, path string) *AppConfig {
 
 func (c *AppConfig) ToTomlConfig() *tomlConfig.TomlConfig {
 	return &tomlConfig.TomlConfig{
+		AliasesPath: c.AliasesPath,
 		TelegramConfig: tomlConfig.TelegramConfig{
 			Chat:   c.TelegramConfig.Chat,
 			Token:  c.TelegramConfig.Token,

@@ -161,6 +161,7 @@ func (e *Explorer) ToAppConfigExplorer() *types.Explorer {
 type Chains []*Chain
 
 type TomlConfig struct {
+	AliasesPath    string         `toml:"aliases"`
 	TelegramConfig TelegramConfig `toml:"telegram"`
 	LogConfig      LogConfig      `toml:"log"`
 	Chains         Chains         `toml:"chains"`
