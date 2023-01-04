@@ -89,6 +89,7 @@ func (reporter *TelegramReporter) Init() {
 	bot.Handle("/status", reporter.HandleListNodesStatus)
 	bot.Handle("/config", reporter.HandleGetConfig)
 	bot.Handle("/alias", reporter.HandleSetAlias)
+	bot.Handle("/aliases", reporter.HandleGetAliases)
 
 	reporter.TelegramBot = bot
 	go reporter.TelegramBot.Start()

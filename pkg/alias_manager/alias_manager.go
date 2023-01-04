@@ -1,6 +1,7 @@
 package alias_manager
 
 import (
+	"bytes"
 	"github.com/BurntSushi/toml"
 	"github.com/rs/zerolog"
 	"main/pkg/config"
@@ -11,16 +12,36 @@ import (
 type Aliases *map[string]string
 type TomlAliases map[string]Aliases
 
+func (t TomlAliases) ToTomlString() (string, error) {
+	buffer := new(bytes.Buffer)
+
+	if err := toml.NewEncoder(buffer).Encode(t); err != nil {
+		return "", err
+	}
+
+	return buffer.String(), nil
+}
+
 type ChainAliases struct {
 	Chain   *types.Chain
 	Aliases Aliases
 }
+type AllChainAliases map[string]*ChainAliases
 
 type AliasManager struct {
 	Logger  zerolog.Logger
 	Path    string
 	Chains  config.Chains
-	Aliases map[string]*ChainAliases
+	Aliases AllChainAliases
+}
+
+func (a AllChainAliases) ToTomlAliases() TomlAliases {
+	tomlAliases := make(TomlAliases, len(a))
+	for chainName, chainAliases := range a {
+		tomlAliases[chainName] = chainAliases.Aliases
+	}
+
+	return tomlAliases
 }
 
 func NewAliasManager(logger *zerolog.Logger, config *config.AppConfig) *AliasManager {
@@ -51,7 +72,7 @@ func (m *AliasManager) Load() {
 	aliasesString := string(aliasesBytes)
 
 	var aliasesStruct TomlAliases
-	if _, err = toml.Decode(aliasesString, aliasesStruct); err != nil {
+	if _, err = toml.Decode(aliasesString, &aliasesStruct); err != nil {
 		m.Logger.Error().Err(err).Msg("Could not decode aliases")
 		return
 	}
@@ -68,6 +89,8 @@ func (m *AliasManager) Load() {
 			Aliases: chainAliases,
 		}
 	}
+
+	m.Logger.Info().Msg("Aliases loaded")
 }
 
 func (m *AliasManager) Save() error {
@@ -76,10 +99,7 @@ func (m *AliasManager) Save() error {
 		return nil
 	}
 
-	tomlAliases := make(TomlAliases, len(m.Aliases))
-	for chainName, chainAliases := range m.Aliases {
-		tomlAliases[chainName] = chainAliases.Aliases
-	}
+	tomlAliases := m.Aliases.ToTomlAliases()
 
 	f, err := os.Create(m.Path)
 	if err != nil {
@@ -144,4 +164,9 @@ func (m *AliasManager) Set(chain, address, alias string) error {
 	aliases[address] = alias
 
 	return m.Save()
+}
+
+func (m *AliasManager) GetAsToml() (string, error) {
+	tomlAliases := m.Aliases.ToTomlAliases()
+	return tomlAliases.ToTomlString()
 }
