@@ -19,10 +19,9 @@ import (
 type Authorization interface{}
 
 type StakeAuthorization struct {
-	MaxTokens          *types.Amount
-	AuthorizationType  string
-	Validators         []configTypes.Link
-	ValidatorsListType string
+	MaxTokens         *types.Amount
+	AuthorizationType string
+	Validators        []configTypes.Link
 }
 
 type MsgGrant struct {
@@ -33,17 +32,66 @@ type MsgGrant struct {
 	Authorization Authorization
 }
 
+func ParseStakeAuthorization(authorization *codecTypes.Any, chain *configTypes.Chain) (Authorization, error) {
+	var parsedAuthorization cosmosStakingTypes.StakeAuthorization
+	if err := proto.Unmarshal(authorization.Value, &parsedAuthorization); err != nil {
+		return nil, err
+	}
+	var maxTokens *types.Amount
+	if parsedAuthorization.MaxTokens != nil {
+		maxTokens = &types.Amount{
+			Value: float64(parsedAuthorization.MaxTokens.Amount.Int64()),
+			Denom: parsedAuthorization.MaxTokens.Denom,
+		}
+	}
+
+	var validators []configTypes.Link
+	authorizationType := "UNSPECIFIED"
+
+	if allowList := parsedAuthorization.GetAllowList(); allowList != nil {
+		validators = utils.Map(allowList.Address, func(address string) configTypes.Link {
+			return chain.GetValidatorLink(address)
+		})
+		authorizationType = "ALLOWLIST"
+	} else if denyList := parsedAuthorization.GetDenyList(); denyList != nil {
+		validators = utils.Map(denyList.Address, func(address string) configTypes.Link {
+			return chain.GetValidatorLink(address)
+		})
+		authorizationType = "DENYLIST"
+	}
+
+	generatedAuthorization := StakeAuthorization{
+		MaxTokens:         maxTokens,
+		Validators:        validators,
+		AuthorizationType: authorizationType,
+	}
+
+	return generatedAuthorization, nil
+}
+
 func ParseMsgGrant(data []byte, chain *configTypes.Chain, height int64) (types.Message, error) {
 	var parsedMessage cosmosAuthzTypes.MsgGrant
 	if err := proto.Unmarshal(data, &parsedMessage); err != nil {
 		return nil, err
 	}
 
+	var authorization Authorization
+
+	switch parsedMessage.Grant.Authorization.TypeUrl {
+	case "/cosmos.staking.v1beta1.StakeAuthorization":
+		if value, err := ParseStakeAuthorization(parsedMessage.Grant.Authorization, chain); err != nil {
+			return nil, err
+		} else {
+			authorization = value
+		}
+	}
+
 	return &MsgGrant{
-		Grantee:    chain.GetWalletLink(parsedMessage.Grantee),
-		Granter:    chain.GetValidatorLink(parsedMessage.Granter),
-		GrantType:  parsedMessage.Grant.Authorization.TypeUrl,
-		Expiration: parsedMessage.Grant.Expiration,
+		Grantee:       chain.GetWalletLink(parsedMessage.Grantee),
+		Granter:       chain.GetWalletLink(parsedMessage.Granter),
+		GrantType:     parsedMessage.Grant.Authorization.TypeUrl,
+		Expiration:    parsedMessage.Grant.Expiration,
+		Authorization: authorization,
 	}, nil
 }
 

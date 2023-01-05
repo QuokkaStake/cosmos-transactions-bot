@@ -5,3 +5,26 @@ Type: <code>{{ .GrantType }}</code>
 {{- if .Expiration }}
 Expires at: {{ SerializeDate .Expiration }}
 {{- end }}
+
+{{ if eq .GrantType "/cosmos.staking.v1beta1.StakeAuthorization" }}
+Grant type: Staking
+Auth type: {{ .Authorization.AuthorizationType }}
+{{- if .Authorization.MaxTokens }}
+Max amount: {{.SerializeAmount .Authorization.MaxTokens }}
+{{- end }}
+{{- if eq .Authorization.AuthorizationType "ALLOWLIST" }}
+Allowed to stake to the following validators:
+{{- range $validatorId, $validator := .Authorization.Validators }}
+- {{ SerializeLink $validator }}
+{{- end }}
+{{- if eq .Authorization.AuthorizationType "DENYLIST"}}
+Allowed to stake to all validators except the following:
+{{- range $validatorId, $validator := .Authorization.Validators }}
+- {{ SerializeLink $validator }}
+{{- end }}
+{{- if eq .Authorization.AuthorizationType "UNSPECIFIED"}}
+Allowed to stake to all validators.
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
