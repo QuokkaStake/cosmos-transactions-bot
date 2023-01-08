@@ -5,6 +5,9 @@
 
 cosmos-transactions-bot is a tool that listens to transactions with a specific filter on multiple chains and reports them to a Telegram channel.
 
+Here's how it may look like:
+
+![Telegram](https://raw.githubusercontent.com/freak12techno/cosmos-transactions-bot/master/images/telegram.png)
 
 ## How can I set it up?
 
@@ -148,6 +151,15 @@ Then run a program with Telegram config (see `config.example.toml` as example).
 
 You would likely want to also put only the IDs of trusted people to admins list in Telegram config, so the bot won't react to anyone writing messages to it except these users.
 
+Additionally, for the ease of using commands, you can put the following list as bot commands in @BotFather settings:
+
+```
+help - Display help message
+status - Display nodes status
+config - Display .toml config
+alias - Add a wallet alias
+aliases - List wallet aliases
+```
 
 ## Which networks this is guaranteed to work?
 
