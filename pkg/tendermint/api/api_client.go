@@ -7,9 +7,10 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/rs/zerolog"
 	"main/pkg/config/types"
 	"main/pkg/types/responses"
+
+	"github.com/rs/zerolog"
 )
 
 type TendermintApiClient struct {

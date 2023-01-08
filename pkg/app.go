@@ -5,7 +5,6 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/rs/zerolog"
 	"main/pkg/alias_manager"
 	"main/pkg/config"
 	"main/pkg/data_fetcher"
@@ -13,6 +12,8 @@ import (
 	nodesManager "main/pkg/nodes_manager"
 	"main/pkg/reporters"
 	"main/pkg/reporters/telegram"
+
+	"github.com/rs/zerolog"
 )
 
 type App struct {

@@ -4,15 +4,16 @@ import (
 	"fmt"
 	"strconv"
 
-	cosmosTypes "github.com/cosmos/cosmos-sdk/types"
-	cosmosGovEvents "github.com/cosmos/cosmos-sdk/x/gov/types"
-	cosmosGovTypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
-	"github.com/gogo/protobuf/proto"
 	configTypes "main/pkg/config/types"
 	dataFetcher "main/pkg/data_fetcher"
 	"main/pkg/types"
 	"main/pkg/types/event"
 	"main/pkg/types/responses"
+
+	cosmosTypes "github.com/cosmos/cosmos-sdk/types"
+	cosmosGovEvents "github.com/cosmos/cosmos-sdk/x/gov/types"
+	cosmosGovTypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+	"github.com/gogo/protobuf/proto"
 )
 
 type MsgVote struct {

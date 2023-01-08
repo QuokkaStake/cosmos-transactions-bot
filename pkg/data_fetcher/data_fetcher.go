@@ -3,13 +3,14 @@ package data_fetcher
 import (
 	"strconv"
 
-	"github.com/rs/zerolog"
 	"main/pkg/alias_manager"
 	"main/pkg/cache"
 	"main/pkg/config/types"
 	priceFetchers "main/pkg/price_fetchers"
 	"main/pkg/tendermint/api"
 	"main/pkg/types/responses"
+
+	"github.com/rs/zerolog"
 )
 
 type DataFetcher struct {

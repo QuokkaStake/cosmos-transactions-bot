@@ -8,15 +8,16 @@ import (
 	"strings"
 	"time"
 
-	"github.com/rs/zerolog"
-	tele "gopkg.in/telebot.v3"
-	"gopkg.in/telebot.v3/middleware"
 	"main/pkg/alias_manager"
 	"main/pkg/config"
 	configTypes "main/pkg/config/types"
 	nodesManager "main/pkg/nodes_manager"
 	"main/pkg/types"
 	"main/pkg/utils"
+
+	"github.com/rs/zerolog"
+	tele "gopkg.in/telebot.v3"
+	"gopkg.in/telebot.v3/middleware"
 )
 
 type TelegramReporter struct {

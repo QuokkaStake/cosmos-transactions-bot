@@ -1,13 +1,14 @@
 package messages
 
 import (
-	cosmosTypes "github.com/cosmos/cosmos-sdk/types"
-	ibcClientTypes "github.com/cosmos/ibc-go/v6/modules/core/02-client/types"
-	"github.com/gogo/protobuf/proto"
 	configTypes "main/pkg/config/types"
 	dataFetcher "main/pkg/data_fetcher"
 	"main/pkg/types"
 	"main/pkg/types/event"
+
+	cosmosTypes "github.com/cosmos/cosmos-sdk/types"
+	ibcClientTypes "github.com/cosmos/ibc-go/v6/modules/core/02-client/types"
+	"github.com/gogo/protobuf/proto"
 )
 
 type MsgUpdateClient struct {

@@ -3,10 +3,11 @@ package nodes_manager
 import (
 	"sync"
 
-	"github.com/rs/zerolog"
 	"main/pkg/config"
 	"main/pkg/tendermint/ws"
 	"main/pkg/types"
+
+	"github.com/rs/zerolog"
 )
 
 type ReportQueue struct {
