@@ -2,7 +2,6 @@ package telegram
 
 import (
 	"bytes"
-	"embed"
 	"fmt"
 	"html/template"
 	"strings"
@@ -14,6 +13,7 @@ import (
 	nodesManager "main/pkg/nodes_manager"
 	"main/pkg/types"
 	"main/pkg/utils"
+	"main/templates"
 
 	"github.com/rs/zerolog"
 	tele "gopkg.in/telebot.v3"
@@ -36,9 +36,6 @@ type TelegramReporter struct {
 const (
 	MaxMessageSize = 4096
 )
-
-//go:embed templates/*
-var templatesFs embed.FS
 
 type TelegramSerializedReport struct {
 	Report types.Report
@@ -113,7 +110,7 @@ func (reporter TelegramReporter) GetTemplate(name string) (*template.Template, e
 		"SerializeAmount":  reporter.SerializeAmount,
 		"SerializeDate":    reporter.SerializeDate,
 		"SerializeMessage": reporter.SerializeMessage,
-	}).ParseFS(templatesFs, "templates/"+filename)
+	}).ParseFS(templates.TemplatesFs, "telegram/"+filename)
 	if err != nil {
 		return nil, err
 	}
