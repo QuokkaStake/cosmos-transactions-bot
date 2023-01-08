@@ -3,10 +3,6 @@ package converter
 import (
 	"fmt"
 
-	configTypes "main/pkg/config/types"
-	"main/pkg/messages"
-	"main/pkg/types"
-
 	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/types/tx"
 	"github.com/gogo/protobuf/proto"
@@ -17,6 +13,9 @@ import (
 	coreTypes "github.com/tendermint/tendermint/rpc/core/types"
 	jsonRpcTypes "github.com/tendermint/tendermint/rpc/jsonrpc/types"
 	tendermintTypes "github.com/tendermint/tendermint/types"
+	configTypes "main/pkg/config/types"
+	"main/pkg/messages"
+	"main/pkg/types"
 )
 
 type Converter struct {

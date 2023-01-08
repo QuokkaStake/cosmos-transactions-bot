@@ -7,10 +7,9 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/rs/zerolog"
 	"main/pkg/config/types"
 	"main/pkg/types/responses"
-
-	"github.com/rs/zerolog"
 )
 
 type TendermintApiClient struct {
@@ -128,7 +127,7 @@ func (c *TendermintApiClient) GetWithHeaders(
 	headers map[string]string,
 ) error {
 	client := &http.Client{
-		Timeout: c.Timeout * time.Second,
+		Timeout: c.Timeout,
 	}
 	start := time.Now()
 

@@ -3,17 +3,16 @@ package messages
 import (
 	"time"
 
-	configTypes "main/pkg/config/types"
-	dataFetcher "main/pkg/data_fetcher"
-	"main/pkg/types"
-	"main/pkg/types/event"
-	"main/pkg/utils"
-
 	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cosmosTypes "github.com/cosmos/cosmos-sdk/types"
 	cosmosAuthzTypes "github.com/cosmos/cosmos-sdk/x/authz"
 	cosmosStakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/gogo/protobuf/proto"
+	configTypes "main/pkg/config/types"
+	dataFetcher "main/pkg/data_fetcher"
+	"main/pkg/types"
+	"main/pkg/types/event"
+	"main/pkg/utils"
 )
 
 type Authorization interface{}
@@ -77,8 +76,7 @@ func ParseMsgGrant(data []byte, chain *configTypes.Chain, height int64) (types.M
 
 	var authorization Authorization
 
-	switch parsedMessage.Grant.Authorization.TypeUrl {
-	case "/cosmos.staking.v1beta1.StakeAuthorization":
+	if parsedMessage.Grant.Authorization.TypeUrl == "/cosmos.staking.v1beta1.StakeAuthorization" {
 		if value, err := ParseStakeAuthorization(parsedMessage.Grant.Authorization, chain); err != nil {
 			return nil, err
 		} else {

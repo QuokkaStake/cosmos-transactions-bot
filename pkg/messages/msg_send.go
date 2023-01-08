@@ -1,15 +1,14 @@
 package messages
 
 import (
+	cosmosTypes "github.com/cosmos/cosmos-sdk/types"
+	cosmosBankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"github.com/gogo/protobuf/proto"
 	configTypes "main/pkg/config/types"
 	"main/pkg/data_fetcher"
 	"main/pkg/types"
 	"main/pkg/types/event"
 	"main/pkg/utils"
-
-	cosmosTypes "github.com/cosmos/cosmos-sdk/types"
-	cosmosBankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/gogo/protobuf/proto"
 )
 
 type MsgSend struct {

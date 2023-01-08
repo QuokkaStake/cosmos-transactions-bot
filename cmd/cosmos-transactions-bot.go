@@ -1,11 +1,10 @@
 package main
 
 import (
+	"github.com/spf13/cobra"
 	"main/pkg"
 	"main/pkg/config"
 	"main/pkg/logger"
-
-	"github.com/spf13/cobra"
 )
 
 func Execute(configPath string) {

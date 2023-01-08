@@ -40,3 +40,5 @@ linters:
     - stylecheck
     - gosimple
     - ireturn
+    - nosnakecase
+    - ifshort

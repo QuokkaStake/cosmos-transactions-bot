@@ -1,10 +1,9 @@
 package price_fetchers
 
 import (
-	"main/pkg/config/types"
-
 	"github.com/rs/zerolog"
 	gecko "github.com/superoo7/go-gecko/v3"
+	"main/pkg/config/types"
 )
 
 type CoingeckoPriceFetcher struct {

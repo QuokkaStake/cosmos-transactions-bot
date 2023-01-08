@@ -7,13 +7,12 @@ import (
 	"time"
 	"unsafe"
 
-	configTypes "main/pkg/config/types"
-	"main/pkg/converter"
-	"main/pkg/types"
-
 	"github.com/rs/zerolog"
 	tmClient "github.com/tendermint/tendermint/rpc/jsonrpc/client"
 	jsonRpcTypes "github.com/tendermint/tendermint/rpc/jsonrpc/types"
+	configTypes "main/pkg/config/types"
+	"main/pkg/converter"
+	"main/pkg/types"
 )
 
 type TendermintWebsocketClient struct {
