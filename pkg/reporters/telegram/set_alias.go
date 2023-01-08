@@ -2,8 +2,9 @@ package telegram
 
 import (
 	"fmt"
-	tele "gopkg.in/telebot.v3"
 	"strings"
+
+	tele "gopkg.in/telebot.v3"
 )
 
 func (reporter *TelegramReporter) HandleSetAlias(c tele.Context) error {

@@ -99,9 +99,7 @@ func (c *AppConfig) ToTomlConfig() *tomlConfig.TomlConfig {
 			LogLevel:   c.LogConfig.LogLevel,
 			JSONOutput: c.LogConfig.JSONOutput,
 		},
-		Chains: utils.Map(c.Chains, func(c *types.Chain) *tomlConfig.Chain {
-			return tomlConfig.FromAppConfigChain(c)
-		}),
+		Chains: utils.Map(c.Chains, tomlConfig.FromAppConfigChain),
 	}
 }
 

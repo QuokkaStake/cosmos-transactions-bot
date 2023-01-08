@@ -2,11 +2,12 @@ package alias_manager
 
 import (
 	"bytes"
-	"github.com/BurntSushi/toml"
-	"github.com/rs/zerolog"
 	"main/pkg/config"
 	"main/pkg/config/types"
 	"os"
+
+	"github.com/BurntSushi/toml"
+	"github.com/rs/zerolog"
 )
 
 type Aliases *map[string]string
