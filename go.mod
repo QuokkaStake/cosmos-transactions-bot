@@ -10,6 +10,7 @@ require (
 	github.com/cosmos/ibc-go/v6 v6.1.0
 	github.com/creasty/defaults v1.6.0
 	github.com/gogo/protobuf v1.3.3
+	github.com/google/uuid v1.3.0
 	github.com/rs/zerolog v1.28.0
 	github.com/spf13/cobra v1.6.1
 	github.com/superoo7/go-gecko v1.0.0
