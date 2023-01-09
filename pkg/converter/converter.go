@@ -29,6 +29,7 @@ func NewConverter(logger *zerolog.Logger, chain *configTypes.Chain) *Converter {
 	parsers := map[string]types.MessageParser{
 		"/cosmos.authz.v1beta1.MsgExec":                               messages.ParseMsgExec,
 		"/cosmos.authz.v1beta1.MsgGrant":                              messages.ParseMsgGrant,
+		"/cosmos.authz.v1beta1.MsgRevoke":                             messages.ParseMsgRevoke,
 		"/cosmos.bank.v1beta1.MsgSend":                                messages.ParseMsgSend,
 		"/cosmos.bank.v1beta1.MsgMultiSend":                           messages.ParseMsgMultiSend,
 		"/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward":     messages.ParseMsgWithdrawDelegatorReward,
@@ -132,6 +133,9 @@ func (c *Converter) ParseMessage(
 	if err != nil {
 		c.Logger.Error().Err(err).Str("type", message.TypeUrl).Msg("Error parsing message")
 		return &messages.MsgError{Error: fmt.Errorf("Error parsing message: %s", err)}
+	} else if msgParsed == nil {
+		c.Logger.Error().Str("type", message.TypeUrl).Msg("Got empty message after parsing")
+		return nil
 	}
 
 	// MsgExec contains a bunch of other messages
