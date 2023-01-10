@@ -119,6 +119,16 @@ func (c *Converter) ParseMessage(
 	txResult abciTypes.TxResult,
 	useIgnoreFilters bool,
 ) types.Message {
+	// We know the message type even before parsing, so we can filter it out
+	// if we have a filter with message.action key it doesn't match.
+	if useIgnoreFilters && !c.Chain.Filters.MatchesType(message.TypeUrl) {
+		c.Logger.Debug().
+			Int64("height", txResult.Height).
+			Str("type", message.TypeUrl).
+			Msg("Message type is ignored by filters.")
+		return nil
+	}
+
 	parser, ok := c.Parsers[message.TypeUrl]
 	if !ok {
 		c.Logger.Error().Str("type", message.TypeUrl).Msg("Unsupported message type")

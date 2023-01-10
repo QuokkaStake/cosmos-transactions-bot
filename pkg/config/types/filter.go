@@ -60,3 +60,24 @@ func (f Filters) Matches(values event.EventValues) bool {
 
 	return false
 }
+
+func (f Filters) MatchesType(msgType string) bool {
+	if len(f) == 0 {
+		return true
+	}
+
+	for _, filter := range f {
+		if filter.Key != "message.action" {
+			continue
+		}
+
+		if filter.Operator == "=" && filter.Value != msgType {
+			return false
+		}
+		if filter.Operator == "!=" && filter.Value == msgType {
+			return false
+		}
+	}
+
+	return true
+}
