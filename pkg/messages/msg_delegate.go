@@ -60,5 +60,6 @@ func (m *MsgDelegate) GetValues() event.EventValues {
 		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, m.Type()),
 		event.From(cosmosStakingTypes.EventTypeDelegate, cosmosStakingTypes.AttributeKeyValidator, m.ValidatorAddress.Value),
 		event.From(cosmosStakingTypes.EventTypeDelegate, cosmosStakingTypes.AttributeKeyDelegator, m.DelegatorAddress.Value),
+		event.From(cosmosStakingTypes.EventTypeDelegate, cosmosTypes.AttributeKeyAmount, m.Amount.String()),
 	}
 }

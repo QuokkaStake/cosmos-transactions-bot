@@ -1,6 +1,6 @@
 🖥️ <strong>AuthZ exec</strong>
 Grantee: {{ SerializeLink .Grantee }}
-AuthZ messages ({{ len .Messages }}):
+AuthZ messages ({{ .GetMessagesLabel }}):
 -----------------------------------------
 {{ range $msgId, $msg := .Messages }}
 {{ SerializeMessage $msg }}

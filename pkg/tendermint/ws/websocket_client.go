@@ -2,6 +2,7 @@ package ws
 
 import (
 	"context"
+	"github.com/tendermint/tendermint/libs/pubsub/query"
 	"reflect"
 	"strings"
 	"time"
@@ -20,7 +21,7 @@ type TendermintWebsocketClient struct {
 	Logger    zerolog.Logger
 	Chain     configTypes.Chain
 	URL       string
-	Queries   []string
+	Queries   []query.Query
 	Client    *tmClient.WSClient
 	Converter *converter.Converter
 	Active    bool
@@ -130,10 +131,10 @@ func (t *TendermintWebsocketClient) SubscribeToUpdates() {
 	t.Logger.Trace().Msg("Subscribing to updates...")
 
 	for _, query := range t.Queries {
-		if err := t.Client.Subscribe(context.Background(), query); err != nil {
-			t.Logger.Error().Err(err).Str("query", query).Msg("Failed to subscribe to query")
+		if err := t.Client.Subscribe(context.Background(), query.String()); err != nil {
+			t.Logger.Error().Err(err).Str("query", query.String()).Msg("Failed to subscribe to query")
 		} else {
-			t.Logger.Info().Str("query", query).Msg("Listening for incoming transactions")
+			t.Logger.Info().Str("query", query.String()).Msg("Listening for incoming transactions")
 		}
 	}
 }
