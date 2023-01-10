@@ -1,62 +1,34 @@
 package types
 
 import (
-	"fmt"
-	"strings"
-
 	"main/pkg/types/event"
-	"main/pkg/utils"
+
+	cosmosTypes "github.com/cosmos/cosmos-sdk/types"
+	"github.com/tendermint/tendermint/libs/pubsub/query"
 )
 
-type Filter struct {
-	Key      string
-	Operator string
-	Value    string
-}
+type Filters []query.Query
 
-func NewFilter(filter string) Filter {
-	split := strings.Split(filter, " ")
-
-	return Filter{
-		Key:      split[0],
-		Operator: split[1],
-		Value:    utils.Dequotify(split[2]),
-	}
-}
-
-func (f Filter) ToString() string {
-	return fmt.Sprintf("%s %s '%s'", f.Key, f.Operator, f.Value)
-}
-
-func (f Filter) Matches(values event.EventValues) bool {
-	for _, value := range values {
-		if value.Key != f.Key {
-			continue
-		}
-
-		if f.Operator == "=" && f.Value != value.Value {
-			return false
-		}
-		if f.Operator == "!=" && f.Value == value.Value {
-			return false
-		}
-	}
-
-	return true
-}
-
-type Filters []Filter
-
-func (f Filters) Matches(values event.EventValues) bool {
+func (f Filters) Matches(values event.EventValues) (bool, error) {
 	if len(f) == 0 {
-		return true
+		return true, nil
 	}
 
 	for _, filter := range f {
-		if filter.Matches(values) {
-			return true
+		if matches, err := filter.Matches(values.ToMap()); err != nil {
+			return false, err
+		} else if matches {
+			return true, nil
 		}
 	}
 
-	return false
+	return false, nil
+}
+
+func (f Filters) MatchesType(msgType string) (bool, error) {
+	values := []event.EventValue{
+		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, msgType),
+	}
+
+	return f.Matches(values)
 }

@@ -15,7 +15,7 @@ import (
 type MsgSend struct {
 	From   configTypes.Link
 	To     configTypes.Link
-	Amount []*types.Amount
+	Amount types.Amounts
 }
 
 func ParseMsgSend(data []byte, chain *configTypes.Chain, height int64) (types.Message, error) {
@@ -72,6 +72,7 @@ func (m *MsgSend) GetValues() event.EventValues {
 		event.From(cosmosBankTypes.EventTypeTransfer, cosmosBankTypes.AttributeKeyRecipient, m.To.Value),
 		event.From(cosmosBankTypes.EventTypeCoinSpent, cosmosBankTypes.AttributeKeySpender, m.From.Value),
 		event.From(cosmosBankTypes.EventTypeCoinReceived, cosmosBankTypes.AttributeKeyReceiver, m.To.Value),
+		event.From(cosmosBankTypes.EventTypeTransfer, cosmosTypes.AttributeKeyAmount, m.Amount.String()),
 		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeySender, m.From.Value),
 	}
 }

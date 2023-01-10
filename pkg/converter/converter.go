@@ -96,12 +96,16 @@ func (c *Converter) ParseEvent(event jsonRpcTypes.RPCResponse) types.Reportable 
 	txMessages := []types.Message{}
 
 	for _, message := range txProto.GetBody().Messages {
-		if msgParsed := c.ParseMessage(message, txResult, true); msgParsed != nil {
+		if msgParsed := c.ParseMessage(message, txResult); msgParsed != nil {
 			txMessages = append(txMessages, msgParsed)
 		}
 	}
 
 	if len(txMessages) == 0 {
+		c.Logger.Debug().
+			Int64("height", txResult.Height).
+			Str("hash", txHash).
+			Msg("All messages in transaction were filtered out, skipping.")
 		return nil
 	}
 
@@ -117,7 +121,6 @@ func (c *Converter) ParseEvent(event jsonRpcTypes.RPCResponse) types.Reportable 
 func (c *Converter) ParseMessage(
 	message *codecTypes.Any,
 	txResult abciTypes.TxResult,
-	useIgnoreFilters bool,
 ) types.Message {
 	parser, ok := c.Parsers[message.TypeUrl]
 	if !ok {
@@ -141,13 +144,24 @@ func (c *Converter) ParseMessage(
 	// MsgExec contains a bunch of other messages
 	if msgExec, ok := msgParsed.(*messages.MsgExec); ok {
 		for _, msgInExec := range msgExec.RawMessages {
-			if msgExecParsed := c.ParseMessage(msgInExec, txResult, false); msgParsed != nil {
+			if msgExecParsed := c.ParseMessage(msgInExec, txResult); msgExecParsed != nil {
 				msgExec.Messages = append(msgExec.Messages, msgExecParsed)
 			}
 		}
+
+		if len(msgExec.Messages) == 0 {
+			c.Logger.Debug().
+				Int64("height", txResult.Height).
+				Str("type", msgParsed.Type()).
+				Msg("Authz message has 0 messages after filtering, skipping.")
+			return nil
+		}
 	}
 
-	if useIgnoreFilters && !c.Chain.Filters.Matches(msgParsed.GetValues()) {
+	matches, err := c.Chain.Filters.Matches(msgParsed.GetValues())
+	if err != nil {
+		c.Logger.Error().Err(err).Str("type", message.TypeUrl).Msg("Error checking if message matches filters")
+	} else if !matches {
 		c.Logger.Debug().
 			Int64("height", txResult.Height).
 			Str("type", msgParsed.Type()).

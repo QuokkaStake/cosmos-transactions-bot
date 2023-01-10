@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/rs/zerolog"
+	"github.com/tendermint/tendermint/libs/pubsub/query"
 )
 
 type Chain struct {
@@ -12,7 +13,7 @@ type Chain struct {
 	PrettyName         string
 	TendermintNodes    []string
 	APINodes           []string
-	Queries            []string
+	Queries            []query.Query
 	Explorer           *Explorer
 	SupportedExplorer  SupportedExplorer
 	CoingeckoCurrency  string

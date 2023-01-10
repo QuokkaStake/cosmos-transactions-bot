@@ -2,10 +2,9 @@ package toml_config
 
 import (
 	"fmt"
-	"strings"
-
 	"main/pkg/config/types"
-	"main/pkg/utils"
+
+	"github.com/tendermint/tendermint/libs/pubsub/query"
 )
 
 type Chain struct {
@@ -43,8 +42,14 @@ func (c *Chain) Validate() error {
 		return fmt.Errorf("no queries provided")
 	}
 
+	for index, q := range c.Queries {
+		if _, err := query.New(q); err != nil {
+			return fmt.Errorf("Error in query %d: %s", index, err)
+		}
+	}
+
 	for index, filter := range c.Filters {
-		if err := ValidateFilter(filter); err != nil {
+		if _, err := query.New(filter); err != nil {
 			return fmt.Errorf("Error in filter %d: %s", index, err)
 		}
 	}
@@ -68,9 +73,14 @@ func (c *Chain) ToAppConfigChain() *types.Chain {
 		explorer = c.Explorer.ToAppConfigExplorer()
 	}
 
-	filters := make([]types.Filter, len(c.Filters))
+	filters := make([]query.Query, len(c.Filters))
 	for index, filter := range c.Filters {
-		filters[index] = types.NewFilter(filter)
+		filters[index] = *query.MustParse(filter)
+	}
+
+	queries := make([]query.Query, len(c.Queries))
+	for index, q := range c.Queries {
+		queries[index] = *query.MustParse(q)
 	}
 
 	return &types.Chain{
@@ -78,7 +88,7 @@ func (c *Chain) ToAppConfigChain() *types.Chain {
 		PrettyName:         c.PrettyName,
 		TendermintNodes:    c.TendermintNodes,
 		APINodes:           c.APINodes,
-		Queries:            c.Queries,
+		Queries:            queries,
 		Filters:            filters,
 		Explorer:           explorer,
 		SupportedExplorer:  supportedExplorer,
@@ -96,7 +106,6 @@ func FromAppConfigChain(c *types.Chain) *Chain {
 		PrettyName:         c.PrettyName,
 		TendermintNodes:    c.TendermintNodes,
 		APINodes:           c.APINodes,
-		Queries:            c.Queries,
 		CoingeckoCurrency:  c.CoingeckoCurrency,
 		BaseDenom:          c.BaseDenom,
 		DisplayDenom:       c.DisplayDenom,
@@ -121,23 +130,15 @@ func FromAppConfigChain(c *types.Chain) *Chain {
 
 	chain.Filters = make([]string, len(c.Filters))
 	for index, filter := range c.Filters {
-		chain.Filters[index] = filter.ToString()
+		chain.Filters[index] = filter.String()
+	}
+
+	chain.Queries = make([]string, len(c.Queries))
+	for index, q := range c.Queries {
+		chain.Queries[index] = q.String()
 	}
 
 	return chain
-}
-
-func ValidateFilter(filter string) error {
-	split := strings.Split(filter, " ")
-	if len(split) != 3 {
-		return fmt.Errorf("filter should match pattern: <key> <operator> <value>")
-	}
-
-	if !utils.Contains([]string{"=", "!="}, split[1]) {
-		return fmt.Errorf("unknown operator %s, allowed are: '=', '!='", split[1])
-	}
-
-	return nil
 }
 
 type Explorer struct {

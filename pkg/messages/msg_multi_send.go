@@ -14,7 +14,7 @@ import (
 
 type MultiSendEntry struct {
 	Address configTypes.Link
-	Amount  []*types.Amount
+	Amount  types.Amounts
 }
 
 type MsgMultiSend struct {
@@ -107,6 +107,7 @@ func (m *MsgMultiSend) GetValues() event.EventValues {
 			event.From(cosmosBankTypes.EventTypeTransfer, cosmosBankTypes.AttributeKeySpender, input.Address.Value),
 			event.From(cosmosBankTypes.EventTypeCoinSpent, cosmosBankTypes.AttributeKeySpender, input.Address.Value),
 			event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeySender, input.Address.Value),
+			event.From(cosmosBankTypes.EventTypeTransfer, cosmosTypes.AttributeKeyAmount, input.Amount.String()),
 		}...)
 	}
 
@@ -114,6 +115,7 @@ func (m *MsgMultiSend) GetValues() event.EventValues {
 		values = append(values, []event.EventValue{
 			event.From(cosmosBankTypes.EventTypeTransfer, cosmosBankTypes.AttributeKeyRecipient, output.Address.Value),
 			event.From(cosmosBankTypes.EventTypeCoinReceived, cosmosBankTypes.AttributeKeyReceiver, output.Address.Value),
+			event.From(cosmosBankTypes.EventTypeTransfer, cosmosTypes.AttributeKeyAmount, output.Amount.String()),
 		}...)
 	}
 

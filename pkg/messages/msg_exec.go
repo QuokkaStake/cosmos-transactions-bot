@@ -1,10 +1,12 @@
 package messages
 
 import (
+	"fmt"
 	configTypes "main/pkg/config/types"
 	dataFetcher "main/pkg/data_fetcher"
 	"main/pkg/types"
 	"main/pkg/types/event"
+	"strconv"
 
 	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cosmosTypes "github.com/cosmos/cosmos-sdk/types"
@@ -53,4 +55,12 @@ func (m *MsgExec) GetValues() event.EventValues {
 	}
 
 	return values
+}
+
+func (m *MsgExec) GetMessagesLabel() string {
+	if len(m.Messages) == len(m.RawMessages) {
+		return strconv.Itoa(len(m.Messages))
+	}
+
+	return fmt.Sprintf("%d, %d skipped", len(m.RawMessages), len(m.RawMessages)-len(m.Messages))
 }
