@@ -2,8 +2,9 @@ package toml_config
 
 import (
 	"fmt"
-	"github.com/tendermint/tendermint/libs/pubsub/query"
 	"main/pkg/config/types"
+
+	"github.com/tendermint/tendermint/libs/pubsub/query"
 )
 
 type Chain struct {

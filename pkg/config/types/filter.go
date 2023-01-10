@@ -1,9 +1,10 @@
 package types
 
 import (
+	"main/pkg/types/event"
+
 	cosmosTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/tendermint/tendermint/libs/pubsub/query"
-	"main/pkg/types/event"
 )
 
 type Filters []query.Query

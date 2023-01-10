@@ -2,11 +2,12 @@ package ws
 
 import (
 	"context"
-	"github.com/tendermint/tendermint/libs/pubsub/query"
 	"reflect"
 	"strings"
 	"time"
 	"unsafe"
+
+	"github.com/tendermint/tendermint/libs/pubsub/query"
 
 	configTypes "main/pkg/config/types"
 	"main/pkg/converter"
