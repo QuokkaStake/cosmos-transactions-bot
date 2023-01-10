@@ -179,6 +179,8 @@ func (reporter TelegramReporter) Send(report types.Report) error {
 		return err
 	}
 
+	reporter.Logger.Trace().Str("report", reportString).Msg("Sending a report")
+
 	if err := reporter.BotSend(reportString); err != nil {
 		reporter.Logger.Err(err).Msg("Could not send Telegram message")
 		return err

@@ -144,10 +144,8 @@ func (c *Converter) ParseMessage(
 	// MsgExec contains a bunch of other messages
 	if msgExec, ok := msgParsed.(*messages.MsgExec); ok {
 		for _, msgInExec := range msgExec.RawMessages {
-			fmt.Printf("parsing message for authz\n")
 			if msgExecParsed := c.ParseMessage(msgInExec, txResult); msgExecParsed != nil {
 				msgExec.Messages = append(msgExec.Messages, msgExecParsed)
-				fmt.Printf("added message at index %d: %+v\n", len(msgExec.Messages), msgExecParsed)
 			}
 		}
 
