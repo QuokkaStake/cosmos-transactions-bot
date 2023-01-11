@@ -272,10 +272,10 @@ func (reporter *TelegramReporter) SerializeLink(link configTypes.Link) template.
 }
 
 func (reporter *TelegramReporter) SerializeAmount(amount types.Amount) template.HTML {
-	if amount.PriceUSD != 0 {
+	if value, _ := amount.PriceUSD.Float64(); value != 0 {
 		return template.HTML(fmt.Sprintf(
 			"%.6f%s ($%.2f)",
-			amount.Value,
+			value,
 			amount.Denom,
 			amount.PriceUSD,
 		))

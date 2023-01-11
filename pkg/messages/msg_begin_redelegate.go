@@ -28,10 +28,7 @@ func ParseMsgBeginRedelegate(data []byte, chain *configTypes.Chain, height int64
 		DelegatorAddress:    chain.GetWalletLink(parsedMessage.DelegatorAddress),
 		ValidatorSrcAddress: chain.GetValidatorLink(parsedMessage.ValidatorSrcAddress),
 		ValidatorDstAddress: chain.GetValidatorLink(parsedMessage.ValidatorDstAddress),
-		Amount: &types.Amount{
-			Value: float64(parsedMessage.Amount.Amount.Int64()),
-			Denom: parsedMessage.Amount.Denom,
-		},
+		Amount:              types.AmountFrom(parsedMessage.Amount),
 	}, nil
 }
 
@@ -49,9 +46,7 @@ func (m *MsgBeginRedelegate) GetAdditionalData(fetcher dataFetcher.DataFetcher) 
 
 	price, found := fetcher.GetPrice()
 	if found && m.Amount.Denom == fetcher.Chain.BaseDenom {
-		m.Amount.Value /= float64(fetcher.Chain.DenomCoefficient)
-		m.Amount.Denom = fetcher.Chain.DisplayDenom
-		m.Amount.PriceUSD = m.Amount.Value * price
+		m.Amount.AddUSDPrice(fetcher.Chain.DisplayDenom, fetcher.Chain.DenomCoefficient, price)
 	}
 
 	if alias := fetcher.AliasManager.Get(fetcher.Chain.Name, m.DelegatorAddress.Value); alias != "" {

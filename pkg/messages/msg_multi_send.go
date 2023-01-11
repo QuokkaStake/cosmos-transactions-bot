@@ -32,23 +32,13 @@ func ParseMsgMultiSend(data []byte, chain *configTypes.Chain, height int64) (typ
 		Inputs: utils.Map(parsedMessage.Inputs, func(input cosmosBankTypes.Input) MultiSendEntry {
 			return MultiSendEntry{
 				Address: chain.GetWalletLink(input.Address),
-				Amount: utils.Map(input.Coins, func(coin cosmosTypes.Coin) *types.Amount {
-					return &types.Amount{
-						Value: float64(coin.Amount.Int64()),
-						Denom: coin.Denom,
-					}
-				}),
+				Amount:  utils.Map(input.Coins, types.AmountFrom),
 			}
 		}),
 		Outputs: utils.Map(parsedMessage.Outputs, func(output cosmosBankTypes.Output) MultiSendEntry {
 			return MultiSendEntry{
 				Address: chain.GetWalletLink(output.Address),
-				Amount: utils.Map(output.Coins, func(coin cosmosTypes.Coin) *types.Amount {
-					return &types.Amount{
-						Value: float64(coin.Amount.Int64()),
-						Denom: coin.Denom,
-					}
-				}),
+				Amount:  utils.Map(output.Coins, types.AmountFrom),
 			}
 		}),
 	}, nil
@@ -74,9 +64,7 @@ func (m *MsgMultiSend) GetAdditionalData(fetcher data_fetcher.DataFetcher) {
 				continue
 			}
 
-			amount.Value /= float64(fetcher.Chain.DenomCoefficient)
-			amount.Denom = fetcher.Chain.DisplayDenom
-			amount.PriceUSD = amount.Value * price
+			amount.AddUSDPrice(fetcher.Chain.DisplayDenom, fetcher.Chain.DenomCoefficient, price)
 		}
 	}
 
@@ -90,9 +78,7 @@ func (m *MsgMultiSend) GetAdditionalData(fetcher data_fetcher.DataFetcher) {
 				continue
 			}
 
-			amount.Value /= float64(fetcher.Chain.DenomCoefficient)
-			amount.Denom = fetcher.Chain.DisplayDenom
-			amount.PriceUSD = amount.Value * price
+			amount.AddUSDPrice(fetcher.Chain.DisplayDenom, fetcher.Chain.DenomCoefficient, price)
 		}
 	}
 }

@@ -5,7 +5,6 @@ import (
 	dataFetcher "main/pkg/data_fetcher"
 	"main/pkg/types"
 	"main/pkg/types/event"
-	"main/pkg/utils"
 
 	cosmosTypes "github.com/cosmos/cosmos-sdk/types"
 	ibcTypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
@@ -31,10 +30,7 @@ func ParseMsgRecvPacket(data []byte, chain *configTypes.Chain, height int64) (ty
 	}
 
 	return &MsgRecvPacket{
-		Token: &types.Amount{
-			Value: utils.StrToFloat64(packetData.Amount),
-			Denom: packetData.Denom,
-		},
+		Token:    types.AmountFromString(packetData.Amount, packetData.Denom),
 		Sender:   configTypes.Link{Value: packetData.Sender},
 		Receiver: chain.GetWalletLink(packetData.Receiver),
 	}, nil
@@ -47,9 +43,7 @@ func (m MsgRecvPacket) Type() string {
 func (m *MsgRecvPacket) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
 	price, found := fetcher.GetPrice()
 	if found && m.Token.Denom == fetcher.Chain.BaseDenom {
-		m.Token.Value /= float64(fetcher.Chain.DenomCoefficient)
-		m.Token.Denom = fetcher.Chain.DisplayDenom
-		m.Token.PriceUSD = m.Token.Value * price
+		m.Token.AddUSDPrice(fetcher.Chain.DisplayDenom, fetcher.Chain.DenomCoefficient, price)
 	}
 
 	if alias := fetcher.AliasManager.Get(fetcher.Chain.Name, m.Receiver.Value); alias != "" {
