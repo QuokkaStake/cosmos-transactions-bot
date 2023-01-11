@@ -3,6 +3,7 @@ package telegram
 import (
 	"bytes"
 	"fmt"
+	"html"
 	"html/template"
 	"strings"
 	"time"
@@ -148,14 +149,14 @@ func (reporter *TelegramReporter) SerializeMessage(msg types.Message) template.H
 	reporterTemplate, err := reporter.GetTemplate(msgType)
 	if err != nil {
 		reporter.Logger.Error().Err(err).Str("type", msgType).Msg("Error loading template")
-		return template.HTML(fmt.Sprintf("Error loading template: %s", err))
+		return template.HTML(fmt.Sprintf("Error loading template: <code>%s</code>", html.EscapeString(err.Error())))
 	}
 
 	var buffer bytes.Buffer
 	err = reporterTemplate.Execute(&buffer, msg)
 	if err != nil {
 		reporter.Logger.Error().Err(err).Str("type", msgType).Msg("Error rendering template")
-		return template.HTML(fmt.Sprintf("Error rendering template: %s", err))
+		return template.HTML(fmt.Sprintf("Error rendering template: <code>%s</code>", html.EscapeString(err.Error())))
 	}
 
 	return template.HTML(buffer.String())
@@ -272,6 +273,14 @@ func (reporter *TelegramReporter) SerializeLink(link configTypes.Link) template.
 }
 
 func (reporter *TelegramReporter) SerializeAmount(amount types.Amount) template.HTML {
+	if amount.PriceUSD == nil {
+		return template.HTML(fmt.Sprintf(
+			"%.6f%s",
+			amount.Value,
+			amount.Denom,
+		))
+	}
+
 	if value, _ := amount.PriceUSD.Float64(); value != 0 {
 		return template.HTML(fmt.Sprintf(
 			"%.6f%s ($%.2f)",

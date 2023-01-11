@@ -46,7 +46,8 @@ func (a *Amount) AddUSDPrice(displayDenom string, denomCoefficient int64, usdPri
 }
 
 func (a Amount) String() string {
-	return fmt.Sprintf("%d%s", a.Value, a.Denom)
+	value, _ := a.Value.Int(nil)
+	return fmt.Sprintf("%d%s", value, a.Denom)
 }
 
 type Amounts []*Amount
