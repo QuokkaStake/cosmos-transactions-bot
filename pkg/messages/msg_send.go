@@ -25,14 +25,9 @@ func ParseMsgSend(data []byte, chain *configTypes.Chain, height int64) (types.Me
 	}
 
 	return &MsgSend{
-		From: chain.GetWalletLink(parsedMessage.FromAddress),
-		To:   chain.GetWalletLink(parsedMessage.ToAddress),
-		Amount: utils.Map(parsedMessage.Amount, func(coin cosmosTypes.Coin) *types.Amount {
-			return &types.Amount{
-				Value: float64(coin.Amount.Int64()),
-				Denom: coin.Denom,
-			}
-		}),
+		From:   chain.GetWalletLink(parsedMessage.FromAddress),
+		To:     chain.GetWalletLink(parsedMessage.ToAddress),
+		Amount: utils.Map(parsedMessage.Amount, types.AmountFrom),
 	}, nil
 }
 
@@ -51,9 +46,7 @@ func (m *MsgSend) GetAdditionalData(fetcher data_fetcher.DataFetcher) {
 			continue
 		}
 
-		amount.Value /= float64(fetcher.Chain.DenomCoefficient)
-		amount.Denom = fetcher.Chain.DisplayDenom
-		amount.PriceUSD = amount.Value * price
+		amount.AddUSDPrice(fetcher.Chain.DisplayDenom, fetcher.Chain.DenomCoefficient, price)
 	}
 
 	if alias := fetcher.AliasManager.Get(fetcher.Chain.Name, m.From.Value); alias != "" {

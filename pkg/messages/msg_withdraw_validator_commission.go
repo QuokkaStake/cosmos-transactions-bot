@@ -5,7 +5,6 @@ import (
 	dataFetcher "main/pkg/data_fetcher"
 	"main/pkg/types"
 	"main/pkg/types/event"
-	"main/pkg/utils"
 
 	cosmosTypes "github.com/cosmos/cosmos-sdk/types"
 	cosmosDistributionTypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
@@ -43,10 +42,7 @@ func (m *MsgWithdrawValidatorCommission) GetAdditionalData(fetcher dataFetcher.D
 		m.Amount = make([]*types.Amount, len(rewards))
 
 		for index, reward := range rewards {
-			m.Amount[index] = &types.Amount{
-				Value: utils.StrToFloat64(reward.Amount),
-				Denom: reward.Denom,
-			}
+			m.Amount[index] = types.AmountFromString(reward.Amount, reward.Denom)
 		}
 
 		price, priceFound := fetcher.GetPrice()
@@ -56,9 +52,7 @@ func (m *MsgWithdrawValidatorCommission) GetAdditionalData(fetcher dataFetcher.D
 					continue
 				}
 
-				amount.Value /= float64(fetcher.Chain.DenomCoefficient)
-				amount.Denom = fetcher.Chain.DisplayDenom
-				amount.PriceUSD = amount.Value * price
+				amount.AddUSDPrice(fetcher.Chain.DisplayDenom, fetcher.Chain.DenomCoefficient, price)
 			}
 		}
 	}

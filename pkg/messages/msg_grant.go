@@ -39,10 +39,7 @@ func ParseStakeAuthorization(authorization *codecTypes.Any, chain *configTypes.C
 	}
 	var maxTokens *types.Amount
 	if parsedAuthorization.MaxTokens != nil {
-		maxTokens = &types.Amount{
-			Value: float64(parsedAuthorization.MaxTokens.Amount.Int64()),
-			Denom: parsedAuthorization.MaxTokens.Denom,
-		}
+		maxTokens = types.AmountFrom(*parsedAuthorization.MaxTokens)
 	}
 
 	var validators []configTypes.Link

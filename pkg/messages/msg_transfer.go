@@ -24,10 +24,7 @@ func ParseMsgTransfer(data []byte, chain *configTypes.Chain, height int64) (type
 	}
 
 	return &MsgTransfer{
-		Token: &types.Amount{
-			Value: float64(parsedMessage.Token.Amount.Int64()),
-			Denom: parsedMessage.Token.Denom,
-		},
+		Token:    types.AmountFrom(parsedMessage.Token),
 		Sender:   chain.GetWalletLink(parsedMessage.Sender),
 		Receiver: configTypes.Link{Value: parsedMessage.Receiver},
 	}, nil
@@ -40,9 +37,7 @@ func (m MsgTransfer) Type() string {
 func (m *MsgTransfer) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
 	price, found := fetcher.GetPrice()
 	if found && m.Token.Denom == fetcher.Chain.BaseDenom {
-		m.Token.Value /= float64(fetcher.Chain.DenomCoefficient)
-		m.Token.Denom = fetcher.Chain.DisplayDenom
-		m.Token.PriceUSD = m.Token.Value * price
+		m.Token.AddUSDPrice(fetcher.Chain.DisplayDenom, fetcher.Chain.DenomCoefficient, price)
 	}
 
 	if alias := fetcher.AliasManager.Get(fetcher.Chain.Name, m.Sender.Value); alias != "" {
