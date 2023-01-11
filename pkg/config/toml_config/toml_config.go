@@ -17,7 +17,7 @@ type Chain struct {
 	MintscanPrefix     string    `toml:"mintscan-prefix"`
 	PingPrefix         string    `toml:"ping-prefix"`
 	PingBaseUrl        string    `toml:"ping-base-url" default:"https://ping.pub"`
-	Explorer           *Explorer `toml:"explorer" default:"-"`
+	Explorer           *Explorer `toml:"explorer"`
 	CoingeckoCurrency  string    `toml:"coingecko-currency"`
 	BaseDenom          string    `toml:"base-denom"`
 	DisplayDenom       string    `toml:"display-denom"`
@@ -69,7 +69,7 @@ func (c *Chain) ToAppConfigChain() *types.Chain {
 	var explorer *types.Explorer
 	if supportedExplorer != nil {
 		explorer = supportedExplorer.ToExplorer()
-	} else if explorer != nil {
+	} else if c.Explorer != nil {
 		explorer = c.Explorer.ToAppConfigExplorer()
 	}
 
