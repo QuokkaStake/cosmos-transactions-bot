@@ -1,6 +1,14 @@
 💸 <strong>New transaction on chain {{ .Report.Chain.GetName }}</strong>
 Hash: {{ SerializeLink .Report.Reportable.Hash }}
 Height: {{ SerializeLink .Report.Reportable.Height }}
+{{- if .Report.Chain.LogFailedTransactions }}
+{{- if not .Report.Reportable.Code }}
+Status: 👌 Success
+{{- else }}
+Status: ❌ Failure
+Error: <code>{{ .Report.Reportable.Log }}</code>
+{{- end }}
+{{- end }}
 {{- if .Report.Reportable.Memo }}
 Memo: {{ .Report.Reportable.Memo }}
 {{- end }}

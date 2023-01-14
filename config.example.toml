@@ -56,6 +56,11 @@ coingecko-currency = "cosmos"
 # it would post a message about that, otherwise it would ignore such a message.
 # Defaults to false.
 log-unknown-messages = true
+# If set to true (set by default), it also sents transactions that are failed (code > 0).
+# If set to false, such transactions won't be displayed'
+# Additionally, if set to true, each report will include the transaction status
+# and error code, if it had failed.
+log-failed-transactions = true
 # Explorer configuration.
 # Priorities:
 # 1) ping.pub

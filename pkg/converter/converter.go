@@ -79,6 +79,14 @@ func (c *Converter) ParseEvent(event jsonRpcTypes.RPCResponse) types.Reportable 
 
 	txResult := eventDataTx.TxResult
 	txHash := fmt.Sprintf("%X", tmhash.Sum(txResult.Tx))
+
+	if !c.Chain.LogFailedTransactions && txResult.Result.Code > 0 {
+		c.Logger.Debug().
+			Str("hash", txHash).
+			Msg("Transaction is failed, skipping")
+		return nil
+	}
+
 	var txProto tx.Tx
 
 	if err := proto.Unmarshal(txResult.Tx, &txProto); err != nil {
@@ -115,6 +123,8 @@ func (c *Converter) ParseEvent(event jsonRpcTypes.RPCResponse) types.Reportable 
 		Memo:          txProto.GetBody().GetMemo(),
 		Messages:      txMessages,
 		MessagesCount: len(txProto.GetBody().GetMessages()),
+		Code:          txResult.Result.Code,
+		Log:           txResult.Result.Log,
 	}
 }
 
