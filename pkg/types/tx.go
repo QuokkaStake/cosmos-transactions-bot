@@ -13,7 +13,10 @@ type Tx struct {
 	Memo          string
 	Height        types.Link
 	MessagesCount int
-	Messages      []Message
+	Code          uint32
+	Log           string
+
+	Messages []Message
 }
 
 func (tx Tx) GetMessages() []Message {
