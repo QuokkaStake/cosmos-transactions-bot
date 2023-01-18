@@ -15,6 +15,7 @@ require (
 	github.com/spf13/cobra v1.6.1
 	github.com/superoo7/go-gecko v1.0.0
 	github.com/tendermint/tendermint v0.34.24
+	gopkg.in/guregu/null.v4 v4.0.0
 	gopkg.in/telebot.v3 v3.1.2
 )
 

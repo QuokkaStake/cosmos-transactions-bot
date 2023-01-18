@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"os"
 
+	"gopkg.in/guregu/null.v4"
+
 	tomlConfig "main/pkg/config/toml_config"
 	"main/pkg/config/types"
 	"main/pkg/utils"
@@ -79,7 +81,7 @@ func FromTomlConfig(c *tomlConfig.TomlConfig, path string) *AppConfig {
 		},
 		LogConfig: LogConfig{
 			LogLevel:   c.LogConfig.LogLevel,
-			JSONOutput: c.LogConfig.JSONOutput,
+			JSONOutput: c.LogConfig.JSONOutput.Bool,
 		},
 		Chains: utils.Map(c.Chains, func(c *tomlConfig.Chain) *types.Chain {
 			return c.ToAppConfigChain()
@@ -97,7 +99,7 @@ func (c *AppConfig) ToTomlConfig() *tomlConfig.TomlConfig {
 		},
 		LogConfig: tomlConfig.LogConfig{
 			LogLevel:   c.LogConfig.LogLevel,
-			JSONOutput: c.LogConfig.JSONOutput,
+			JSONOutput: null.BoolFrom(c.LogConfig.JSONOutput),
 		},
 		Chains: utils.Map(c.Chains, tomlConfig.FromAppConfigChain),
 	}
