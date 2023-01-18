@@ -5,6 +5,7 @@ import (
 	"main/pkg/config/types"
 
 	"github.com/tendermint/tendermint/libs/pubsub/query"
+	null "gopkg.in/guregu/null.v4"
 )
 
 type Chain struct {
@@ -22,9 +23,9 @@ type Chain struct {
 	BaseDenom             string    `toml:"base-denom"`
 	DisplayDenom          string    `toml:"display-denom"`
 	DenomCoefficient      int64     `toml:"denom-coefficient" default:"1000000"`
-	LogUnknownMessages    bool      `toml:"log-unknown-messages" default:"false"`
-	LogUnparsedMessages   bool      `toml:"log-unparsed-messages" default:"true"`
-	LogFailedTransactions bool      `toml:"log-failed-transactions" default:"true"`
+	LogUnknownMessages    null.Bool `toml:"log-unknown-messages" default:"false"`
+	LogUnparsedMessages   null.Bool `toml:"log-unparsed-messages" default:"true"`
+	LogFailedTransactions null.Bool `toml:"log-failed-transactions" default:"true"`
 }
 
 func (c *Chain) Validate() error {
@@ -98,9 +99,9 @@ func (c *Chain) ToAppConfigChain() *types.Chain {
 		BaseDenom:             c.BaseDenom,
 		DisplayDenom:          c.DisplayDenom,
 		DenomCoefficient:      c.DenomCoefficient,
-		LogUnknownMessages:    c.LogUnknownMessages,
-		LogUnparsedMessages:   c.LogUnparsedMessages,
-		LogFailedTransactions: c.LogFailedTransactions,
+		LogUnknownMessages:    c.LogUnknownMessages.Bool,
+		LogUnparsedMessages:   c.LogUnparsedMessages.Bool,
+		LogFailedTransactions: c.LogFailedTransactions.Bool,
 	}
 }
 
@@ -114,9 +115,9 @@ func FromAppConfigChain(c *types.Chain) *Chain {
 		BaseDenom:             c.BaseDenom,
 		DisplayDenom:          c.DisplayDenom,
 		DenomCoefficient:      c.DenomCoefficient,
-		LogUnknownMessages:    c.LogUnknownMessages,
-		LogUnparsedMessages:   c.LogUnparsedMessages,
-		LogFailedTransactions: c.LogFailedTransactions,
+		LogUnknownMessages:    null.BoolFrom(c.LogUnknownMessages),
+		LogUnparsedMessages:   null.BoolFrom(c.LogUnparsedMessages),
+		LogFailedTransactions: null.BoolFrom(c.LogFailedTransactions),
 	}
 
 	if c.SupportedExplorer == nil && c.Explorer != nil {
@@ -181,8 +182,8 @@ type TelegramConfig struct {
 }
 
 type LogConfig struct {
-	LogLevel   string `toml:"level" default:"info"`
-	JSONOutput bool   `toml:"json" default:"false"`
+	LogLevel   string    `toml:"level" default:"info"`
+	JSONOutput null.Bool `toml:"json" default:"false"`
 }
 
 func (c *TomlConfig) Validate() error {
