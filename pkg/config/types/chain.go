@@ -21,6 +21,7 @@ type Chain struct {
 	DisplayDenom          string
 	DenomCoefficient      int64
 	LogUnknownMessages    bool
+	LogUnparsedMessages   bool
 	LogFailedTransactions bool
 
 	Filters Filters

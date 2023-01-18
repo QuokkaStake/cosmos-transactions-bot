@@ -145,7 +145,13 @@ func (c *Converter) ParseMessage(
 	msgParsed, err := parser(message.Value, c.Chain, txResult.Height)
 	if err != nil {
 		c.Logger.Error().Err(err).Str("type", message.TypeUrl).Msg("Error parsing message")
-		return &messages.MsgError{Error: fmt.Errorf("Error parsing message: %s", err)}
+
+		if c.Chain.LogUnparsedMessages {
+			return &messages.MsgError{Error: fmt.Errorf("Error parsing message: %s", err)}
+		}
+
+		c.Logger.Debug().Str("type", message.TypeUrl).Msg("Not logging unparsed messages, skipping.")
+		return nil
 	} else if msgParsed == nil {
 		c.Logger.Error().Str("type", message.TypeUrl).Msg("Got empty message after parsing")
 		return nil
