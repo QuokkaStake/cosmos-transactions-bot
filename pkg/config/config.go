@@ -2,8 +2,9 @@ package config
 
 import (
 	"bytes"
-	"gopkg.in/guregu/null.v4"
 	"os"
+
+	"gopkg.in/guregu/null.v4"
 
 	tomlConfig "main/pkg/config/toml_config"
 	"main/pkg/config/types"
