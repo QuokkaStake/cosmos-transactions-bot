@@ -56,6 +56,10 @@ coingecko-currency = "cosmos"
 # it would post a message about that, otherwise it would ignore such a message.
 # Defaults to false.
 log-unknown-messages = true
+# If set to true, all messages that could not be parsed will produce
+# a message about that. If set to false, all such messages would be
+# silently ignored. Defaults to true.
+log-unparsed-messages = true
 # If set to true (set by default), it also sents transactions that are failed (code > 0).
 # If set to false, such transactions won't be displayed'
 # Additionally, if set to true, each report will include the transaction status
