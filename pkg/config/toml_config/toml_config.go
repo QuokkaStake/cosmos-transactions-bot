@@ -23,6 +23,7 @@ type Chain struct {
 	DisplayDenom          string    `toml:"display-denom"`
 	DenomCoefficient      int64     `toml:"denom-coefficient" default:"1000000"`
 	LogUnknownMessages    bool      `toml:"log-unknown-messages" default:"false"`
+	LogUnparsedMessages   bool      `toml:"log-unparsed-messages" default:"true"`
 	LogFailedTransactions bool      `toml:"log-failed-transactions" default:"true"`
 }
 
@@ -98,6 +99,7 @@ func (c *Chain) ToAppConfigChain() *types.Chain {
 		DisplayDenom:          c.DisplayDenom,
 		DenomCoefficient:      c.DenomCoefficient,
 		LogUnknownMessages:    c.LogUnknownMessages,
+		LogUnparsedMessages:   c.LogUnparsedMessages,
 		LogFailedTransactions: c.LogFailedTransactions,
 	}
 }
@@ -113,6 +115,7 @@ func FromAppConfigChain(c *types.Chain) *Chain {
 		DisplayDenom:          c.DisplayDenom,
 		DenomCoefficient:      c.DenomCoefficient,
 		LogUnknownMessages:    c.LogUnknownMessages,
+		LogUnparsedMessages:   c.LogUnparsedMessages,
 		LogFailedTransactions: c.LogFailedTransactions,
 	}
 
