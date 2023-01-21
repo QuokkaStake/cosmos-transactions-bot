@@ -2,8 +2,9 @@ package messages
 
 import (
 	"fmt"
-	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"strconv"
+
+	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
 
 	configTypes "main/pkg/config/types"
 	dataFetcher "main/pkg/data_fetcher"

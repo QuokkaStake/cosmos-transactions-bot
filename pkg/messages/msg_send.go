@@ -1,12 +1,13 @@
 package messages
 
 import (
-	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
 	configTypes "main/pkg/config/types"
 	"main/pkg/data_fetcher"
 	"main/pkg/types"
 	"main/pkg/types/event"
 	"main/pkg/utils"
+
+	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
 
 	cosmosTypes "github.com/cosmos/cosmos-sdk/types"
 	cosmosBankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"

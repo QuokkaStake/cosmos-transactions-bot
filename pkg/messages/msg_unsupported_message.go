@@ -1,10 +1,11 @@
 package messages
 
 import (
-	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"main/pkg/data_fetcher"
 	"main/pkg/types"
 	"main/pkg/types/event"
+
+	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
 )
 
 type MsgUnsupportedMessage struct {

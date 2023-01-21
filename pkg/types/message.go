@@ -1,9 +1,10 @@
 package types
 
 import (
-	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
 	dataFetcher "main/pkg/data_fetcher"
 	"main/pkg/types/event"
+
+	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
 )
 
 type Message interface {

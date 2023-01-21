@@ -1,8 +1,9 @@
 package messages
 
 import (
-	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"time"
+
+	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
 
 	configTypes "main/pkg/config/types"
 	dataFetcher "main/pkg/data_fetcher"
