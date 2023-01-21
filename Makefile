@@ -3,3 +3,6 @@ build:
 
 install:
 	go install cmd/cosmos-transactions-bot.go
+
+lint:
+	golangci-lint run --fix ./...

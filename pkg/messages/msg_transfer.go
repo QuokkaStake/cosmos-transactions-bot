@@ -6,6 +6,8 @@ import (
 	"main/pkg/types"
 	"main/pkg/types/event"
 
+	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
+
 	cosmosTypes "github.com/cosmos/cosmos-sdk/types"
 	ibcTypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
 	"github.com/gogo/protobuf/proto"
@@ -52,4 +54,15 @@ func (m *MsgTransfer) GetValues() event.EventValues {
 		event.From(ibcTypes.EventTypeTransfer, cosmosTypes.AttributeKeySender, m.Sender.Value),
 		event.From(ibcTypes.EventTypeTransfer, cosmosTypes.AttributeKeyAmount, m.Token.String()),
 	}
+}
+
+func (m *MsgTransfer) GetRawMessages() []*codecTypes.Any {
+	return []*codecTypes.Any{}
+}
+
+func (m *MsgTransfer) AddParsedMessage(message types.Message) {
+}
+
+func (m *MsgTransfer) GetParsedMessages() []types.Message {
+	return []types.Message{}
 }

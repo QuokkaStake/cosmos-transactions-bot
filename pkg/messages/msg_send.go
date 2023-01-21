@@ -7,6 +7,8 @@ import (
 	"main/pkg/types/event"
 	"main/pkg/utils"
 
+	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
+
 	cosmosTypes "github.com/cosmos/cosmos-sdk/types"
 	cosmosBankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/gogo/protobuf/proto"
@@ -68,4 +70,15 @@ func (m *MsgSend) GetValues() event.EventValues {
 		event.From(cosmosBankTypes.EventTypeTransfer, cosmosTypes.AttributeKeyAmount, m.Amount.String()),
 		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeySender, m.From.Value),
 	}
+}
+
+func (m *MsgSend) GetRawMessages() []*codecTypes.Any {
+	return []*codecTypes.Any{}
+}
+
+func (m *MsgSend) AddParsedMessage(message types.Message) {
+}
+
+func (m *MsgSend) GetParsedMessages() []types.Message {
+	return []types.Message{}
 }

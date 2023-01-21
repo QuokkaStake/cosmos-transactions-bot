@@ -6,6 +6,8 @@ import (
 	"main/pkg/types"
 	"main/pkg/types/event"
 
+	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
+
 	cosmosTypes "github.com/cosmos/cosmos-sdk/types"
 	cosmosAuthzTypes "github.com/cosmos/cosmos-sdk/x/authz"
 	"github.com/gogo/protobuf/proto"
@@ -49,4 +51,15 @@ func (m *MsgRevoke) GetValues() event.EventValues {
 	return []event.EventValue{
 		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, m.Type()),
 	}
+}
+
+func (m *MsgRevoke) GetRawMessages() []*codecTypes.Any {
+	return []*codecTypes.Any{}
+}
+
+func (m *MsgRevoke) AddParsedMessage(message types.Message) {
+}
+
+func (m *MsgRevoke) GetParsedMessages() []types.Message {
+	return []types.Message{}
 }

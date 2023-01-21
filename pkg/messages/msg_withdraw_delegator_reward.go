@@ -6,6 +6,8 @@ import (
 	"main/pkg/types"
 	"main/pkg/types/event"
 
+	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
+
 	cosmosTypes "github.com/cosmos/cosmos-sdk/types"
 	cosmosDistributionTypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/gogo/protobuf/proto"
@@ -74,4 +76,15 @@ func (m *MsgWithdrawDelegatorReward) GetValues() event.EventValues {
 		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, m.Type()),
 		event.From(cosmosDistributionTypes.EventTypeWithdrawRewards, cosmosDistributionTypes.AttributeKeyValidator, m.ValidatorAddress.Value),
 	}
+}
+
+func (m *MsgWithdrawDelegatorReward) GetRawMessages() []*codecTypes.Any {
+	return []*codecTypes.Any{}
+}
+
+func (m *MsgWithdrawDelegatorReward) AddParsedMessage(message types.Message) {
+}
+
+func (m *MsgWithdrawDelegatorReward) GetParsedMessages() []types.Message {
+	return []types.Message{}
 }

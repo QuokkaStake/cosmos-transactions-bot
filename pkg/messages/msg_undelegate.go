@@ -3,6 +3,8 @@ package messages
 import (
 	"time"
 
+	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
+
 	configTypes "main/pkg/config/types"
 	dataFetcher "main/pkg/data_fetcher"
 	"main/pkg/types"
@@ -63,4 +65,15 @@ func (m *MsgUndelegate) GetValues() event.EventValues {
 		event.From(cosmosStakingTypes.EventTypeUnbond, cosmosStakingTypes.AttributeKeyDelegator, m.DelegatorAddress.Value),
 		event.From(cosmosStakingTypes.EventTypeUnbond, cosmosTypes.AttributeKeyAmount, m.Amount.String()),
 	}
+}
+
+func (m *MsgUndelegate) GetRawMessages() []*codecTypes.Any {
+	return []*codecTypes.Any{}
+}
+
+func (m *MsgUndelegate) AddParsedMessage(message types.Message) {
+}
+
+func (m *MsgUndelegate) GetParsedMessages() []types.Message {
+	return []types.Message{}
 }

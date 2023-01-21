@@ -1,6 +1,8 @@
 package utils
 
-import "strconv"
+import (
+	"strings"
+)
 
 func Map[T any, V any](source []T, mapper func(T) V) []V {
 	destination := make([]V, len(source))
@@ -10,35 +12,6 @@ func Map[T any, V any](source []T, mapper func(T) V) []V {
 	}
 
 	return destination
-}
-
-func Contains[T comparable](array []T, element T) bool {
-	for _, a := range array {
-		if a == element {
-			return true
-		}
-	}
-	return false
-}
-
-func StrToFloat64(s string) float64 {
-	f, err := strconv.ParseFloat(s, 64)
-	if err != nil {
-		return 0
-	}
-
-	return f
-}
-
-func Dequotify(str string) string {
-	if len(str) > 0 && str[0] == '\'' {
-		str = str[1:]
-	}
-	if len(str) > 0 && str[len(str)-1] == '\'' {
-		str = str[:len(str)-1]
-	}
-
-	return str
 }
 
 func RemoveFirstSlash(str string) string {
@@ -51,4 +24,23 @@ func RemoveFirstSlash(str string) string {
 	}
 
 	return str
+}
+
+func SplitStringIntoChunks(msg string, maxLineLength int) []string {
+	msgsByNewline := strings.Split(msg, "\n")
+	outMessages := []string{}
+
+	var sb strings.Builder
+
+	for _, line := range msgsByNewline {
+		if sb.Len()+len(line) >= maxLineLength {
+			outMessages = append(outMessages, sb.String())
+			sb.Reset()
+		}
+
+		sb.WriteString(line + "\n")
+	}
+
+	outMessages = append(outMessages, sb.String())
+	return outMessages
 }

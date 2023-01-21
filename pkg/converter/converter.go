@@ -157,24 +157,15 @@ func (c *Converter) ParseMessage(
 		return nil
 	}
 
-	// MsgExec contains a bunch of other messages
-	if msgExec, ok := msgParsed.(*messages.MsgExec); ok {
-		for _, msgInExec := range msgExec.RawMessages {
-			if msgExecParsed := c.ParseMessage(msgInExec, txResult); msgExecParsed != nil {
-				msgExec.Messages = append(msgExec.Messages, msgExecParsed)
-			}
-		}
-
-		if len(msgExec.Messages) == 0 {
-			c.Logger.Debug().
-				Int64("height", txResult.Height).
-				Str("type", msgParsed.Type()).
-				Msg("Authz message has 0 messages after filtering, skipping.")
-			return nil
-		}
-	}
-
 	matches, err := c.Chain.Filters.Matches(msgParsed.GetValues())
+
+	c.Logger.Trace().
+		Str("type", msgParsed.Type()).
+		Str("values", fmt.Sprintf("%+v\n", msgParsed.GetValues().ToMap())).
+		Str("filters", fmt.Sprintf("%+v\n", c.Chain.Filters)).
+		Bool("matches", matches).
+		Msg("Result of matching message events against filters")
+
 	if err != nil {
 		c.Logger.Error().Err(err).Str("type", message.TypeUrl).Msg("Error checking if message matches filters")
 	} else if !matches {
@@ -182,6 +173,21 @@ func (c *Converter) ParseMessage(
 			Int64("height", txResult.Height).
 			Str("type", msgParsed.Type()).
 			Msg("Message is ignored by filters.")
+		return nil
+	}
+
+	// Processing internal messages (such as ones in MsgExec
+	for _, internalMessage := range msgParsed.GetRawMessages() {
+		if internalMessageParsed := c.ParseMessage(internalMessage, txResult); internalMessageParsed != nil {
+			msgParsed.AddParsedMessage(internalMessageParsed)
+		}
+	}
+
+	if len(msgParsed.GetRawMessages()) > 0 && len(msgParsed.GetParsedMessages()) == 0 {
+		c.Logger.Debug().
+			Int64("height", txResult.Height).
+			Str("type", msgParsed.Type()).
+			Msg("Message with messages inside has 0 messages after filtering, skipping.")
 		return nil
 	}
 

@@ -6,6 +6,8 @@ import (
 	"main/pkg/types"
 	"main/pkg/types/event"
 
+	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
+
 	cosmosTypes "github.com/cosmos/cosmos-sdk/types"
 	ibcClientTypes "github.com/cosmos/ibc-go/v6/modules/core/02-client/types"
 	"github.com/gogo/protobuf/proto"
@@ -43,4 +45,15 @@ func (m *MsgUpdateClient) GetValues() event.EventValues {
 		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, m.Type()),
 		event.From(ibcClientTypes.EventTypeUpdateClient, ibcClientTypes.AttributeKeyClientID, m.ClientID),
 	}
+}
+
+func (m *MsgUpdateClient) GetRawMessages() []*codecTypes.Any {
+	return []*codecTypes.Any{}
+}
+
+func (m *MsgUpdateClient) AddParsedMessage(message types.Message) {
+}
+
+func (m *MsgUpdateClient) GetParsedMessages() []types.Message {
+	return []types.Message{}
 }

@@ -64,3 +64,15 @@ func (m *MsgExec) GetMessagesLabel() string {
 
 	return fmt.Sprintf("%d, %d skipped", len(m.RawMessages), len(m.RawMessages)-len(m.Messages))
 }
+
+func (m *MsgExec) GetRawMessages() []*codecTypes.Any {
+	return m.RawMessages
+}
+
+func (m *MsgExec) AddParsedMessage(message types.Message) {
+	m.Messages = append(m.Messages, message)
+}
+
+func (m *MsgExec) GetParsedMessages() []types.Message {
+	return m.Messages
+}
