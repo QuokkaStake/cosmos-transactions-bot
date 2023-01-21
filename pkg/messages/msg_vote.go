@@ -2,6 +2,7 @@ package messages
 
 import (
 	"fmt"
+	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"strconv"
 
 	configTypes "main/pkg/config/types"
@@ -77,4 +78,15 @@ func (m *MsgVote) GetValues() event.EventValues {
 		event.From(cosmosGovEvents.EventTypeProposalVote, cosmosGovEvents.AttributeKeyProposalID, m.ProposalID.Value),
 		event.From(cosmosGovEvents.EventTypeProposalVote, cosmosGovEvents.AttributeKeyOption, m.Option.String()),
 	}
+}
+
+func (m *MsgVote) GetRawMessages() []*codecTypes.Any {
+	return []*codecTypes.Any{}
+}
+
+func (m *MsgVote) AddParsedMessage(message types.Message) {
+}
+
+func (m *MsgVote) GetParsedMessages() []types.Message {
+	return []types.Message{}
 }

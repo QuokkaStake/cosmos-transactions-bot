@@ -110,3 +110,14 @@ func (m *MsgGrant) GetValues() event.EventValues {
 		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, m.Type()),
 	}
 }
+
+func (m *MsgGrant) GetRawMessages() []*codecTypes.Any {
+	return []*codecTypes.Any{}
+}
+
+func (m *MsgGrant) AddParsedMessage(message types.Message) {
+}
+
+func (m *MsgGrant) GetParsedMessages() []types.Message {
+	return []types.Message{}
+}

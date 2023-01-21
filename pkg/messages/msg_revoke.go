@@ -1,6 +1,7 @@
 package messages
 
 import (
+	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
 	configTypes "main/pkg/config/types"
 	dataFetcher "main/pkg/data_fetcher"
 	"main/pkg/types"
@@ -49,4 +50,15 @@ func (m *MsgRevoke) GetValues() event.EventValues {
 	return []event.EventValue{
 		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, m.Type()),
 	}
+}
+
+func (m *MsgRevoke) GetRawMessages() []*codecTypes.Any {
+	return []*codecTypes.Any{}
+}
+
+func (m *MsgRevoke) AddParsedMessage(message types.Message) {
+}
+
+func (m *MsgRevoke) GetParsedMessages() []types.Message {
+	return []types.Message{}
 }

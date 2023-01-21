@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"html"
 	"html/template"
-	"strings"
 	"time"
 
 	"main/pkg/alias_manager"
@@ -37,11 +36,6 @@ type TelegramReporter struct {
 const (
 	MaxMessageSize = 4096
 )
-
-type TelegramSerializedReport struct {
-	Report types.Report
-	Msgs   []template.HTML
-}
 
 func NewTelegramReporter(
 	config *config.AppConfig,
@@ -138,9 +132,9 @@ func (reporter *TelegramReporter) Render(templateName string, data interface{}) 
 	return buffer.String(), err
 }
 
-func (reporter *TelegramReporter) SerializeReport(e TelegramSerializedReport) (string, error) {
-	reportableType := e.Report.Reportable.Type()
-	return reporter.Render(reportableType, e)
+func (reporter *TelegramReporter) SerializeReport(r types.Report) (string, error) {
+	reportableType := r.Reportable.Type()
+	return reporter.Render(reportableType, r)
 }
 
 func (reporter *TelegramReporter) SerializeMessage(msg types.Message) template.HTML {
@@ -163,18 +157,7 @@ func (reporter *TelegramReporter) SerializeMessage(msg types.Message) template.H
 }
 
 func (reporter TelegramReporter) Send(report types.Report) error {
-	msgsSerialized := make([]template.HTML, len(report.Reportable.GetMessages()))
-
-	for index, msg := range report.Reportable.GetMessages() {
-		msgsSerialized[index] = reporter.SerializeMessage(msg)
-	}
-
-	reportSerialized := TelegramSerializedReport{
-		Report: report,
-		Msgs:   msgsSerialized,
-	}
-
-	reportString, err := reporter.SerializeReport(reportSerialized)
+	reportString, err := reporter.SerializeReport(report)
 	if err != nil {
 		reporter.Logger.Error().Err(err).Msg("Could not serialize Telegram message to report")
 		return err
@@ -194,68 +177,33 @@ func (reporter TelegramReporter) Name() string {
 }
 
 func (reporter *TelegramReporter) BotSend(msg string) error {
-	msgsByNewline := strings.Split(msg, "\n")
+	messages := utils.SplitStringIntoChunks(msg, MaxMessageSize)
 
-	var sb strings.Builder
-
-	for _, line := range msgsByNewline {
-		if sb.Len()+len(line) >= MaxMessageSize {
-			if _, err := reporter.TelegramBot.Send(
-				&tele.User{
-					ID: reporter.Chat,
-				},
-				msg,
-				tele.ModeHTML,
-				tele.NoPreview,
-			); err != nil {
-				reporter.Logger.Error().Err(err).Msg("Could not send Telegram message")
-				return err
-			}
-
-			sb.Reset()
+	for _, message := range messages {
+		if _, err := reporter.TelegramBot.Send(
+			&tele.User{
+				ID: reporter.Chat,
+			},
+			message,
+			tele.ModeHTML,
+			tele.NoPreview,
+		); err != nil {
+			reporter.Logger.Error().Err(err).Msg("Could not send Telegram message")
+			return err
 		}
-
-		sb.WriteString(line + "\n")
 	}
-
-	if _, err := reporter.TelegramBot.Send(
-		&tele.User{
-			ID: reporter.Chat,
-		},
-		msg,
-		tele.ModeHTML,
-		tele.NoPreview,
-	); err != nil {
-		reporter.Logger.Error().Err(err).Msg("Could not send Telegram message")
-		return err
-	}
-
 	return nil
 }
 
 func (reporter *TelegramReporter) BotReply(c tele.Context, msg string) error {
-	msgsByNewline := strings.Split(msg, "\n")
+	messages := utils.SplitStringIntoChunks(msg, MaxMessageSize)
 
-	var sb strings.Builder
-
-	for _, line := range msgsByNewline {
-		if sb.Len()+len(line) >= MaxMessageSize {
-			if err := c.Reply(sb.String(), tele.ModeHTML); err != nil {
-				reporter.Logger.Error().Err(err).Msg("Could not send Telegram message")
-				return err
-			}
-
-			sb.Reset()
+	for _, message := range messages {
+		if err := c.Reply(message, tele.ModeHTML); err != nil {
+			reporter.Logger.Error().Err(err).Msg("Could not send Telegram message")
+			return err
 		}
-
-		sb.WriteString(line + "\n")
 	}
-
-	if err := c.Reply(sb.String(), tele.ModeHTML); err != nil {
-		reporter.Logger.Error().Err(err).Msg("Could not send Telegram message")
-		return err
-	}
-
 	return nil
 }
 
