@@ -41,6 +41,7 @@ func NewConverter(logger *zerolog.Logger, chain *configTypes.Chain) *Converter {
 		"/ibc.applications.transfer.v1.MsgTransfer":                   messages.ParseMsgTransfer,
 		"/ibc.core.channel.v1.MsgAcknowledgement":                     messages.ParseMsgAcknowledgement,
 		"/ibc.core.channel.v1.MsgRecvPacket":                          messages.ParseMsgRecvPacket,
+		"/ibc.core.channel.v1.MsgTimeout":                             messages.ParseMsgTimeout,
 		"/ibc.core.client.v1.MsgUpdateClient":                         messages.ParseMsgUpdateClient,
 	}
 
