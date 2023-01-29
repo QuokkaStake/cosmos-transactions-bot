@@ -1,13 +1,14 @@
 package messages
 
 import (
-	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
-	ibcTypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
-	ibcChannelTypes "github.com/cosmos/ibc-go/v6/modules/core/04-channel/types"
 	configTypes "main/pkg/config/types"
 	dataFetcher "main/pkg/data_fetcher"
 	"main/pkg/types"
 	"main/pkg/types/event"
+
+	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
+	ibcTypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
+	ibcChannelTypes "github.com/cosmos/ibc-go/v6/modules/core/04-channel/types"
 )
 
 type Packet struct {

@@ -28,7 +28,6 @@ func ParseMsgTimeout(data []byte, chain *configTypes.Chain, height int64) (types
 	packet, err := ParsePacket(parsedMessage.Packet, chain)
 	if err != nil {
 		return nil, err
-
 	}
 
 	var packetData ibcTypes.FungibleTokenPacketData
