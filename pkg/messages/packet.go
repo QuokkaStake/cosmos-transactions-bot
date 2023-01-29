@@ -35,6 +35,9 @@ func (p Packet) Type() string {
 }
 
 func (p *Packet) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
+	trace := ibcTypes.ParseDenomTrace(p.Token.Denom)
+	p.Token.Denom = trace.BaseDenom
+
 	price, found := fetcher.GetPrice()
 	if found && p.Token.Denom == fetcher.Chain.BaseDenom {
 		p.Token.AddUSDPrice(fetcher.Chain.DisplayDenom, fetcher.Chain.DenomCoefficient, price)
