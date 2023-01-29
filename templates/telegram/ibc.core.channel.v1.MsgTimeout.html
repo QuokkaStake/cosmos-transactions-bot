@@ -1,4 +1,5 @@
 ⏱️ <strong>IBC timeout</strong>
-Sender: {{ SerializeLink .Sender }}
-Receiver: {{ SerializeLink .Receiver }}
-Amount: {{ SerializeAmount .Token }}
+Signer: {{ SerializeLink .Signer }}
+
+Packet:
+{{ SerializeMessage .Packet }}

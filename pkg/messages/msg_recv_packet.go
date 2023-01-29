@@ -15,14 +15,18 @@ import (
 )
 
 type MsgRecvPacket struct {
-	Token    *types.Amount
-	Sender   configTypes.Link
-	Receiver configTypes.Link
+	Signer configTypes.Link
+	Packet *Packet
 }
 
 func ParseMsgRecvPacket(data []byte, chain *configTypes.Chain, height int64) (types.Message, error) {
 	var parsedMessage ibcChannelTypes.MsgRecvPacket
 	if err := proto.Unmarshal(data, &parsedMessage); err != nil {
+		return nil, err
+	}
+
+	packet, err := ParsePacket(parsedMessage.Packet, chain)
+	if err != nil {
 		return nil, err
 	}
 
@@ -32,9 +36,8 @@ func ParseMsgRecvPacket(data []byte, chain *configTypes.Chain, height int64) (ty
 	}
 
 	return &MsgRecvPacket{
-		Token:    types.AmountFromString(packetData.Amount, packetData.Denom),
-		Sender:   configTypes.Link{Value: packetData.Sender},
-		Receiver: chain.GetWalletLink(packetData.Receiver),
+		Signer: chain.GetWalletLink(parsedMessage.Signer),
+		Packet: packet,
 	}, nil
 }
 
@@ -43,14 +46,11 @@ func (m MsgRecvPacket) Type() string {
 }
 
 func (m *MsgRecvPacket) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
-	price, found := fetcher.GetPrice()
-	if found && m.Token.Denom == fetcher.Chain.BaseDenom {
-		m.Token.AddUSDPrice(fetcher.Chain.DisplayDenom, fetcher.Chain.DenomCoefficient, price)
+	if alias := fetcher.AliasManager.Get(fetcher.Chain.Name, m.Signer.Value); alias != "" {
+		m.Signer.Title = alias
 	}
 
-	if alias := fetcher.AliasManager.Get(fetcher.Chain.Name, m.Receiver.Value); alias != "" {
-		m.Receiver.Title = alias
-	}
+	m.Packet.GetAdditionalData(fetcher)
 }
 
 func (m *MsgRecvPacket) GetValues() event.EventValues {
