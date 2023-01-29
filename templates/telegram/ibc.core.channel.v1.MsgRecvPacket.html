@@ -1,4 +1,5 @@
 📥 <strong>IBC receive packet</strong>
-Sender: {{ SerializeLink .Sender }}
-Receiver: {{ SerializeLink .Receiver }}
-Amount: {{ SerializeAmount .Token }}
+Signer: {{ SerializeLink .Signer }}
+
+Packet:
+{{ SerializeMessage .Packet }}
