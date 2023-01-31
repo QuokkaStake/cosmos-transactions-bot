@@ -1,12 +1,13 @@
 package packet
 
 import (
-	cosmosTypes "github.com/cosmos/cosmos-sdk/types"
-	cosmosBankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	configTypes "main/pkg/config/types"
 	dataFetcher "main/pkg/data_fetcher"
 	"main/pkg/types"
 	"main/pkg/types/event"
+
+	cosmosTypes "github.com/cosmos/cosmos-sdk/types"
+	cosmosBankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
 	ibcTypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"

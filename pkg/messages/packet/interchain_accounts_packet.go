@@ -2,14 +2,15 @@ package packet
 
 import (
 	"fmt"
-	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
-	"github.com/cosmos/cosmos-sdk/simapp"
-	icaTypes "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/types"
 	configTypes "main/pkg/config/types"
 	dataFetcher "main/pkg/data_fetcher"
 	"main/pkg/types"
 	"main/pkg/types/event"
 	"strconv"
+
+	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
+	"github.com/cosmos/cosmos-sdk/simapp"
+	icaTypes "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/types"
 )
 
 type InterchainAccountsPacket struct {
