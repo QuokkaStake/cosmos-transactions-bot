@@ -3,20 +3,20 @@ package messages
 import (
 	configTypes "main/pkg/config/types"
 	dataFetcher "main/pkg/data_fetcher"
+	"main/pkg/messages/packet"
 	"main/pkg/types"
 	"main/pkg/types/event"
 
 	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
 
 	cosmosTypes "github.com/cosmos/cosmos-sdk/types"
-	ibcTypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
 	ibcChannelTypes "github.com/cosmos/ibc-go/v6/modules/core/04-channel/types"
 	"github.com/gogo/protobuf/proto"
 )
 
 type MsgRecvPacket struct {
 	Signer configTypes.Link
-	Packet *Packet
+	Packet types.Message
 }
 
 func ParseMsgRecvPacket(data []byte, chain *configTypes.Chain, height int64) (types.Message, error) {
@@ -25,19 +25,16 @@ func ParseMsgRecvPacket(data []byte, chain *configTypes.Chain, height int64) (ty
 		return nil, err
 	}
 
-	packet, err := ParsePacket(parsedMessage.Packet, chain)
+	parsedPacket, err := packet.ParsePacket(parsedMessage.Packet, chain)
 	if err != nil {
 		return nil, err
-	}
-
-	var packetData ibcTypes.FungibleTokenPacketData
-	if err := ibcTypes.ModuleCdc.UnmarshalJSON(parsedMessage.Packet.Data, &packetData); err != nil {
-		return nil, err
+	} else if parsedPacket == nil {
+		return nil, nil
 	}
 
 	return &MsgRecvPacket{
 		Signer: chain.GetWalletLink(parsedMessage.Signer),
-		Packet: packet,
+		Packet: parsedPacket,
 	}, nil
 }
 
@@ -54,18 +51,22 @@ func (m *MsgRecvPacket) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
 }
 
 func (m *MsgRecvPacket) GetValues() event.EventValues {
-	return []event.EventValue{
+	values := []event.EventValue{
 		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, m.Type()),
 	}
+
+	values = append(values, m.Packet.GetValues()...)
+	return values
 }
 
 func (m *MsgRecvPacket) GetRawMessages() []*codecTypes.Any {
-	return []*codecTypes.Any{}
+	return m.Packet.GetRawMessages()
 }
 
 func (m *MsgRecvPacket) AddParsedMessage(message types.Message) {
+	m.Packet.AddParsedMessage(message)
 }
 
 func (m *MsgRecvPacket) GetParsedMessages() []types.Message {
-	return []types.Message{}
+	return m.Packet.GetParsedMessages()
 }

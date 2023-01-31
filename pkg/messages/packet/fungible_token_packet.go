@@ -1,4 +1,4 @@
-package messages
+package packet
 
 import (
 	configTypes "main/pkg/config/types"
@@ -6,35 +6,35 @@ import (
 	"main/pkg/types"
 	"main/pkg/types/event"
 
+	cosmosTypes "github.com/cosmos/cosmos-sdk/types"
+	cosmosBankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+
 	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
 	ibcTypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
-	ibcChannelTypes "github.com/cosmos/ibc-go/v6/modules/core/04-channel/types"
 )
 
-type Packet struct {
+type FungibleTokenPacket struct {
 	Token    *types.Amount
 	Sender   configTypes.Link
 	Receiver configTypes.Link
 }
 
-func ParsePacket(packet ibcChannelTypes.Packet, chain *configTypes.Chain) (*Packet, error) {
-	var packetData ibcTypes.FungibleTokenPacketData
-	if err := ibcTypes.ModuleCdc.UnmarshalJSON(packet.Data, &packetData); err != nil {
-		return nil, err
-	}
-
-	return &Packet{
+func ParseFungibleTokenPacket(
+	packetData ibcTypes.FungibleTokenPacketData,
+	chain *configTypes.Chain,
+) types.Message {
+	return &FungibleTokenPacket{
 		Token:    types.AmountFromString(packetData.Amount, packetData.Denom),
 		Sender:   configTypes.Link{Value: packetData.Sender},
 		Receiver: chain.GetWalletLink(packetData.Receiver),
-	}, nil
+	}
 }
 
-func (p Packet) Type() string {
-	return "Packet"
+func (p FungibleTokenPacket) Type() string {
+	return "FungibleTokenPacket"
 }
 
-func (p *Packet) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
+func (p *FungibleTokenPacket) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
 	trace := ibcTypes.ParseDenomTrace(p.Token.Denom)
 	p.Token.Denom = trace.BaseDenom
 
@@ -48,17 +48,20 @@ func (p *Packet) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
 	}
 }
 
-func (p *Packet) GetValues() event.EventValues {
-	return []event.EventValue{}
+func (p *FungibleTokenPacket) GetValues() event.EventValues {
+	return []event.EventValue{
+		event.From(ibcTypes.EventTypePacket, cosmosBankTypes.AttributeKeyReceiver, p.Receiver.Value),
+		event.From(ibcTypes.EventTypePacket, cosmosTypes.AttributeKeyAmount, p.Token.Value.String()),
+	}
 }
 
-func (p *Packet) GetRawMessages() []*codecTypes.Any {
+func (p *FungibleTokenPacket) GetRawMessages() []*codecTypes.Any {
 	return []*codecTypes.Any{}
 }
 
-func (p *Packet) AddParsedMessage(message types.Message) {
+func (p *FungibleTokenPacket) AddParsedMessage(message types.Message) {
 }
 
-func (p *Packet) GetParsedMessages() []types.Message {
+func (p *FungibleTokenPacket) GetParsedMessages() []types.Message {
 	return []types.Message{}
 }

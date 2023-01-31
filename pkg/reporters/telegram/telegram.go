@@ -159,8 +159,16 @@ func (reporter *TelegramReporter) SerializeMessage(msg types.Message) template.H
 func (reporter TelegramReporter) Send(report types.Report) error {
 	reportString, err := reporter.SerializeReport(report)
 	if err != nil {
-		reporter.Logger.Error().Err(err).Msg("Could not serialize Telegram message to report")
-		return err
+		reporter.Logger.Error().
+			Err(err).
+			Msg("Could not serialize Telegram message to report, trying to send fallback message")
+
+		if err := reporter.BotSend("Error serializing report, check logs for more info."); err != nil {
+			reporter.Logger.Err(err).Msg("Could not send Telegram fallback message")
+			return err
+		}
+
+		return nil
 	}
 
 	reporter.Logger.Trace().Str("report", reportString).Msg("Sending a report")

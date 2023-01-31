@@ -65,6 +65,17 @@ log-unparsed-messages = true
 # Additionally, if set to true, each report will include the transaction status
 # and error code, if it had failed.
 log-failed-transactions = true
+# There are messages that can include internal messages (example: AuthZ's MsgExec).
+# If this value is set to true (set by default), then messages inside these messages
+# would also be filtered by filters specified in config. If it's set to false,
+# internal messages won't be filtered.
+# Example: MsgExec containing MsgDelegate. If there's a filter like this:
+# - "message.action = '/cosmos.authz.v1beta1.MsgExec"
+# and this value is true, then
+# 1) MsgExec would match this filter
+# 2) MsgDelegate inside won't match this filter
+# 3) MsgExec would have 0 messages after filtering internal message and would also be filtered.
+filter-internal-messages = true
 # Explorer configuration.
 # Priorities:
 # 1) ping.pub
