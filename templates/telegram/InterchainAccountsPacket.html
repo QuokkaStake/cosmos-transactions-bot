@@ -1,0 +1,9 @@
+📦 <strong>Interchain Accounts packet</strong>
+Memo: {{ .Memo }}
+Type: <code>{{ .PacketType }}</code>
+Packet messages ({{ .GetMessagesLabel }}):
+-----------------------------------------
+{{ range $msgId, $msg := .TxMessages }}
+{{ SerializeMessage $msg }}
+{{- end }}
+-----------------------------------------

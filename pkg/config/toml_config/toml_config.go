@@ -9,23 +9,24 @@ import (
 )
 
 type Chain struct {
-	Name                  string    `toml:"name"`
-	PrettyName            string    `toml:"pretty-name"`
-	TendermintNodes       []string  `toml:"tendermint-nodes"`
-	APINodes              []string  `toml:"api-nodes"`
-	Queries               []string  `toml:"queries"`
-	Filters               []string  `toml:"filters"`
-	MintscanPrefix        string    `toml:"mintscan-prefix"`
-	PingPrefix            string    `toml:"ping-prefix"`
-	PingBaseUrl           string    `toml:"ping-base-url" default:"https://ping.pub"`
-	Explorer              *Explorer `toml:"explorer"`
-	CoingeckoCurrency     string    `toml:"coingecko-currency"`
-	BaseDenom             string    `toml:"base-denom"`
-	DisplayDenom          string    `toml:"display-denom"`
-	DenomCoefficient      int64     `toml:"denom-coefficient" default:"1000000"`
-	LogUnknownMessages    null.Bool `toml:"log-unknown-messages" default:"false"`
-	LogUnparsedMessages   null.Bool `toml:"log-unparsed-messages" default:"true"`
-	LogFailedTransactions null.Bool `toml:"log-failed-transactions" default:"true"`
+	Name                   string    `toml:"name"`
+	PrettyName             string    `toml:"pretty-name"`
+	TendermintNodes        []string  `toml:"tendermint-nodes"`
+	APINodes               []string  `toml:"api-nodes"`
+	Queries                []string  `toml:"queries"`
+	Filters                []string  `toml:"filters"`
+	MintscanPrefix         string    `toml:"mintscan-prefix"`
+	PingPrefix             string    `toml:"ping-prefix"`
+	PingBaseUrl            string    `toml:"ping-base-url" default:"https://ping.pub"`
+	Explorer               *Explorer `toml:"explorer"`
+	CoingeckoCurrency      string    `toml:"coingecko-currency"`
+	BaseDenom              string    `toml:"base-denom"`
+	DisplayDenom           string    `toml:"display-denom"`
+	DenomCoefficient       int64     `toml:"denom-coefficient" default:"1000000"`
+	LogUnknownMessages     null.Bool `toml:"log-unknown-messages" default:"false"`
+	LogUnparsedMessages    null.Bool `toml:"log-unparsed-messages" default:"true"`
+	LogFailedTransactions  null.Bool `toml:"log-failed-transactions" default:"true"`
+	FilterIncomingMessages null.Bool `toml:"log-failed-transactions" default:"true"`
 }
 
 func (c *Chain) Validate() error {
@@ -87,37 +88,39 @@ func (c *Chain) ToAppConfigChain() *types.Chain {
 	}
 
 	return &types.Chain{
-		Name:                  c.Name,
-		PrettyName:            c.PrettyName,
-		TendermintNodes:       c.TendermintNodes,
-		APINodes:              c.APINodes,
-		Queries:               queries,
-		Filters:               filters,
-		Explorer:              explorer,
-		SupportedExplorer:     supportedExplorer,
-		CoingeckoCurrency:     c.CoingeckoCurrency,
-		BaseDenom:             c.BaseDenom,
-		DisplayDenom:          c.DisplayDenom,
-		DenomCoefficient:      c.DenomCoefficient,
-		LogUnknownMessages:    c.LogUnknownMessages.Bool,
-		LogUnparsedMessages:   c.LogUnparsedMessages.Bool,
-		LogFailedTransactions: c.LogFailedTransactions.Bool,
+		Name:                   c.Name,
+		PrettyName:             c.PrettyName,
+		TendermintNodes:        c.TendermintNodes,
+		APINodes:               c.APINodes,
+		Queries:                queries,
+		Filters:                filters,
+		Explorer:               explorer,
+		SupportedExplorer:      supportedExplorer,
+		CoingeckoCurrency:      c.CoingeckoCurrency,
+		BaseDenom:              c.BaseDenom,
+		DisplayDenom:           c.DisplayDenom,
+		DenomCoefficient:       c.DenomCoefficient,
+		LogUnknownMessages:     c.LogUnknownMessages.Bool,
+		LogUnparsedMessages:    c.LogUnparsedMessages.Bool,
+		LogFailedTransactions:  c.LogFailedTransactions.Bool,
+		FilterIncomingMessages: c.FilterIncomingMessages.Bool,
 	}
 }
 
 func FromAppConfigChain(c *types.Chain) *Chain {
 	chain := &Chain{
-		Name:                  c.Name,
-		PrettyName:            c.PrettyName,
-		TendermintNodes:       c.TendermintNodes,
-		APINodes:              c.APINodes,
-		CoingeckoCurrency:     c.CoingeckoCurrency,
-		BaseDenom:             c.BaseDenom,
-		DisplayDenom:          c.DisplayDenom,
-		DenomCoefficient:      c.DenomCoefficient,
-		LogUnknownMessages:    null.BoolFrom(c.LogUnknownMessages),
-		LogUnparsedMessages:   null.BoolFrom(c.LogUnparsedMessages),
-		LogFailedTransactions: null.BoolFrom(c.LogFailedTransactions),
+		Name:                   c.Name,
+		PrettyName:             c.PrettyName,
+		TendermintNodes:        c.TendermintNodes,
+		APINodes:               c.APINodes,
+		CoingeckoCurrency:      c.CoingeckoCurrency,
+		BaseDenom:              c.BaseDenom,
+		DisplayDenom:           c.DisplayDenom,
+		DenomCoefficient:       c.DenomCoefficient,
+		LogUnknownMessages:     null.BoolFrom(c.LogUnknownMessages),
+		LogUnparsedMessages:    null.BoolFrom(c.LogUnparsedMessages),
+		LogFailedTransactions:  null.BoolFrom(c.LogFailedTransactions),
+		FilterIncomingMessages: null.BoolFrom(c.FilterIncomingMessages),
 	}
 
 	if c.SupportedExplorer == nil && c.Explorer != nil {

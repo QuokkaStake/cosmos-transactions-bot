@@ -9,20 +9,22 @@ import (
 )
 
 type Chain struct {
-	Name                  string
-	PrettyName            string
-	TendermintNodes       []string
-	APINodes              []string
-	Queries               []query.Query
-	Explorer              *Explorer
-	SupportedExplorer     SupportedExplorer
-	CoingeckoCurrency     string
-	BaseDenom             string
-	DisplayDenom          string
-	DenomCoefficient      int64
-	LogUnknownMessages    bool
-	LogUnparsedMessages   bool
-	LogFailedTransactions bool
+	Name              string
+	PrettyName        string
+	TendermintNodes   []string
+	APINodes          []string
+	Queries           []query.Query
+	Explorer          *Explorer
+	SupportedExplorer SupportedExplorer
+	CoingeckoCurrency string
+	BaseDenom         string
+	DisplayDenom      string
+	DenomCoefficient  int64
+
+	LogUnknownMessages     bool
+	LogUnparsedMessages    bool
+	LogFailedTransactions  bool
+	FilterIncomingMessages bool
 
 	Filters Filters
 }
