@@ -2,10 +2,11 @@ package filterer
 
 import (
 	"fmt"
-	"github.com/rs/zerolog"
 	configTypes "main/pkg/config/types"
 	"main/pkg/messages"
 	"main/pkg/types"
+
+	"github.com/rs/zerolog"
 )
 
 type Filterer struct {
