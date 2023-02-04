@@ -30,6 +30,9 @@ func (m *MsgUnsupportedMessage) GetRawMessages() []*codecTypes.Any {
 func (m *MsgUnsupportedMessage) AddParsedMessage(message types.Message) {
 }
 
+func (m *MsgUnsupportedMessage) SetParsedMessages(messages []types.Message) {
+}
+
 func (m *MsgUnsupportedMessage) GetParsedMessages() []types.Message {
 	return []types.Message{}
 }

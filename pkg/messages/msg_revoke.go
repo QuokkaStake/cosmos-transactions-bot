@@ -60,6 +60,9 @@ func (m *MsgRevoke) GetRawMessages() []*codecTypes.Any {
 func (m *MsgRevoke) AddParsedMessage(message types.Message) {
 }
 
+func (m *MsgRevoke) SetParsedMessages(messages []types.Message) {
+}
+
 func (m *MsgRevoke) GetParsedMessages() []types.Message {
 	return []types.Message{}
 }

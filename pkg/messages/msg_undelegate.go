@@ -74,6 +74,9 @@ func (m *MsgUndelegate) GetRawMessages() []*codecTypes.Any {
 func (m *MsgUndelegate) AddParsedMessage(message types.Message) {
 }
 
+func (m *MsgUndelegate) SetParsedMessages(messages []types.Message) {
+}
+
 func (m *MsgUndelegate) GetParsedMessages() []types.Message {
 	return []types.Message{}
 }

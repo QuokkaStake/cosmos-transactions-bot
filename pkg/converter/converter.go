@@ -86,13 +86,6 @@ func (c *Converter) ParseEvent(event jsonRpcTypes.RPCResponse) types.Reportable 
 	txResult := eventDataTx.TxResult
 	txHash := fmt.Sprintf("%X", tmhash.Sum(txResult.Tx))
 
-	if !c.Chain.LogFailedTransactions && txResult.Result.Code > 0 {
-		c.Logger.Debug().
-			Str("hash", txHash).
-			Msg("Transaction is failed, skipping")
-		return nil
-	}
-
 	var txProto tx.Tx
 
 	if err := proto.Unmarshal(txResult.Tx, &txProto); err != nil {
@@ -110,7 +103,7 @@ func (c *Converter) ParseEvent(event jsonRpcTypes.RPCResponse) types.Reportable 
 	txMessages := []types.Message{}
 
 	for _, message := range txProto.GetBody().Messages {
-		if msgParsed := c.ParseMessage(message, txResult, false); msgParsed != nil {
+		if msgParsed := c.ParseMessage(message, txResult); msgParsed != nil {
 			txMessages = append(txMessages, msgParsed)
 		}
 	}
@@ -137,24 +130,17 @@ func (c *Converter) ParseEvent(event jsonRpcTypes.RPCResponse) types.Reportable 
 func (c *Converter) ParseMessage(
 	message *codecTypes.Any,
 	txResult abciTypes.TxResult,
-	internal bool,
 ) types.Message {
 	parser, ok := c.Parsers[message.TypeUrl]
 	if !ok {
-		if c.Chain.LogUnknownMessages {
-			c.Logger.Error().Str("type", message.TypeUrl).Msg("Unsupported message type")
-			return &messages.MsgUnsupportedMessage{MsgType: message.TypeUrl}
-		} else {
-			c.Logger.Debug().Str("type", message.TypeUrl).Msg("Unsupported message type")
-			return nil
-		}
+		return &messages.MsgUnsupportedMessage{MsgType: message.TypeUrl}
 	}
 
 	msgParsed, err := parser(message.Value, c.Chain, txResult.Height)
 	if err != nil {
 		if c.Chain.LogUnparsedMessages {
 			c.Logger.Error().Err(err).Str("type", message.TypeUrl).Msg("Error parsing message")
-			return &messages.MsgError{Error: fmt.Errorf("Error parsing message: %s", err)}
+			return &messages.MsgUnparsedMessage{Error: fmt.Errorf("Error parsing message: %s", err)}
 		}
 
 		c.Logger.Debug().
@@ -167,44 +153,11 @@ func (c *Converter) ParseMessage(
 		return nil
 	}
 
-	// No need to filter out internal messages if the flag i
-	if !internal || !c.Chain.FilterIncomingMessages {
-		matches, err := c.Chain.Filters.Matches(msgParsed.GetValues())
-
-		c.Logger.Trace().
-			Str("type", msgParsed.Type()).
-			Str("values", fmt.Sprintf("%+v", msgParsed.GetValues().ToMap())).
-			Str("filters", fmt.Sprintf("%+v", c.Chain.Filters)).
-			Bool("matches", matches).
-			Msg("Result of matching message events against filters")
-
-		if err != nil {
-			c.Logger.Error().
-				Err(err).
-				Str("type", message.TypeUrl).
-				Msg("Error checking if message matches filters")
-		} else if !matches {
-			c.Logger.Debug().
-				Int64("height", txResult.Height).
-				Str("type", msgParsed.Type()).
-				Msg("Message is ignored by filters.")
-			return nil
-		}
-	}
-
 	// Processing internal messages (such as ones in MsgExec
 	for _, internalMessage := range msgParsed.GetRawMessages() {
-		if internalMessageParsed := c.ParseMessage(internalMessage, txResult, true); internalMessageParsed != nil {
+		if internalMessageParsed := c.ParseMessage(internalMessage, txResult); internalMessageParsed != nil {
 			msgParsed.AddParsedMessage(internalMessageParsed)
 		}
-	}
-
-	if len(msgParsed.GetRawMessages()) > 0 && len(msgParsed.GetParsedMessages()) == 0 {
-		c.Logger.Debug().
-			Int64("height", txResult.Height).
-			Str("type", msgParsed.Type()).
-			Msg("Message with messages inside has 0 messages after filtering, skipping.")
-		return nil
 	}
 
 	c.Logger.Debug().Str("type", message.TypeUrl).Msg("Got message")

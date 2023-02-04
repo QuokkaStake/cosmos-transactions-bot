@@ -73,6 +73,10 @@ func (m *MsgExec) AddParsedMessage(message types.Message) {
 	m.Messages = append(m.Messages, message)
 }
 
+func (m *MsgExec) SetParsedMessages(messages []types.Message) {
+	m.Messages = messages
+}
+
 func (m *MsgExec) GetParsedMessages() []types.Message {
 	return m.Messages
 }

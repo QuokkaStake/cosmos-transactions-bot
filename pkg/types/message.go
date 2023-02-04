@@ -13,5 +13,6 @@ type Message interface {
 	GetValues() event.EventValues
 	GetRawMessages() []*codecTypes.Any
 	AddParsedMessage(message Message)
+	SetParsedMessages(messages []Message)
 	GetParsedMessages() []Message
 }
