@@ -43,3 +43,4 @@ linters:
     - nosnakecase
     - ifshort
     - gci
+    - musttag

@@ -85,6 +85,9 @@ func (m *MsgWithdrawDelegatorReward) GetRawMessages() []*codecTypes.Any {
 func (m *MsgWithdrawDelegatorReward) AddParsedMessage(message types.Message) {
 }
 
+func (m *MsgWithdrawDelegatorReward) SetParsedMessages(messages []types.Message) {
+}
+
 func (m *MsgWithdrawDelegatorReward) GetParsedMessages() []types.Message {
 	return []types.Message{}
 }

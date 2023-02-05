@@ -78,6 +78,9 @@ func (m *MsgWithdrawValidatorCommission) GetRawMessages() []*codecTypes.Any {
 func (m *MsgWithdrawValidatorCommission) AddParsedMessage(message types.Message) {
 }
 
+func (m *MsgWithdrawValidatorCommission) SetParsedMessages(messages []types.Message) {
+}
+
 func (m *MsgWithdrawValidatorCommission) GetParsedMessages() []types.Message {
 	return []types.Message{}
 }

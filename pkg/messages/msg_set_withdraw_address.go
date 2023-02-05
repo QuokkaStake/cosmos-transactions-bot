@@ -57,6 +57,9 @@ func (m *MsgSetWithdrawAddress) GetRawMessages() []*codecTypes.Any {
 func (m *MsgSetWithdrawAddress) AddParsedMessage(message types.Message) {
 }
 
+func (m *MsgSetWithdrawAddress) SetParsedMessages(messages []types.Message) {
+}
+
 func (m *MsgSetWithdrawAddress) GetParsedMessages() []types.Message {
 	return []types.Message{}
 }

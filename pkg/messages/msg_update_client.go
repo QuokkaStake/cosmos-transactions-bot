@@ -54,6 +54,9 @@ func (m *MsgUpdateClient) GetRawMessages() []*codecTypes.Any {
 func (m *MsgUpdateClient) AddParsedMessage(message types.Message) {
 }
 
+func (m *MsgUpdateClient) SetParsedMessages(messages []types.Message) {
+}
+
 func (m *MsgUpdateClient) GetParsedMessages() []types.Message {
 	return []types.Message{}
 }

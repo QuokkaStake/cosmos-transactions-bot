@@ -62,6 +62,9 @@ func (p *FungibleTokenPacket) GetRawMessages() []*codecTypes.Any {
 func (p *FungibleTokenPacket) AddParsedMessage(message types.Message) {
 }
 
+func (p *FungibleTokenPacket) SetParsedMessages(messages []types.Message) {
+}
+
 func (p *FungibleTokenPacket) GetParsedMessages() []types.Message {
 	return []types.Message{}
 }

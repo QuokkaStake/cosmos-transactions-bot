@@ -67,6 +67,10 @@ func (m *MsgTimeout) AddParsedMessage(message types.Message) {
 	m.Packet.AddParsedMessage(message)
 }
 
+func (m *MsgTimeout) SetParsedMessages(messages []types.Message) {
+	m.Packet.SetParsedMessages(messages)
+}
+
 func (m *MsgTimeout) GetParsedMessages() []types.Message {
 	return m.Packet.GetParsedMessages()
 }

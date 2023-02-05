@@ -88,6 +88,9 @@ func (m *MsgVote) GetRawMessages() []*codecTypes.Any {
 func (m *MsgVote) AddParsedMessage(message types.Message) {
 }
 
+func (m *MsgVote) SetParsedMessages(messages []types.Message) {
+}
+
 func (m *MsgVote) GetParsedMessages() []types.Message {
 	return []types.Message{}
 }

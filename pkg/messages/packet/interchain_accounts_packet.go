@@ -69,6 +69,10 @@ func (p *InterchainAccountsPacket) AddParsedMessage(message types.Message) {
 	p.TxMessages = append(p.TxMessages, message)
 }
 
+func (p *InterchainAccountsPacket) SetParsedMessages(messages []types.Message) {
+	p.TxMessages = messages
+}
+
 func (p *InterchainAccountsPacket) GetParsedMessages() []types.Message {
 	return p.TxMessages
 }

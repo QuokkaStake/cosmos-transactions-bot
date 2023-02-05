@@ -67,6 +67,10 @@ func (m *MsgRecvPacket) AddParsedMessage(message types.Message) {
 	m.Packet.AddParsedMessage(message)
 }
 
+func (m *MsgRecvPacket) SetParsedMessages(messages []types.Message) {
+	m.Packet.SetParsedMessages(messages)
+}
+
 func (m *MsgRecvPacket) GetParsedMessages() []types.Message {
 	return m.Packet.GetParsedMessages()
 }

@@ -68,6 +68,9 @@ func (m *MsgDelegate) GetRawMessages() []*codecTypes.Any {
 func (m *MsgDelegate) AddParsedMessage(message types.Message) {
 }
 
+func (m *MsgDelegate) SetParsedMessages(messages []types.Message) {
+}
+
 func (m *MsgDelegate) GetParsedMessages() []types.Message {
 	return []types.Message{}
 }
