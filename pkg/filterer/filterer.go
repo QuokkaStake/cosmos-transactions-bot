@@ -79,7 +79,7 @@ func (f *Filterer) FilterMessage(message types.Message, internal bool) types.Mes
 
 	// internal -> filter only if f.Chain.FilterInternalMessages is true
 	// !internal -> filter regardless
-	if !internal || f.Chain.FilterInternalMessages) {
+	if !internal || f.Chain.FilterInternalMessages {
 		matches, err := f.Chain.Filters.Matches(message.GetValues())
 
 		f.Logger.Trace().
