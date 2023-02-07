@@ -77,7 +77,9 @@ func (f *Filterer) FilterMessage(message types.Message, internal bool) types.Mes
 		}
 	}
 
-	if !internal || !f.Chain.FilterIncomingMessages {
+	// internal -> filter only if f.Chain.FilterInternalMessages is true
+	// !internal -> filter regardless
+	if !(internal && f.Chain.FilterInternalMessages) {
 		matches, err := f.Chain.Filters.Matches(message.GetValues())
 
 		f.Logger.Trace().
@@ -113,7 +115,7 @@ func (f *Filterer) FilterMessage(message types.Message, internal bool) types.Mes
 		}
 	}
 
-	if len(message.GetRawMessages()) > 0 && len(parsedInternalMessages) == 0 {
+	if len(parsedInternalMessages) == 0 {
 		f.Logger.Debug().
 			Str("type", message.Type()).
 			Msg("Message with messages inside has 0 messages after filtering, skipping.")

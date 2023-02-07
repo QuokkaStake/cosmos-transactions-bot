@@ -21,7 +21,7 @@ type Chain struct {
 	LogUnknownMessages     bool
 	LogUnparsedMessages    bool
 	LogFailedTransactions  bool
-	FilterIncomingMessages bool
+	FilterInternalMessages bool
 
 	Filters Filters
 }
