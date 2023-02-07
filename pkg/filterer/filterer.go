@@ -67,12 +67,12 @@ func (f *Filterer) Filter(reportable types.Reportable) types.Reportable {
 }
 
 func (f *Filterer) FilterMessage(message types.Message, internal bool) types.Message {
-	if _, ok := message.(*messages.MsgUnsupportedMessage); ok {
+	if unsupportedMsg, ok := message.(*messages.MsgUnsupportedMessage); ok {
 		if f.Chain.LogUnknownMessages {
-			f.Logger.Error().Str("type", message.Type()).Msg("Unsupported message type")
+			f.Logger.Error().Str("type", unsupportedMsg.MsgType).Msg("Unsupported message type")
 			return message
 		} else {
-			f.Logger.Debug().Str("type", message.Type()).Msg("Unsupported message type")
+			f.Logger.Debug().Str("type", unsupportedMsg.MsgType).Msg("Unsupported message type")
 			return nil
 		}
 	}

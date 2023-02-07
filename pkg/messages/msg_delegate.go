@@ -4,6 +4,7 @@ import (
 	configTypes "main/pkg/config/types"
 	dataFetcher "main/pkg/data_fetcher"
 	"main/pkg/types"
+	"main/pkg/types/amount"
 	"main/pkg/types/event"
 
 	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -16,7 +17,7 @@ import (
 type MsgDelegate struct {
 	DelegatorAddress configTypes.Link
 	ValidatorAddress configTypes.Link
-	Amount           *types.Amount
+	Amount           *amount.Amount
 }
 
 func ParseMsgDelegate(data []byte, chain *configTypes.Chain, height int64) (types.Message, error) {
@@ -28,7 +29,7 @@ func ParseMsgDelegate(data []byte, chain *configTypes.Chain, height int64) (type
 	return &MsgDelegate{
 		DelegatorAddress: chain.GetWalletLink(parsedMessage.DelegatorAddress),
 		ValidatorAddress: chain.GetValidatorLink(parsedMessage.ValidatorAddress),
-		Amount:           types.AmountFrom(parsedMessage.Amount),
+		Amount:           amount.AmountFrom(parsedMessage.Amount),
 	}, nil
 }
 
@@ -42,10 +43,7 @@ func (m *MsgDelegate) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
 		m.ValidatorAddress.Title = validator.Description.Moniker
 	}
 
-	price, found := fetcher.GetPrice()
-	if found && m.Amount.Denom == fetcher.Chain.BaseDenom {
-		m.Amount.AddUSDPrice(fetcher.Chain.DisplayDenom, fetcher.Chain.DenomCoefficient, price)
-	}
+	fetcher.PopulateAmount(m.Amount)
 
 	if alias := fetcher.AliasManager.Get(fetcher.Chain.Name, m.DelegatorAddress.Value); alias != "" {
 		m.DelegatorAddress.Title = alias

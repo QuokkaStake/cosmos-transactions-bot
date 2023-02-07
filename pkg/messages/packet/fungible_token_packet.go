@@ -4,6 +4,7 @@ import (
 	configTypes "main/pkg/config/types"
 	dataFetcher "main/pkg/data_fetcher"
 	"main/pkg/types"
+	"main/pkg/types/amount"
 	"main/pkg/types/event"
 
 	cosmosTypes "github.com/cosmos/cosmos-sdk/types"
@@ -14,7 +15,7 @@ import (
 )
 
 type FungibleTokenPacket struct {
-	Token    *types.Amount
+	Token    *amount.Amount
 	Sender   configTypes.Link
 	Receiver configTypes.Link
 }
@@ -24,7 +25,7 @@ func ParseFungibleTokenPacket(
 	chain *configTypes.Chain,
 ) types.Message {
 	return &FungibleTokenPacket{
-		Token:    types.AmountFromString(packetData.Amount, packetData.Denom),
+		Token:    amount.AmountFromString(packetData.Amount, packetData.Denom),
 		Sender:   configTypes.Link{Value: packetData.Sender},
 		Receiver: chain.GetWalletLink(packetData.Receiver),
 	}
@@ -38,10 +39,7 @@ func (p *FungibleTokenPacket) GetAdditionalData(fetcher dataFetcher.DataFetcher)
 	trace := ibcTypes.ParseDenomTrace(p.Token.Denom)
 	p.Token.Denom = trace.BaseDenom
 
-	price, found := fetcher.GetPrice()
-	if found && p.Token.Denom == fetcher.Chain.BaseDenom {
-		p.Token.AddUSDPrice(fetcher.Chain.DisplayDenom, fetcher.Chain.DenomCoefficient, price)
-	}
+	fetcher.PopulateAmount(p.Token)
 
 	if alias := fetcher.AliasManager.Get(fetcher.Chain.Name, p.Receiver.Value); alias != "" {
 		p.Receiver.Title = alias

@@ -1,28 +1,25 @@
 package price_fetchers
 
 import (
-	"main/pkg/config/types"
-
 	"github.com/rs/zerolog"
 	gecko "github.com/superoo7/go-gecko/v3"
+	configTypes "main/pkg/config/types"
 )
 
 type CoingeckoPriceFetcher struct {
 	Client *gecko.Client
-	Chain  *types.Chain
 	Logger zerolog.Logger
 }
 
-func NewCoingeckoPriceFetcher(logger *zerolog.Logger, chain *types.Chain) *CoingeckoPriceFetcher {
+func NewCoingeckoPriceFetcher(logger zerolog.Logger) *CoingeckoPriceFetcher {
 	return &CoingeckoPriceFetcher{
 		Client: gecko.NewClient(nil),
 		Logger: logger.With().Str("component", "coingecko_price_fetcher").Logger(),
-		Chain:  chain,
 	}
 }
 
-func (c *CoingeckoPriceFetcher) GetPrice() (float64, error) {
-	result, err := c.Client.SimpleSinglePrice(c.Chain.CoingeckoCurrency, "usd")
+func (c *CoingeckoPriceFetcher) GetPrice(denomInfo *configTypes.DenomInfo) (float64, error) {
+	result, err := c.Client.SimpleSinglePrice(denomInfo.CoingeckoCurrency, "usd")
 	if err != nil {
 		c.Logger.Error().Err(err).Msg("Could not get rate")
 		return 0, err

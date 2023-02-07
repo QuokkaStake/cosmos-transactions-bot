@@ -4,6 +4,7 @@ import (
 	configTypes "main/pkg/config/types"
 	dataFetcher "main/pkg/data_fetcher"
 	"main/pkg/types"
+	"main/pkg/types/amount"
 	"main/pkg/types/event"
 
 	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -16,7 +17,7 @@ import (
 type MsgWithdrawValidatorCommission struct {
 	ValidatorAddress configTypes.Link
 	Height           int64
-	Amount           []*types.Amount
+	Amount           []*amount.Amount
 }
 
 func ParseMsgWithdrawValidatorCommission(data []byte, chain *configTypes.Chain, height int64) (types.Message, error) {
@@ -41,21 +42,14 @@ func (m *MsgWithdrawValidatorCommission) GetAdditionalData(fetcher dataFetcher.D
 		m.Height,
 	)
 	if found {
-		m.Amount = make([]*types.Amount, len(rewards))
+		m.Amount = make([]*amount.Amount, len(rewards))
 
 		for index, reward := range rewards {
-			m.Amount[index] = types.AmountFromString(reward.Amount, reward.Denom)
+			m.Amount[index] = amount.AmountFromString(reward.Amount, reward.Denom)
 		}
 
-		price, priceFound := fetcher.GetPrice()
-		if priceFound {
-			for _, amount := range m.Amount {
-				if amount.Denom != fetcher.Chain.BaseDenom {
-					continue
-				}
-
-				amount.AddUSDPrice(fetcher.Chain.DisplayDenom, fetcher.Chain.DenomCoefficient, price)
-			}
+		for _, amount := range m.Amount {
+			fetcher.PopulateAmount(amount)
 		}
 	}
 

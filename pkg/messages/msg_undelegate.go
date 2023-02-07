@@ -1,6 +1,7 @@
 package messages
 
 import (
+	"main/pkg/types/amount"
 	"time"
 
 	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -19,7 +20,7 @@ type MsgUndelegate struct {
 	DelegatorAddress     configTypes.Link
 	ValidatorAddress     configTypes.Link
 	UndelegateFinishTime time.Time
-	Amount               *types.Amount
+	Amount               *amount.Amount
 }
 
 func ParseMsgUndelegate(data []byte, chain *configTypes.Chain, height int64) (types.Message, error) {
@@ -31,7 +32,7 @@ func ParseMsgUndelegate(data []byte, chain *configTypes.Chain, height int64) (ty
 	return &MsgUndelegate{
 		DelegatorAddress: chain.GetWalletLink(parsedMessage.DelegatorAddress),
 		ValidatorAddress: chain.GetValidatorLink(parsedMessage.ValidatorAddress),
-		Amount:           types.AmountFrom(parsedMessage.Amount),
+		Amount:           amount.AmountFrom(parsedMessage.Amount),
 	}, nil
 }
 
@@ -48,10 +49,7 @@ func (m *MsgUndelegate) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
 		m.UndelegateFinishTime = time.Now().Add(stakingParams.UnbondingTime.Duration)
 	}
 
-	price, found := fetcher.GetPrice()
-	if found && m.Amount.Denom == fetcher.Chain.BaseDenom {
-		m.Amount.AddUSDPrice(fetcher.Chain.DisplayDenom, fetcher.Chain.DenomCoefficient, price)
-	}
+	fetcher.PopulateAmount(m.Amount)
 
 	if alias := fetcher.AliasManager.Get(fetcher.Chain.Name, m.DelegatorAddress.Value); alias != "" {
 		m.DelegatorAddress.Title = alias

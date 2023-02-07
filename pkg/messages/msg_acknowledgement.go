@@ -4,6 +4,7 @@ import (
 	configTypes "main/pkg/config/types"
 	dataFetcher "main/pkg/data_fetcher"
 	"main/pkg/types"
+	"main/pkg/types/amount"
 	"main/pkg/types/event"
 
 	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -15,7 +16,7 @@ import (
 )
 
 type MsgAcknowledgement struct {
-	Token    *types.Amount
+	Token    *amount.Amount
 	Sender   configTypes.Link
 	Receiver configTypes.Link
 	Signer   configTypes.Link
@@ -33,7 +34,7 @@ func ParseMsgAcknowledgement(data []byte, chain *configTypes.Chain, height int64
 	}
 
 	return &MsgAcknowledgement{
-		Token:    types.AmountFromString(packetData.Amount, packetData.Denom),
+		Token:    amount.AmountFromString(packetData.Amount, packetData.Denom),
 		Sender:   chain.GetWalletLink(packetData.Sender),
 		Receiver: configTypes.Link{Value: packetData.Receiver},
 		Signer:   chain.GetWalletLink(parsedMessage.Signer),
@@ -45,11 +46,7 @@ func (m MsgAcknowledgement) Type() string {
 }
 
 func (m *MsgAcknowledgement) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
-	price, found := fetcher.GetPrice()
-	if found && m.Token.Denom == fetcher.Chain.BaseDenom {
-		m.Token.AddUSDPrice(fetcher.Chain.DisplayDenom, fetcher.Chain.DenomCoefficient, price)
-	}
-
+	fetcher.PopulateAmount(m.Token)
 	if alias := fetcher.AliasManager.Get(fetcher.Chain.Name, m.Sender.Value); alias != "" {
 		m.Sender.Title = alias
 	}

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html"
 	"html/template"
+	"main/pkg/types/amount"
 	"time"
 
 	"main/pkg/alias_manager"
@@ -228,7 +229,7 @@ func (reporter *TelegramReporter) SerializeLink(link configTypes.Link) template.
 	return template.HTML(value)
 }
 
-func (reporter *TelegramReporter) SerializeAmount(amount types.Amount) template.HTML {
+func (reporter *TelegramReporter) SerializeAmount(amount amount.Amount) template.HTML {
 	if amount.PriceUSD == nil {
 		return template.HTML(fmt.Sprintf(
 			"%.6f%s",

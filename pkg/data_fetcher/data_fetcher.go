@@ -1,11 +1,13 @@
 package data_fetcher
 
 import (
+	"fmt"
+	"main/pkg/types/amount"
 	"strconv"
 
 	"main/pkg/alias_manager"
 	"main/pkg/cache"
-	"main/pkg/config/types"
+	configTypes "main/pkg/config/types"
 	priceFetchers "main/pkg/price_fetchers"
 	"main/pkg/tendermint/api"
 	"main/pkg/types/responses"
@@ -16,13 +18,13 @@ import (
 type DataFetcher struct {
 	Logger               zerolog.Logger
 	Cache                *cache.Cache
-	Chain                *types.Chain
-	PriceFetcher         priceFetchers.PriceFetcher
+	Chain                *configTypes.Chain
+	PriceFetchers        map[string]priceFetchers.PriceFetcher
 	AliasManager         *alias_manager.AliasManager
 	TendermintApiClients []*api.TendermintApiClient
 }
 
-func NewDataFetcher(logger *zerolog.Logger, chain *types.Chain, aliasManager *alias_manager.AliasManager) *DataFetcher {
+func NewDataFetcher(logger *zerolog.Logger, chain *configTypes.Chain, aliasManager *alias_manager.AliasManager) *DataFetcher {
 	tendermintApiClients := make([]*api.TendermintApiClient, len(chain.APINodes))
 	for index, node := range chain.APINodes {
 		tendermintApiClients[index] = api.NewTendermintApiClient(logger, node, chain)
@@ -34,19 +36,30 @@ func NewDataFetcher(logger *zerolog.Logger, chain *types.Chain, aliasManager *al
 			Str("chain", chain.Name).
 			Logger(),
 		Cache:                cache.NewCache(logger),
-		PriceFetcher:         priceFetchers.GetPriceFetcher(logger, chain),
+		PriceFetchers:        map[string]priceFetchers.PriceFetcher{},
 		Chain:                chain,
 		TendermintApiClients: tendermintApiClients,
 		AliasManager:         aliasManager,
 	}
 }
 
-func (f *DataFetcher) GetPrice() (float64, bool) {
-	if f.PriceFetcher == nil {
-		return 0, false
+func (f *DataFetcher) GetPriceFetcher(info *configTypes.DenomInfo) priceFetchers.PriceFetcher {
+	if info.CoingeckoCurrency != "" {
+		if fetcher, ok := f.PriceFetchers["coingecko"]; ok {
+			return fetcher
+		}
+
+		f.PriceFetchers["coingecko"] = priceFetchers.NewCoingeckoPriceFetcher(f.Logger)
+		return f.PriceFetchers["coingecko"]
 	}
 
-	if cachedPrice, cachedPricePresent := f.Cache.Get(f.Chain.Name + "_price"); cachedPricePresent {
+	return nil
+}
+
+func (f *DataFetcher) GetPrice(denomInfo *configTypes.DenomInfo) (float64, bool) {
+	cacheKey := fmt.Sprintf("%s_price_%s", f.Chain.Name, denomInfo.Denom)
+
+	if cachedPrice, cachedPricePresent := f.Cache.Get(cacheKey); cachedPricePresent {
 		if cachedPriceFloat, ok := cachedPrice.(float64); ok {
 			return cachedPriceFloat, true
 		}
@@ -55,14 +68,34 @@ func (f *DataFetcher) GetPrice() (float64, bool) {
 		return 0, false
 	}
 
-	notCachedPrice, err := f.PriceFetcher.GetPrice()
+	fetcher := f.GetPriceFetcher(denomInfo)
+	if fetcher == nil {
+		f.Logger.Warn().Str("denom", denomInfo.Denom).Msg("Price fetcher is not enabled, not calculating price.")
+		return 0, false
+	}
+
+	notCachedPrice, err := fetcher.GetPrice(denomInfo)
 	if err != nil {
 		f.Logger.Error().Msg("Error fetching price")
 		return 0, false
 	}
 
-	f.Cache.Set(f.Chain.Name+"_price", notCachedPrice)
+	f.Cache.Set(cacheKey, notCachedPrice)
 	return notCachedPrice, true
+}
+
+func (f *DataFetcher) PopulateAmount(amount *amount.Amount) {
+	denomInfo := f.Chain.Denoms.Find(amount.Denom)
+	if denomInfo == nil {
+		return
+	}
+
+	price, fetched := f.GetPrice(denomInfo)
+	if fetched == false {
+		return
+	}
+
+	amount.AddUSDPrice(denomInfo.DisplayDenom, denomInfo.DenomCoefficient, price)
 }
 
 func (f *DataFetcher) GetValidator(address string) (*responses.Validator, bool) {
