@@ -4,6 +4,7 @@ import (
 	configTypes "main/pkg/config/types"
 	"main/pkg/data_fetcher"
 	"main/pkg/types"
+	"main/pkg/types/amount"
 	"main/pkg/types/event"
 	"main/pkg/utils"
 
@@ -16,7 +17,7 @@ import (
 
 type MultiSendEntry struct {
 	Address configTypes.Link
-	Amount  types.Amounts
+	Amount  amount.Amounts
 }
 
 type MsgMultiSend struct {
@@ -34,13 +35,13 @@ func ParseMsgMultiSend(data []byte, chain *configTypes.Chain, height int64) (typ
 		Inputs: utils.Map(parsedMessage.Inputs, func(input cosmosBankTypes.Input) MultiSendEntry {
 			return MultiSendEntry{
 				Address: chain.GetWalletLink(input.Address),
-				Amount:  utils.Map(input.Coins, types.AmountFrom),
+				Amount:  utils.Map(input.Coins, amount.AmountFrom),
 			}
 		}),
 		Outputs: utils.Map(parsedMessage.Outputs, func(output cosmosBankTypes.Output) MultiSendEntry {
 			return MultiSendEntry{
 				Address: chain.GetWalletLink(output.Address),
-				Amount:  utils.Map(output.Coins, types.AmountFrom),
+				Amount:  utils.Map(output.Coins, amount.AmountFrom),
 			}
 		}),
 	}, nil
@@ -51,22 +52,13 @@ func (m MsgMultiSend) Type() string {
 }
 
 func (m *MsgMultiSend) GetAdditionalData(fetcher data_fetcher.DataFetcher) {
-	price, found := fetcher.GetPrice()
-	if !found {
-		return
-	}
-
 	for _, input := range m.Inputs {
 		if alias := fetcher.AliasManager.Get(fetcher.Chain.Name, input.Address.Value); alias != "" {
 			input.Address.Title = alias
 		}
 
 		for _, amount := range input.Amount {
-			if amount.Denom != fetcher.Chain.BaseDenom {
-				continue
-			}
-
-			amount.AddUSDPrice(fetcher.Chain.DisplayDenom, fetcher.Chain.DenomCoefficient, price)
+			fetcher.PopulateAmount(amount)
 		}
 	}
 
@@ -76,11 +68,7 @@ func (m *MsgMultiSend) GetAdditionalData(fetcher data_fetcher.DataFetcher) {
 		}
 
 		for _, amount := range output.Amount {
-			if amount.Denom != fetcher.Chain.BaseDenom {
-				continue
-			}
-
-			amount.AddUSDPrice(fetcher.Chain.DisplayDenom, fetcher.Chain.DenomCoefficient, price)
+			fetcher.PopulateAmount(amount)
 		}
 	}
 }

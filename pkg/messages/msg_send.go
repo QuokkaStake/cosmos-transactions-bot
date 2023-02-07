@@ -4,6 +4,7 @@ import (
 	configTypes "main/pkg/config/types"
 	"main/pkg/data_fetcher"
 	"main/pkg/types"
+	"main/pkg/types/amount"
 	"main/pkg/types/event"
 	"main/pkg/utils"
 
@@ -17,7 +18,7 @@ import (
 type MsgSend struct {
 	From   configTypes.Link
 	To     configTypes.Link
-	Amount types.Amounts
+	Amount amount.Amounts
 }
 
 func ParseMsgSend(data []byte, chain *configTypes.Chain, height int64) (types.Message, error) {
@@ -29,7 +30,7 @@ func ParseMsgSend(data []byte, chain *configTypes.Chain, height int64) (types.Me
 	return &MsgSend{
 		From:   chain.GetWalletLink(parsedMessage.FromAddress),
 		To:     chain.GetWalletLink(parsedMessage.ToAddress),
-		Amount: utils.Map(parsedMessage.Amount, types.AmountFrom),
+		Amount: utils.Map(parsedMessage.Amount, amount.AmountFrom),
 	}, nil
 }
 
@@ -38,17 +39,8 @@ func (m MsgSend) Type() string {
 }
 
 func (m *MsgSend) GetAdditionalData(fetcher data_fetcher.DataFetcher) {
-	price, found := fetcher.GetPrice()
-	if !found {
-		return
-	}
-
 	for _, amount := range m.Amount {
-		if amount.Denom != fetcher.Chain.BaseDenom {
-			continue
-		}
-
-		amount.AddUSDPrice(fetcher.Chain.DisplayDenom, fetcher.Chain.DenomCoefficient, price)
+		fetcher.PopulateAmount(amount)
 	}
 
 	if alias := fetcher.AliasManager.Get(fetcher.Chain.Name, m.From.Value); alias != "" {

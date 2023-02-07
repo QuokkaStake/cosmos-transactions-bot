@@ -77,6 +77,11 @@ func (a *App) Start() {
 
 			reportableFiltered := chainFilterer.Filter(rawReport.Reportable)
 			if reportableFiltered == nil {
+				a.Logger.Debug().
+					Str("node", rawReport.Node).
+					Str("chain", rawReport.Chain.Name).
+					Str("hash", rawReport.Reportable.GetHash()).
+					Msg("Got report")
 				continue
 			}
 

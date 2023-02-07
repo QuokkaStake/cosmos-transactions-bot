@@ -16,15 +16,12 @@ type Chain struct {
 	Queries           []query.Query
 	Explorer          *Explorer
 	SupportedExplorer SupportedExplorer
-	CoingeckoCurrency string
-	BaseDenom         string
-	DisplayDenom      string
-	DenomCoefficient  int64
+	Denoms            DenomInfos
 
 	LogUnknownMessages     bool
 	LogUnparsedMessages    bool
 	LogFailedTransactions  bool
-	FilterIncomingMessages bool
+	FilterInternalMessages bool
 
 	Filters Filters
 }
@@ -77,7 +74,7 @@ func (c Chain) GetTransactionLink(hash string) Link {
 
 	return Link{
 		Href:  fmt.Sprintf(c.Explorer.TransactionLinkPattern, hash),
-		Title: hash,
+		Value: hash,
 	}
 }
 
@@ -95,16 +92,12 @@ func (c Chain) GetBlockLink(height int64) Link {
 }
 
 func (c *Chain) DisplayWarnings(logger *zerolog.Logger) {
-	if c.BaseDenom == "" {
-		logger.Warn().Str("chain", c.Name).Msg("Base denom not set, denoms won't be displayed correctly.")
-	}
-
-	if c.DisplayDenom == "" {
-		logger.Warn().Str("chain", c.Name).Msg("Display denom not set, denoms won't be displayed correctly.")
-	}
-
-	if c.CoingeckoCurrency == "" {
-		logger.Warn().Str("chain", c.Name).Msg("Coingecko currency not set, prices in USD won't be displayed.")
+	if len(c.Denoms) == 0 {
+		logger.Warn().Str("chain", c.Name).Msg("No denoms set, prices in USD won't be displayed.")
+	} else {
+		for _, denom := range c.Denoms {
+			denom.DisplayWarnings(c, logger)
+		}
 	}
 
 	if c.Explorer == nil {

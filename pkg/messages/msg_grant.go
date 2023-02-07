@@ -1,6 +1,7 @@
 package messages
 
 import (
+	"main/pkg/types/amount"
 	"time"
 
 	configTypes "main/pkg/config/types"
@@ -19,7 +20,7 @@ import (
 type Authorization interface{}
 
 type StakeAuthorization struct {
-	MaxTokens         *types.Amount
+	MaxTokens         *amount.Amount
 	AuthorizationType string
 	Validators        []configTypes.Link
 }
@@ -37,9 +38,9 @@ func ParseStakeAuthorization(authorization *codecTypes.Any, chain *configTypes.C
 	if err := proto.Unmarshal(authorization.Value, &parsedAuthorization); err != nil {
 		return nil, err
 	}
-	var maxTokens *types.Amount
+	var maxTokens *amount.Amount
 	if parsedAuthorization.MaxTokens != nil {
-		maxTokens = types.AmountFrom(*parsedAuthorization.MaxTokens)
+		maxTokens = amount.AmountFrom(*parsedAuthorization.MaxTokens)
 	}
 
 	var validators []configTypes.Link

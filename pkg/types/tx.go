@@ -28,7 +28,7 @@ func (tx Tx) Type() string {
 }
 
 func (tx Tx) GetHash() string {
-	return tx.Hash.Title
+	return tx.Hash.Value
 }
 
 func (tx *Tx) GetAdditionalData(fetcher data_fetcher.DataFetcher) {
