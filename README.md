@@ -1,18 +1,18 @@
 # cosmos-transactions-bot
 
-![Latest release](https://img.shields.io/github/v/release/freak12techno/cosmos-transactions-bot)
-[![Actions Status](https://github.com/freak12techno/cosmos-transactions-bot/workflows/test/badge.svg)](https://github.com/freak12techno/cosmos-transactions-bot/actions)
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Ffreak12techno%2Fcosmos-transactions-bot.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Ffreak12techno%2Fcosmos-transactions-bot?ref=badge_shield)
+![Latest release](https://img.shields.io/github/v/release/QuokkaStake/cosmos-transactions-bot)
+[![Actions Status](https://github.com/QuokkaStake/cosmos-transactions-bot/workflows/test/badge.svg)](https://github.com/QuokkaStake/cosmos-transactions-bot/actions)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FQuokkaStake%2Fcosmos-transactions-bot.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FQuokkaStake%2Fcosmos-transactions-bot?ref=badge_shield)
 
 cosmos-transactions-bot is a tool that listens to transactions with a specific filter on multiple chains and reports them to a Telegram channel.
 
 Here's how it may look like:
 
-![Telegram](https://raw.githubusercontent.com/freak12techno/cosmos-transactions-bot/master/images/telegram.png)
+![Telegram](https://raw.githubusercontent.com/QuokkaStake/cosmos-transactions-bot/master/images/telegram.png)
 
 ## How can I set it up?
 
-Download the latest release from [the releases page](https://github.com/freak12techno/cosmos-transactions-bot/releases/). After that, you should unzip it and you are ready to go:
+Download the latest release from [the releases page](https://github.com/QuokkaStake/cosmos-transactions-bot/releases/). After that, you should unzip it and you are ready to go:
 
 ```sh
 wget <the link from the releases page>
@@ -172,4 +172,4 @@ Bug reports and feature requests are always welcome! If you want to contribute, 
 
 
 ## License
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Ffreak12techno%2Fcosmos-transactions-bot.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Ffreak12techno%2Fcosmos-transactions-bot?ref=badge_large)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FQuokkaStake%2Fcosmos-transactions-bot.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FQuokkaStake%2Fcosmos-transactions-bot?ref=badge_large)

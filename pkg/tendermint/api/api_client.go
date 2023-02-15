@@ -137,6 +137,8 @@ func (c *TendermintApiClient) GetWithHeaders(
 		return err
 	}
 
+	req.Header.Set("User-Agent", "cosmos-transactions-bot")
+
 	for key, value := range headers {
 		req.Header.Set(key, value)
 	}

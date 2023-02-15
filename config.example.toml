@@ -28,11 +28,11 @@ pretty-name = "Cosmos Hub"
 # Tendermint RPC nodes to subscribe to. At least one is required, better to have multiple ones
 # as a failover.
 tendermint-nodes = [
-    "https://rpc.cosmos.freak12techno.io:443",
+    "https://rpc.cosmos.quokkastake.io:443",
 ]
 # API nodes to get blockchain data (validators, proposals etc.) from.
 api-nodes = [
-    "https://api.cosmos.freak12techno.io",
+    "https://api.cosmos.quokkastake.io",
 ]
 # Queries, see README.md for details.
 queries = [
