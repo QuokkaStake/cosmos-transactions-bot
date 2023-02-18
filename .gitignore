@@ -4,3 +4,4 @@ main
 .DS_Store
 aliases.toml
 cosmos-transactions-bot
+dist/
