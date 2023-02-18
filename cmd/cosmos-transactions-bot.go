@@ -8,6 +8,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var (
+	version = "unknown"
+)
+
 func Execute(configPath string) {
 	config, err := config.GetConfig(configPath)
 	if err != nil {
@@ -23,8 +27,9 @@ func main() {
 	var ConfigPath string
 
 	rootCmd := &cobra.Command{
-		Use:  "cosmos-transactions-bot",
-		Long: "Get notified on new transactions on different cosmos-sdk chains.",
+		Use:     "cosmos-transactions-bot",
+		Long:    "Get notified on new transactions on different cosmos-sdk chains.",
+		Version: version,
 		Run: func(cmd *cobra.Command, args []string) {
 			Execute(ConfigPath)
 		},
