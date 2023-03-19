@@ -77,6 +77,11 @@ log-failed-transactions = true
 # 2) MsgDelegate inside won't match this filter
 # 3) MsgExec would have 0 messages after filtering internal message and would also be filtered.
 filter-internal-messages = true
+# Whether to log Tendermint node errors.
+# Example: when the node is restarted, this error is emitted:
+# - `Error: RPC error -32000 - Server error: subscription was cancelled (reason: Tendermint exited)`
+# If this is set to true (default), such messages would be displayed, if not, they will be skipped.
+log-node-errors = true
 # Explorer configuration.
 # Priorities:
 # 1) ping.pub
