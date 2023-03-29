@@ -35,11 +35,13 @@ func AmountFromString(amount string, denom string) *Amount {
 	}
 }
 
-func (a *Amount) AddUSDPrice(displayDenom string, denomCoefficient int64, usdPrice float64) {
+func (a *Amount) ConvertDenom(displayDenom string, denomCoefficient int64) {
 	denomCoefficientBigFloat := new(big.Float).SetInt64(denomCoefficient)
 	a.Value = new(big.Float).Quo(a.Value, denomCoefficientBigFloat)
 	a.Denom = displayDenom
+}
 
+func (a *Amount) AddUSDPrice(usdPrice float64) {
 	tokenPriceBigFloat := new(big.Float).Set(a.Value)
 	amountValueBigFloat := new(big.Float).SetFloat64(usdPrice)
 	a.PriceUSD = new(big.Float).Mul(tokenPriceBigFloat, amountValueBigFloat)

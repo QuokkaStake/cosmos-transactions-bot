@@ -90,12 +90,13 @@ func (f *DataFetcher) PopulateAmount(amount *amount.Amount) {
 		return
 	}
 
+	amount.ConvertDenom(denomInfo.DisplayDenom, denomInfo.DenomCoefficient)
 	price, fetched := f.GetPrice(denomInfo)
 	if fetched == false {
 		return
 	}
 
-	amount.AddUSDPrice(denomInfo.DisplayDenom, denomInfo.DenomCoefficient, price)
+	amount.AddUSDPrice(price)
 }
 
 func (f *DataFetcher) GetValidator(address string) (*responses.Validator, bool) {
