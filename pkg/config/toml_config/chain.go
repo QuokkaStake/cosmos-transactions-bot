@@ -22,6 +22,7 @@ type Chain struct {
 	LogUnknownMessages     null.Bool  `toml:"log-unknown-messages" default:"false"`
 	LogUnparsedMessages    null.Bool  `toml:"log-unparsed-messages" default:"true"`
 	LogFailedTransactions  null.Bool  `toml:"log-failed-transactions" default:"true"`
+	LogNodeErrors          null.Bool  `toml:"log-node-errors" default:"true"`
 	FilterInternalMessages null.Bool  `toml:"filter-internal-messages" default:"true"`
 	Denoms                 DenomInfos `toml:"denoms"`
 }
@@ -102,6 +103,7 @@ func (c *Chain) ToAppConfigChain() *types.Chain {
 		LogUnknownMessages:     c.LogUnknownMessages.Bool,
 		LogUnparsedMessages:    c.LogUnparsedMessages.Bool,
 		LogFailedTransactions:  c.LogFailedTransactions.Bool,
+		LogNodeErrors:          c.LogNodeErrors.Bool,
 		FilterInternalMessages: c.FilterInternalMessages.Bool,
 		Denoms:                 c.Denoms.ToAppConfigDenomInfos(),
 	}
@@ -116,6 +118,7 @@ func FromAppConfigChain(c *types.Chain) *Chain {
 		LogUnknownMessages:     null.BoolFrom(c.LogUnknownMessages),
 		LogUnparsedMessages:    null.BoolFrom(c.LogUnparsedMessages),
 		LogFailedTransactions:  null.BoolFrom(c.LogFailedTransactions),
+		LogNodeErrors:          null.BoolFrom(c.LogNodeErrors),
 		FilterInternalMessages: null.BoolFrom(c.FilterInternalMessages),
 		Denoms:                 TomlConfigDenomsFrom(c.Denoms),
 	}

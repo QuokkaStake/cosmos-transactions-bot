@@ -3,7 +3,7 @@ package filterer
 import (
 	"fmt"
 	configTypes "main/pkg/config/types"
-	"main/pkg/messages"
+	messagesPkg "main/pkg/messages"
 	"main/pkg/types"
 
 	"github.com/rs/zerolog"
@@ -28,8 +28,13 @@ func NewFilterer(
 }
 
 func (f *Filterer) Filter(reportable types.Reportable) types.Reportable {
-	// Not filtering out TxError
+	// Filtering out TxError only if chain's log-node-errors = true.
 	if _, ok := reportable.(*types.TxError); ok {
+		if !f.Chain.LogNodeErrors {
+			f.Logger.Debug().Msg("Got node error, skipping as node errors logging is disabled")
+			return nil
+		}
+
 		return reportable
 	}
 
@@ -67,7 +72,7 @@ func (f *Filterer) Filter(reportable types.Reportable) types.Reportable {
 }
 
 func (f *Filterer) FilterMessage(message types.Message, internal bool) types.Message {
-	if unsupportedMsg, ok := message.(*messages.MsgUnsupportedMessage); ok {
+	if unsupportedMsg, ok := message.(*messagesPkg.MsgUnsupportedMessage); ok {
 		if f.Chain.LogUnknownMessages {
 			f.Logger.Error().Str("type", unsupportedMsg.MsgType).Msg("Unsupported message type")
 			return message
