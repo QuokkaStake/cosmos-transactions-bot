@@ -32,10 +32,16 @@ func NewFilterer(
 
 func (f *Filterer) Filter(reportable types.Reportable) types.Reportable {
 	// Filtering out TxError only if chain's log-node-errors = true.
-	_, isTxError := reportable.(*types.TxError)
-	_, isNodeConnectError := reportable.(*types.NodeConnectError)
+	if _, ok := reportable.(*types.TxError); ok {
+		if !f.Chain.LogNodeErrors {
+			f.Logger.Debug().Msg("Got transaction error, skipping as node errors logging is disabled")
+			return nil
+		}
 
-	if isTxError || isNodeConnectError {
+		return reportable
+	}
+
+	if _, ok := reportable.(*types.NodeConnectError); ok {
 		if !f.Chain.LogNodeErrors {
 			f.Logger.Debug().Msg("Got node error, skipping as node errors logging is disabled")
 			return nil
