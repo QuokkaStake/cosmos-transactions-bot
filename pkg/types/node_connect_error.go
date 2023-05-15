@@ -1,8 +1,9 @@
 package types
 
 import (
-	"github.com/google/uuid"
 	"main/pkg/data_fetcher"
+
+	"github.com/google/uuid"
 )
 
 type NodeConnectError struct {
