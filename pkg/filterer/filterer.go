@@ -5,13 +5,15 @@ import (
 	configTypes "main/pkg/config/types"
 	messagesPkg "main/pkg/messages"
 	"main/pkg/types"
+	"strconv"
 
 	"github.com/rs/zerolog"
 )
 
 type Filterer struct {
-	Logger zerolog.Logger
-	Chain  *configTypes.Chain
+	Logger          zerolog.Logger
+	Chain           *configTypes.Chain
+	lastBlockHeight int64
 }
 
 func NewFilterer(
@@ -23,13 +25,23 @@ func NewFilterer(
 			Str("component", "filterer").
 			Str("chain", chain.Name).
 			Logger(),
-		Chain: chain,
+		Chain:           chain,
+		lastBlockHeight: 0,
 	}
 }
 
 func (f *Filterer) Filter(reportable types.Reportable) types.Reportable {
 	// Filtering out TxError only if chain's log-node-errors = true.
 	if _, ok := reportable.(*types.TxError); ok {
+		if !f.Chain.LogNodeErrors {
+			f.Logger.Debug().Msg("Got transaction error, skipping as node errors logging is disabled")
+			return nil
+		}
+
+		return reportable
+	}
+
+	if _, ok := reportable.(*types.NodeConnectError); ok {
 		if !f.Chain.LogNodeErrors {
 			f.Logger.Debug().Msg("Got node error, skipping as node errors logging is disabled")
 			return nil
@@ -49,6 +61,24 @@ func (f *Filterer) Filter(reportable types.Reportable) types.Reportable {
 			Str("hash", tx.GetHash()).
 			Msg("Transaction is failed, skipping")
 		return nil
+	}
+
+	txHeight, err := strconv.ParseInt(tx.Height.Value, 10, 64)
+	if err != nil {
+		f.Logger.Fatal().Err(err).Msg("Error converting height to int64")
+	}
+
+	if f.lastBlockHeight != 0 && f.lastBlockHeight > txHeight {
+		f.Logger.Debug().
+			Str("hash", tx.GetHash()).
+			Int64("height", txHeight).
+			Int64("last_height", f.lastBlockHeight).
+			Msg("Transaction height is less than the last one received, skipping")
+		return nil
+	}
+
+	if f.lastBlockHeight == 0 || f.lastBlockHeight < txHeight {
+		f.lastBlockHeight = txHeight
 	}
 
 	messages := make([]types.Message, 0)

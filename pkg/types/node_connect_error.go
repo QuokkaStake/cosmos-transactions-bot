@@ -2,6 +2,8 @@ package types
 
 import (
 	"main/pkg/data_fetcher"
+
+	"github.com/google/uuid"
 )
 
 type NodeConnectError struct {
@@ -19,7 +21,7 @@ func (e NodeConnectError) Type() string {
 }
 
 func (e NodeConnectError) GetHash() string {
-	return "NodeConnectError"
+	return uuid.NewString()
 }
 
 func (e *NodeConnectError) GetAdditionalData(fetcher data_fetcher.DataFetcher) {
