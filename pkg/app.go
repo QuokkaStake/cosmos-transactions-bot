@@ -109,6 +109,8 @@ func (a *App) Start() {
 				Str("hash", report.Reportable.GetHash()).
 				Msg("Got report")
 
+			a.MetricsManager.LogReport(report)
+
 			rawReport.Reportable.GetAdditionalData(*fetcher)
 
 			for _, reporter := range a.Reporters {

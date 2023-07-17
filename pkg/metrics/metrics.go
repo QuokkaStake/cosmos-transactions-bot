@@ -206,15 +206,15 @@ func (m *Manager) LogNodeConnection(chain, node string, connected bool) {
 //	}
 //}
 
-func (m *Manager) LogReport(chain string, report *types.Report) {
+func (m *Manager) LogReport(report types.Report) {
 	m.reportsCounter.
-		With(prometheus.Labels{"chain": chain}).
+		With(prometheus.Labels{"chain": report.Chain.Name}).
 		Inc()
 
 	for _, entry := range report.Reportable.GetMessages() {
 		m.reportEntriesCounter.
 			With(prometheus.Labels{
-				"chain": chain,
+				"chain": report.Chain.Name,
 				"type":  entry.Type(),
 			}).
 			Inc()
