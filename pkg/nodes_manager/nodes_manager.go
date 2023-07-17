@@ -1,11 +1,12 @@
 package nodes_manager
 
 import (
+	metricsPkg "main/pkg/metrics"
+	"main/pkg/types"
 	"sync"
 
 	"main/pkg/config"
 	"main/pkg/tendermint/ws"
-	"main/pkg/types"
 
 	"github.com/rs/zerolog"
 )
@@ -42,14 +43,20 @@ func (q *ReportQueue) Has(msg types.Report) bool {
 }
 
 type NodesManager struct {
-	Logger  zerolog.Logger
-	Nodes   map[string][]*ws.TendermintWebsocketClient
+	Logger         zerolog.Logger
+	Nodes          map[string][]*ws.TendermintWebsocketClient
+	MetricsManager *metricsPkg.Manager
+
 	Channel chan types.Report
 	Queue   ReportQueue
 	Mutex   sync.Mutex
 }
 
-func NewNodesManager(logger *zerolog.Logger, config *config.AppConfig) *NodesManager {
+func NewNodesManager(
+	logger *zerolog.Logger,
+	config *config.AppConfig,
+	metricsManager *metricsPkg.Manager,
+) *NodesManager {
 	nodes := make(map[string][]*ws.TendermintWebsocketClient, len(config.Chains))
 
 	for _, chain := range config.Chains {
@@ -60,15 +67,17 @@ func NewNodesManager(logger *zerolog.Logger, config *config.AppConfig) *NodesMan
 				logger,
 				node,
 				chain,
+				metricsManager,
 			)
 		}
 	}
 
 	return &NodesManager{
-		Logger:  logger.With().Str("component", "nodes_manager").Logger(),
-		Nodes:   nodes,
-		Channel: make(chan types.Report),
-		Queue:   NewReportQueue(100),
+		Logger:         logger.With().Str("component", "nodes_manager").Logger(),
+		MetricsManager: metricsManager,
+		Nodes:          nodes,
+		Channel:        make(chan types.Report),
+		Queue:          NewReportQueue(100),
 	}
 }
 

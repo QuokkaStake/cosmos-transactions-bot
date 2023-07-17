@@ -24,7 +24,11 @@ type DataFetcher struct {
 	TendermintApiClients []*api.TendermintApiClient
 }
 
-func NewDataFetcher(logger *zerolog.Logger, chain *configTypes.Chain, aliasManager *alias_manager.AliasManager) *DataFetcher {
+func NewDataFetcher(
+	logger *zerolog.Logger,
+	chain *configTypes.Chain,
+	aliasManager *alias_manager.AliasManager,
+) *DataFetcher {
 	tendermintApiClients := make([]*api.TendermintApiClient, len(chain.APINodes))
 	for index, node := range chain.APINodes {
 		tendermintApiClients[index] = api.NewTendermintApiClient(logger, node, chain)
@@ -239,4 +243,12 @@ func (f *DataFetcher) GetStakingParams() (*responses.StakingParams, bool) {
 
 	f.Logger.Error().Msg("Could not connect to any nodes to get staking params")
 	return nil, false
+}
+
+func (f *DataFetcher) GetAliasManager() *alias_manager.AliasManager {
+	return f.AliasManager
+}
+
+func (f *DataFetcher) GetChain() *configTypes.Chain {
+	return f.Chain
 }

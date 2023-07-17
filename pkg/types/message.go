@@ -1,7 +1,7 @@
 package types
 
 import (
-	dataFetcher "main/pkg/data_fetcher"
+	"main/pkg/data_fetcher"
 	"main/pkg/types/event"
 
 	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -9,7 +9,7 @@ import (
 
 type Message interface {
 	Type() string
-	GetAdditionalData(dataFetcher.DataFetcher)
+	GetAdditionalData(fetcher data_fetcher.DataFetcher)
 	GetValues() event.EventValues
 	GetRawMessages() []*codecTypes.Any
 	AddParsedMessage(message Message)

@@ -1,8 +1,6 @@
 package types
 
-import (
-	"main/pkg/data_fetcher"
-)
+import "main/pkg/data_fetcher"
 
 type Reportable interface {
 	Type() string

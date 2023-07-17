@@ -33,6 +33,7 @@ type AppConfig struct {
 	TelegramConfig TelegramConfig
 	LogConfig      LogConfig
 	Chains         Chains
+	Metrics        MetricsConfig
 }
 
 type TelegramConfig struct {
@@ -44,6 +45,11 @@ type TelegramConfig struct {
 type LogConfig struct {
 	LogLevel   string
 	JSONOutput bool
+}
+
+type MetricsConfig struct {
+	Enabled    bool
+	ListenAddr string
 }
 
 func GetConfig(path string) (*AppConfig, error) {
@@ -83,6 +89,10 @@ func FromTomlConfig(c *tomlConfig.TomlConfig, path string) *AppConfig {
 			LogLevel:   c.LogConfig.LogLevel,
 			JSONOutput: c.LogConfig.JSONOutput.Bool,
 		},
+		Metrics: MetricsConfig{
+			ListenAddr: c.MetricsConfig.ListenAddr,
+			Enabled:    c.MetricsConfig.Enabled.Bool,
+		},
 		Chains: utils.Map(c.Chains, func(c *tomlConfig.Chain) *types.Chain {
 			return c.ToAppConfigChain()
 		}),
@@ -100,6 +110,10 @@ func (c *AppConfig) ToTomlConfig() *tomlConfig.TomlConfig {
 		LogConfig: tomlConfig.LogConfig{
 			LogLevel:   c.LogConfig.LogLevel,
 			JSONOutput: null.BoolFrom(c.LogConfig.JSONOutput),
+		},
+		MetricsConfig: tomlConfig.MetricsConfig{
+			ListenAddr: c.Metrics.ListenAddr,
+			Enabled:    null.BoolFrom(c.Metrics.Enabled),
 		},
 		Chains: utils.Map(c.Chains, tomlConfig.FromAppConfigChain),
 	}

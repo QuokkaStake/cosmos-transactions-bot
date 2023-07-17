@@ -2,7 +2,6 @@ package converter
 
 import (
 	"fmt"
-
 	configTypes "main/pkg/config/types"
 	"main/pkg/messages"
 	"main/pkg/types"
