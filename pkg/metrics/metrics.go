@@ -123,10 +123,6 @@ func (m *Manager) SetDefaultMetrics(chain *configTypes.Chain) {
 		With(prometheus.Labels{"chain": chain.Name, "pretty_name": chain.PrettyName}).
 		Set(1)
 
-	m.eventsTotalCounter.
-		With(prometheus.Labels{"chain": chain.Name}).
-		Add(0)
-
 	for _, node := range chain.TendermintNodes {
 		m.eventsTotalCounter.
 			With(prometheus.Labels{"chain": chain.Name, "node": node}).
