@@ -143,15 +143,15 @@ func (m *Manager) SetDefaultMetrics(chain *configTypes.Chain) {
 			Add(0)
 	}
 
-	for _, node := range chain.APINodes {
-		m.successfulQueriesCollector.
-			With(prometheus.Labels{"chain": chain.Name, "node": node}).
-			Add(0)
-
-		m.failedQueriesCollector.
-			With(prometheus.Labels{"chain": chain.Name, "node": node}).
-			Add(0)
-	}
+	//for _, node := range chain.APINodes {
+	//	m.successfulQueriesCollector.
+	//		With(prometheus.Labels{"chain": chain.Name, "node": node}).
+	//		Add(0)
+	//
+	//	m.failedQueriesCollector.
+	//		With(prometheus.Labels{"chain": chain.Name, "node": node}).
+	//		Add(0)
+	//}
 }
 
 func (m *Manager) Start() {
