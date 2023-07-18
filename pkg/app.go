@@ -1,6 +1,7 @@
 package pkg
 
 import (
+	configTypes "main/pkg/config/types"
 	"main/pkg/types"
 	"os"
 	"os/signal"
@@ -21,6 +22,7 @@ import (
 
 type App struct {
 	Logger         zerolog.Logger
+	Chains         []*configTypes.Chain
 	NodesManager   *nodesManagerPkg.NodesManager
 	Reporters      []reportersPkg.Reporter
 	DataFetchers   map[string]*data_fetcher.DataFetcher
@@ -55,6 +57,7 @@ func NewApp(config *config.AppConfig, version string) *App {
 
 	return &App{
 		Logger:         logger.With().Str("component", "app").Logger(),
+		Chains:         config.Chains,
 		Reporters:      reporters,
 		NodesManager:   nodesManager,
 		DataFetchers:   dataFetchers,
@@ -67,6 +70,7 @@ func NewApp(config *config.AppConfig, version string) *App {
 func (a *App) Start() {
 	go a.MetricsManager.Start()
 	a.MetricsManager.LogAppVersion(a.Version)
+	a.MetricsManager.SetAllDefaultMetrics(a.Chains)
 
 	for _, reporter := range a.Reporters {
 		reporter.Init()

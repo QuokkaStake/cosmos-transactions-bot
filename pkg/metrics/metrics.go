@@ -25,8 +25,8 @@ type Manager struct {
 	nodeConnectedCollector   *prometheus.GaugeVec
 	reconnectsCounter        *prometheus.CounterVec
 
-	// successfulQueriesCollector *prometheus.CounterVec
-	//failedQueriesCollector     *prometheus.CounterVec
+	successfulQueriesCollector *prometheus.CounterVec
+	failedQueriesCollector     *prometheus.CounterVec
 
 	eventsTotalCounter    *prometheus.CounterVec
 	eventsFilteredCounter *prometheus.CounterVec
@@ -58,14 +58,14 @@ func NewManager(logger *zerolog.Logger, config configPkg.MetricsConfig) *Manager
 			Name: constants.PrometheusMetricsPrefix + "node_connected",
 			Help: "Whether the node is successfully connected (1 if yes, 0 if no)",
 		}, []string{"chain", "node"}),
-		//successfulQueriesCollector: promauto.NewCounterVec(prometheus.CounterOpts{
-		//	Name: constants.PrometheusMetricsPrefix + "node_successful_queries_total",
-		//	Help: "Counter of successful node queries",
-		// }, []string{"chain", "node", "type"}),
-		//failedQueriesCollector: promauto.NewCounterVec(prometheus.CounterOpts{
-		//	Name: constants.PrometheusMetricsPrefix + "node_failed_queries_total",
-		//	Help: "Counter of failed node queries",
-		//}, []string{"chain", "node", "type"}),
+		successfulQueriesCollector: promauto.NewCounterVec(prometheus.CounterOpts{
+			Name: constants.PrometheusMetricsPrefix + "node_successful_queries_total",
+			Help: "Counter of successful node queries",
+		}, []string{"chain", "node", "type"}),
+		failedQueriesCollector: promauto.NewCounterVec(prometheus.CounterOpts{
+			Name: constants.PrometheusMetricsPrefix + "node_failed_queries_total",
+			Help: "Counter of failed node queries",
+		}, []string{"chain", "node", "type"}),
 		reportsCounter: promauto.NewCounterVec(prometheus.CounterOpts{
 			Name: constants.PrometheusMetricsPrefix + "node_reports",
 			Help: "Counter of reports send",
@@ -109,6 +109,11 @@ func NewManager(logger *zerolog.Logger, config configPkg.MetricsConfig) *Manager
 	}
 }
 
+func (m *Manager) SetAllDefaultMetrics(chains []*configTypes.Chain) {
+	for _, chain := range chains {
+		m.SetDefaultMetrics(chain)
+	}
+}
 func (m *Manager) SetDefaultMetrics(chain *configTypes.Chain) {
 	m.reportsCounter.
 		With(prometheus.Labels{"chain": chain.Name}).
@@ -142,15 +147,15 @@ func (m *Manager) SetDefaultMetrics(chain *configTypes.Chain) {
 			Add(0)
 	}
 
-	// for _, node := range chain.APINodes {
-	//	m.successfulQueriesCollector.
-	//		With(prometheus.Labels{"chain": chain.Name, "node": node}).
-	//		Add(0)
-	//
-	//	m.failedQueriesCollector.
-	//		With(prometheus.Labels{"chain": chain.Name, "node": node}).
-	//		Add(0)
-	//}
+	for _, node := range chain.APINodes {
+		m.successfulQueriesCollector.
+			With(prometheus.Labels{"chain": chain.Name, "node": node}).
+			Add(0)
+
+		m.failedQueriesCollector.
+			With(prometheus.Labels{"chain": chain.Name, "node": node}).
+			Add(0)
+	}
 }
 
 func (m *Manager) Start() {
