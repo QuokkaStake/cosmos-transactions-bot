@@ -20,8 +20,8 @@ type TelegramConfig struct {
 }
 
 type LogConfig struct {
-	LogLevel   string    `toml:"level" default:"info"`
-	JSONOutput null.Bool `toml:"json" default:"false"`
+	LogLevel   string    `default:"info"  toml:"level"`
+	JSONOutput null.Bool `default:"false" toml:"json"`
 }
 
 func (c *TomlConfig) Validate() error {

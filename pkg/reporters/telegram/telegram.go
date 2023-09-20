@@ -8,6 +8,9 @@ import (
 	"main/pkg/types/amount"
 	"time"
 
+	"github.com/dustin/go-humanize"
+	"gopkg.in/telebot.v3/middleware"
+
 	"main/pkg/alias_manager"
 	"main/pkg/config"
 	configTypes "main/pkg/config/types"
@@ -18,7 +21,6 @@ import (
 
 	"github.com/rs/zerolog"
 	tele "gopkg.in/telebot.v3"
-	"gopkg.in/telebot.v3/middleware"
 )
 
 type TelegramReporter struct {
@@ -232,17 +234,17 @@ func (reporter *TelegramReporter) SerializeLink(link configTypes.Link) template.
 func (reporter *TelegramReporter) SerializeAmount(amount amount.Amount) template.HTML {
 	if amount.PriceUSD == nil {
 		return template.HTML(fmt.Sprintf(
-			"%.6f%s",
-			amount.Value,
+			"%s %s",
+			humanize.BigCommaf(amount.Value),
 			amount.Denom,
 		))
 	}
 
 	return template.HTML(fmt.Sprintf(
-		"%.6f%s ($%.2f)",
-		amount.Value,
+		"%s %s ($%s)",
+		humanize.BigCommaf(amount.Value),
 		amount.Denom,
-		amount.PriceUSD,
+		utils.StripTrailingDigits(humanize.BigCommaf(amount.PriceUSD), 3),
 	))
 }
 

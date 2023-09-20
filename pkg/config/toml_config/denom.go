@@ -7,8 +7,8 @@ import (
 
 type DenomInfo struct {
 	Denom             string `toml:"denom"`
-	DisplayDenom      string `toml:"display-denom" default:""`
-	DenomCoefficient  int64  `toml:"denom-coefficient" default:"1000000"`
+	DisplayDenom      string `default:""                toml:"display-denom"`
+	DenomCoefficient  int64  `default:"1000000"         toml:"denom-coefficient"`
 	CoingeckoCurrency string `toml:"coingecko-currency"`
 }
 

@@ -44,3 +44,17 @@ func SplitStringIntoChunks(msg string, maxLineLength int) []string {
 	outMessages = append(outMessages, sb.String())
 	return outMessages
 }
+
+func StripTrailingDigits(s string, digits int) string {
+	if i := strings.Index(s, "."); i >= 0 {
+		if digits <= 0 {
+			return s[:i]
+		}
+		i++
+		if i+digits >= len(s) {
+			return s
+		}
+		return s[:i+digits]
+	}
+	return s
+}

@@ -17,13 +17,13 @@ type Chain struct {
 	Filters                []string   `toml:"filters"`
 	MintscanPrefix         string     `toml:"mintscan-prefix"`
 	PingPrefix             string     `toml:"ping-prefix"`
-	PingBaseUrl            string     `toml:"ping-base-url" default:"https://ping.pub"`
+	PingBaseUrl            string     `default:"https://ping.pub" toml:"ping-base-url"`
 	Explorer               *Explorer  `toml:"explorer"`
-	LogUnknownMessages     null.Bool  `toml:"log-unknown-messages" default:"false"`
-	LogUnparsedMessages    null.Bool  `toml:"log-unparsed-messages" default:"true"`
-	LogFailedTransactions  null.Bool  `toml:"log-failed-transactions" default:"true"`
-	LogNodeErrors          null.Bool  `toml:"log-node-errors" default:"true"`
-	FilterInternalMessages null.Bool  `toml:"filter-internal-messages" default:"true"`
+	LogUnknownMessages     null.Bool  `default:"false"            toml:"log-unknown-messages"`
+	LogUnparsedMessages    null.Bool  `default:"true"             toml:"log-unparsed-messages"`
+	LogFailedTransactions  null.Bool  `default:"true"             toml:"log-failed-transactions"`
+	LogNodeErrors          null.Bool  `default:"true"             toml:"log-node-errors"`
+	FilterInternalMessages null.Bool  `default:"true"             toml:"filter-internal-messages"`
 	Denoms                 DenomInfos `toml:"denoms"`
 }
 
