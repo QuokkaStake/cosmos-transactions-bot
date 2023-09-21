@@ -235,14 +235,14 @@ func (reporter *TelegramReporter) SerializeAmount(amount amount.Amount) template
 	if amount.PriceUSD == nil {
 		return template.HTML(fmt.Sprintf(
 			"%s %s",
-			humanize.BigCommaf(amount.Value),
+			utils.StripTrailingDigits(humanize.BigCommaf(amount.Value), 6),
 			amount.Denom,
 		))
 	}
 
 	return template.HTML(fmt.Sprintf(
 		"%s %s ($%s)",
-		humanize.BigCommaf(amount.Value),
+		utils.StripTrailingDigits(humanize.BigCommaf(amount.Value), 6),
 		amount.Denom,
 		utils.StripTrailingDigits(humanize.BigCommaf(amount.PriceUSD), 3),
 	))
