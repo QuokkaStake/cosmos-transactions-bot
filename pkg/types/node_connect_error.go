@@ -1,8 +1,6 @@
 package types
 
 import (
-	"main/pkg/data_fetcher"
-
 	"github.com/google/uuid"
 )
 
@@ -24,5 +22,5 @@ func (e NodeConnectError) GetHash() string {
 	return uuid.NewString()
 }
 
-func (e *NodeConnectError) GetAdditionalData(fetcher data_fetcher.DataFetcher) {
+func (e *NodeConnectError) GetAdditionalData(fetcher DataFetcher) {
 }

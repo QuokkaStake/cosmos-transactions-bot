@@ -2,7 +2,6 @@ package messages
 
 import (
 	configTypes "main/pkg/config/types"
-	dataFetcher "main/pkg/data_fetcher"
 	"main/pkg/types"
 	"main/pkg/types/amount"
 	"main/pkg/types/event"
@@ -37,7 +36,7 @@ func (m MsgDelegate) Type() string {
 	return "/cosmos.staking.v1beta1.MsgDelegate"
 }
 
-func (m *MsgDelegate) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
+func (m *MsgDelegate) GetAdditionalData(fetcher types.DataFetcher) {
 	validator, found := fetcher.GetValidator(m.ValidatorAddress.Value)
 	if found {
 		m.ValidatorAddress.Title = validator.Description.Moniker
@@ -45,7 +44,7 @@ func (m *MsgDelegate) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
 
 	fetcher.PopulateAmount(m.Amount)
 
-	if alias := fetcher.AliasManager.Get(fetcher.Chain.Name, m.DelegatorAddress.Value); alias != "" {
+	if alias := fetcher.GetAliasManager().Get(fetcher.GetChain().Name, m.DelegatorAddress.Value); alias != "" {
 		m.DelegatorAddress.Title = alias
 	}
 }

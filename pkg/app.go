@@ -47,7 +47,7 @@ func NewApp(config *config.AppConfig, version string) *App {
 
 	dataFetchers := make(map[string]*data_fetcher.DataFetcher, len(config.Chains))
 	for _, chain := range config.Chains {
-		dataFetchers[chain.Name] = data_fetcher.NewDataFetcher(logger, chain, aliasManager)
+		dataFetchers[chain.Name] = data_fetcher.NewDataFetcher(logger, chain, aliasManager, metricsManager)
 	}
 
 	filterers := make(map[string]*filterer.Filterer, len(config.Chains))
@@ -115,7 +115,7 @@ func (a *App) Start() {
 
 			a.MetricsManager.LogReport(report)
 
-			rawReport.Reportable.GetAdditionalData(*fetcher)
+			rawReport.Reportable.GetAdditionalData(fetcher)
 
 			for _, reporter := range a.Reporters {
 				if err := reporter.Send(report); err != nil {

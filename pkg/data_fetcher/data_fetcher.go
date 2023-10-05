@@ -2,6 +2,7 @@ package data_fetcher
 
 import (
 	"fmt"
+	"main/pkg/metrics"
 	"main/pkg/types/amount"
 	"strconv"
 
@@ -16,12 +17,12 @@ import (
 )
 
 type DataFetcher struct {
-	Logger        zerolog.Logger
-	Cache         *cache.Cache
-	Chain         *configTypes.Chain
-	PriceFetchers map[string]priceFetchers.PriceFetcher
-	AliasManager  *alias_manager.AliasManager
-	// MetricsManager       *metrics.Manager
+	Logger               zerolog.Logger
+	Cache                *cache.Cache
+	Chain                *configTypes.Chain
+	PriceFetchers        map[string]priceFetchers.PriceFetcher
+	AliasManager         *alias_manager.AliasManager
+	MetricsManager       *metrics.Manager
 	TendermintApiClients []*api.TendermintApiClient
 }
 
@@ -29,7 +30,7 @@ func NewDataFetcher(
 	logger *zerolog.Logger,
 	chain *configTypes.Chain,
 	aliasManager *alias_manager.AliasManager,
-	// metricsManager *metrics.Manager,
+	metricsManager *metrics.Manager,
 ) *DataFetcher {
 	tendermintApiClients := make([]*api.TendermintApiClient, len(chain.APINodes))
 	for index, node := range chain.APINodes {
@@ -46,7 +47,7 @@ func NewDataFetcher(
 		Chain:                chain,
 		TendermintApiClients: tendermintApiClients,
 		AliasManager:         aliasManager,
-		//MetricsManager:       metricsManager,
+		MetricsManager:       metricsManager,
 	}
 }
 

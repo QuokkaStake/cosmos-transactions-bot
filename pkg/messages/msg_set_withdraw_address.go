@@ -2,7 +2,6 @@ package messages
 
 import (
 	configTypes "main/pkg/config/types"
-	dataFetcher "main/pkg/data_fetcher"
 	"main/pkg/types"
 	"main/pkg/types/event"
 
@@ -34,12 +33,12 @@ func (m MsgSetWithdrawAddress) Type() string {
 	return "/cosmos.distribution.v1beta1.MsgSetWithdrawAddress"
 }
 
-func (m *MsgSetWithdrawAddress) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
-	if alias := fetcher.AliasManager.Get(fetcher.Chain.Name, m.DelegatorAddress.Value); alias != "" {
+func (m *MsgSetWithdrawAddress) GetAdditionalData(fetcher types.DataFetcher) {
+	if alias := fetcher.GetAliasManager().Get(fetcher.GetChain().Name, m.DelegatorAddress.Value); alias != "" {
 		m.DelegatorAddress.Title = alias
 	}
 
-	if alias := fetcher.AliasManager.Get(fetcher.Chain.Name, m.WithdrawAddress.Value); alias != "" {
+	if alias := fetcher.GetAliasManager().Get(fetcher.GetChain().Name, m.WithdrawAddress.Value); alias != "" {
 		m.WithdrawAddress.Title = alias
 	}
 }

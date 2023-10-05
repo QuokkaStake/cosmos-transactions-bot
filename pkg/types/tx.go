@@ -2,7 +2,6 @@ package types
 
 import (
 	"fmt"
-	"main/pkg/data_fetcher"
 	"strconv"
 
 	"main/pkg/config/types"
@@ -31,7 +30,7 @@ func (tx Tx) GetHash() string {
 	return tx.Hash.Value
 }
 
-func (tx *Tx) GetAdditionalData(fetcher data_fetcher.DataFetcher) {
+func (tx *Tx) GetAdditionalData(fetcher DataFetcher) {
 	for _, msg := range tx.Messages {
 		msg.GetAdditionalData(fetcher)
 	}

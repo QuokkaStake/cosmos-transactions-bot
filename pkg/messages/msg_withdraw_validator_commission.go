@@ -2,7 +2,6 @@ package messages
 
 import (
 	configTypes "main/pkg/config/types"
-	dataFetcher "main/pkg/data_fetcher"
 	"main/pkg/types"
 	"main/pkg/types/amount"
 	"main/pkg/types/event"
@@ -36,7 +35,7 @@ func (m MsgWithdrawValidatorCommission) Type() string {
 	return "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission"
 }
 
-func (m *MsgWithdrawValidatorCommission) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
+func (m *MsgWithdrawValidatorCommission) GetAdditionalData(fetcher types.DataFetcher) {
 	rewards, found := fetcher.GetCommissionAtBlock(
 		m.ValidatorAddress.Value,
 		m.Height,

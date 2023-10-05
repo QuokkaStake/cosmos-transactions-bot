@@ -1,8 +1,6 @@
 package types
 
 import (
-	"main/pkg/data_fetcher"
-
 	"github.com/google/uuid"
 )
 
@@ -22,5 +20,5 @@ func (txError TxError) GetHash() string {
 	return uuid.NewString()
 }
 
-func (txError *TxError) GetAdditionalData(fetcher data_fetcher.DataFetcher) {
+func (txError *TxError) GetAdditionalData(fetcher DataFetcher) {
 }

@@ -2,7 +2,6 @@ package messages
 
 import (
 	configTypes "main/pkg/config/types"
-	dataFetcher "main/pkg/data_fetcher"
 	"main/pkg/messages/packet"
 	"main/pkg/types"
 	"main/pkg/types/event"
@@ -42,8 +41,8 @@ func (m MsgRecvPacket) Type() string {
 	return "/ibc.core.channel.v1.MsgRecvPacket"
 }
 
-func (m *MsgRecvPacket) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
-	if alias := fetcher.AliasManager.Get(fetcher.Chain.Name, m.Signer.Value); alias != "" {
+func (m *MsgRecvPacket) GetAdditionalData(fetcher types.DataFetcher) {
+	if alias := fetcher.GetAliasManager().Get(fetcher.GetChain().Name, m.Signer.Value); alias != "" {
 		m.Signer.Title = alias
 	}
 
