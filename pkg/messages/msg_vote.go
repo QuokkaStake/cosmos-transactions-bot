@@ -2,13 +2,13 @@ package messages
 
 import (
 	"fmt"
+	"main/pkg/types"
 	"strconv"
 
 	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
 
 	configTypes "main/pkg/config/types"
 	dataFetcher "main/pkg/data_fetcher"
-	"main/pkg/types"
 	"main/pkg/types/event"
 	"main/pkg/types/responses"
 

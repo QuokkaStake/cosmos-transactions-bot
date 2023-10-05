@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html"
 	"html/template"
+	"main/pkg/types"
 	"main/pkg/types/amount"
 	"time"
 
@@ -15,7 +16,6 @@ import (
 	"main/pkg/config"
 	configTypes "main/pkg/config/types"
 	nodesManager "main/pkg/nodes_manager"
-	"main/pkg/types"
 	"main/pkg/utils"
 	"main/templates"
 

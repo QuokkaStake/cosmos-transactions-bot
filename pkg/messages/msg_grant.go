@@ -1,12 +1,12 @@
 package messages
 
 import (
+	"main/pkg/types"
 	"main/pkg/types/amount"
 	"time"
 
 	configTypes "main/pkg/config/types"
 	dataFetcher "main/pkg/data_fetcher"
-	"main/pkg/types"
 	"main/pkg/types/event"
 	"main/pkg/utils"
 

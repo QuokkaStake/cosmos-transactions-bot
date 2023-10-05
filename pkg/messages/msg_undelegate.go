@@ -1,6 +1,7 @@
 package messages
 
 import (
+	"main/pkg/types"
 	"main/pkg/types/amount"
 	"time"
 
@@ -8,7 +9,6 @@ import (
 
 	configTypes "main/pkg/config/types"
 	dataFetcher "main/pkg/data_fetcher"
-	"main/pkg/types"
 	"main/pkg/types/event"
 
 	cosmosTypes "github.com/cosmos/cosmos-sdk/types"

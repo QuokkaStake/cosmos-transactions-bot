@@ -16,11 +16,12 @@ import (
 )
 
 type DataFetcher struct {
-	Logger               zerolog.Logger
-	Cache                *cache.Cache
-	Chain                *configTypes.Chain
-	PriceFetchers        map[string]priceFetchers.PriceFetcher
-	AliasManager         *alias_manager.AliasManager
+	Logger        zerolog.Logger
+	Cache         *cache.Cache
+	Chain         *configTypes.Chain
+	PriceFetchers map[string]priceFetchers.PriceFetcher
+	AliasManager  *alias_manager.AliasManager
+	// MetricsManager       *metrics.Manager
 	TendermintApiClients []*api.TendermintApiClient
 }
 
@@ -28,6 +29,7 @@ func NewDataFetcher(
 	logger *zerolog.Logger,
 	chain *configTypes.Chain,
 	aliasManager *alias_manager.AliasManager,
+	// metricsManager *metrics.Manager,
 ) *DataFetcher {
 	tendermintApiClients := make([]*api.TendermintApiClient, len(chain.APINodes))
 	for index, node := range chain.APINodes {
@@ -44,6 +46,7 @@ func NewDataFetcher(
 		Chain:                chain,
 		TendermintApiClients: tendermintApiClients,
 		AliasManager:         aliasManager,
+		//MetricsManager:       metricsManager,
 	}
 }
 
@@ -116,7 +119,7 @@ func (f *DataFetcher) GetValidator(address string) (*responses.Validator, bool) 
 	}
 
 	for _, node := range f.TendermintApiClients {
-		notCachedValidator, err := node.GetValidator(address)
+		notCachedValidator, err, _ := node.GetValidator(address)
 		if err != nil {
 			f.Logger.Error().Msg("Error fetching validator")
 			continue
@@ -147,7 +150,7 @@ func (f *DataFetcher) GetRewardsAtBlock(
 	}
 
 	for _, node := range f.TendermintApiClients {
-		notCachedValidator, err := node.GetDelegatorsRewardsAtBlock(delegator, validator, block-1)
+		notCachedValidator, err, _ := node.GetDelegatorsRewardsAtBlock(delegator, validator, block-1)
 		if err != nil {
 			f.Logger.Error().Err(err).Msg("Error fetching rewards")
 			continue
@@ -177,7 +180,7 @@ func (f *DataFetcher) GetCommissionAtBlock(
 	}
 
 	for _, node := range f.TendermintApiClients {
-		notCachedEntry, err := node.GetValidatorCommissionAtBlock(validator, block-1)
+		notCachedEntry, err, _ := node.GetValidatorCommissionAtBlock(validator, block-1)
 		if err != nil {
 			f.Logger.Error().Err(err).Msg("Error fetching commission")
 			continue
@@ -204,7 +207,7 @@ func (f *DataFetcher) GetProposal(id string) (*responses.Proposal, bool) {
 	}
 
 	for _, node := range f.TendermintApiClients {
-		notCachedEntry, err := node.GetProposal(id)
+		notCachedEntry, err, _ := node.GetProposal(id)
 		if err != nil {
 			f.Logger.Error().Err(err).Msg("Error fetching proposal")
 			continue
@@ -231,7 +234,7 @@ func (f *DataFetcher) GetStakingParams() (*responses.StakingParams, bool) {
 	}
 
 	for _, node := range f.TendermintApiClients {
-		notCachedEntry, err := node.GetStakingParams()
+		notCachedEntry, err, _ := node.GetStakingParams()
 		if err != nil {
 			f.Logger.Error().Err(err).Msg("Error fetching staking params")
 			continue
