@@ -62,11 +62,11 @@ func NewManager(logger *zerolog.Logger, config configPkg.MetricsConfig) *Manager
 		successfulQueriesCollector: promauto.NewCounterVec(prometheus.CounterOpts{
 			Name: constants.PrometheusMetricsPrefix + "node_successful_queries_total",
 			Help: "Counter of successful node queries",
-		}, []string{"chain", "node", "url"}),
+		}, []string{"chain", "node", "type"}),
 		failedQueriesCollector: promauto.NewCounterVec(prometheus.CounterOpts{
 			Name: constants.PrometheusMetricsPrefix + "node_failed_queries_total",
 			Help: "Counter of failed node queries",
-		}, []string{"chain", "node", "url"}),
+		}, []string{"chain", "node", "type"}),
 		reportsCounter: promauto.NewCounterVec(prometheus.CounterOpts{
 			Name: constants.PrometheusMetricsPrefix + "node_reports",
 			Help: "Counter of reports send",
@@ -186,14 +186,14 @@ func (m *Manager) LogTendermintQuery(chain string, query queryInfo.QueryInfo, qu
 			With(prometheus.Labels{
 				"chain": chain,
 				"node":  query.Node,
-				"url":   string(queryType),
+				"type":  string(queryType),
 			}).Inc()
 	} else {
 		m.failedQueriesCollector.
 			With(prometheus.Labels{
 				"chain": chain,
 				"node":  query.Node,
-				"url":   string(queryType),
+				"type":  string(queryType),
 			}).Inc()
 	}
 }
