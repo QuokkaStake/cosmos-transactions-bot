@@ -5,6 +5,7 @@ import (
 	configTypes "main/pkg/config/types"
 	"main/pkg/constants"
 	"main/pkg/types"
+	queryInfo "main/pkg/types/query_info"
 	"main/pkg/utils"
 	"net/http"
 	"time"
@@ -61,11 +62,11 @@ func NewManager(logger *zerolog.Logger, config configPkg.MetricsConfig) *Manager
 		successfulQueriesCollector: promauto.NewCounterVec(prometheus.CounterOpts{
 			Name: constants.PrometheusMetricsPrefix + "node_successful_queries_total",
 			Help: "Counter of successful node queries",
-		}, []string{"chain", "node", "type"}),
+		}, []string{"chain", "node", "url"}),
 		failedQueriesCollector: promauto.NewCounterVec(prometheus.CounterOpts{
 			Name: constants.PrometheusMetricsPrefix + "node_failed_queries_total",
 			Help: "Counter of failed node queries",
-		}, []string{"chain", "node", "type"}),
+		}, []string{"chain", "node", "url"}),
 		reportsCounter: promauto.NewCounterVec(prometheus.CounterOpts{
 			Name: constants.PrometheusMetricsPrefix + "node_reports",
 			Help: "Counter of reports send",
@@ -142,16 +143,6 @@ func (m *Manager) SetDefaultMetrics(chain *configTypes.Chain) {
 			With(prometheus.Labels{"chain": chain.Name, "node": node}).
 			Add(0)
 	}
-
-	// for _, node := range chain.APINodes {
-	//	m.successfulQueriesCollector.
-	//		With(prometheus.Labels{"chain": chain.Name, "node": node}).
-	//		Add(0)
-	//
-	//	m.failedQueriesCollector.
-	//		With(prometheus.Labels{"chain": chain.Name, "node": node}).
-	//		Add(0)
-	//}
 }
 
 func (m *Manager) Start() {
@@ -189,23 +180,23 @@ func (m *Manager) LogNodeConnection(chain, node string, connected bool) {
 		Set(utils.BoolToFloat64(connected))
 }
 
-// func (m *Manager) LogTendermintQuery(chain string, query types.QueryInfo) {
-//	if query.Success {
-//		m.successfulQueriesCollector.
-//			With(prometheus.Labels{
-//				"chain": chain,
-//				"node":  query.Node,
-//				"type":  string(query.QueryType),
-//			}).Inc()
-//	} else {
-//		m.failedQueriesCollector.
-//			With(prometheus.Labels{
-//				"chain": chain,
-//				"node":  query.Node,
-//				"type":  string(query.QueryType),
-//			}).Inc()
-//	}
-//}
+func (m *Manager) LogTendermintQuery(chain string, query queryInfo.QueryInfo, queryType queryInfo.QueryType) {
+	if query.Success {
+		m.successfulQueriesCollector.
+			With(prometheus.Labels{
+				"chain": chain,
+				"node":  query.Node,
+				"url":   string(queryType),
+			}).Inc()
+	} else {
+		m.failedQueriesCollector.
+			With(prometheus.Labels{
+				"chain": chain,
+				"node":  query.Node,
+				"url":   string(queryType),
+			}).Inc()
+	}
+}
 
 func (m *Manager) LogReport(report types.Report) {
 	m.reportsCounter.

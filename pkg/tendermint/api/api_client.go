@@ -130,7 +130,6 @@ func (c *TendermintApiClient) GetWithHeaders(
 	queryInfo := query_info.QueryInfo{
 		Success: false,
 		Node:    c.URL,
-		URL:     relativeURL,
 		Time:    0,
 	}
 

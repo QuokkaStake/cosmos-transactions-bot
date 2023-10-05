@@ -11,6 +11,7 @@ import (
 	configTypes "main/pkg/config/types"
 	priceFetchers "main/pkg/price_fetchers"
 	"main/pkg/tendermint/api"
+	QueryInfo "main/pkg/types/query_info"
 	"main/pkg/types/responses"
 
 	"github.com/rs/zerolog"
@@ -120,7 +121,8 @@ func (f *DataFetcher) GetValidator(address string) (*responses.Validator, bool) 
 	}
 
 	for _, node := range f.TendermintApiClients {
-		notCachedValidator, err, _ := node.GetValidator(address)
+		notCachedValidator, err, queryInfo := node.GetValidator(address)
+		f.MetricsManager.LogTendermintQuery(f.Chain.Name, queryInfo, QueryInfo.QueryTypeValidator)
 		if err != nil {
 			f.Logger.Error().Msg("Error fetching validator")
 			continue
@@ -151,7 +153,8 @@ func (f *DataFetcher) GetRewardsAtBlock(
 	}
 
 	for _, node := range f.TendermintApiClients {
-		notCachedValidator, err, _ := node.GetDelegatorsRewardsAtBlock(delegator, validator, block-1)
+		notCachedValidator, err, queryInfo := node.GetDelegatorsRewardsAtBlock(delegator, validator, block-1)
+		f.MetricsManager.LogTendermintQuery(f.Chain.Name, queryInfo, QueryInfo.QueryTypeRewards)
 		if err != nil {
 			f.Logger.Error().Err(err).Msg("Error fetching rewards")
 			continue
@@ -181,7 +184,8 @@ func (f *DataFetcher) GetCommissionAtBlock(
 	}
 
 	for _, node := range f.TendermintApiClients {
-		notCachedEntry, err, _ := node.GetValidatorCommissionAtBlock(validator, block-1)
+		notCachedEntry, err, queryInfo := node.GetValidatorCommissionAtBlock(validator, block-1)
+		f.MetricsManager.LogTendermintQuery(f.Chain.Name, queryInfo, QueryInfo.QueryTypeCommission)
 		if err != nil {
 			f.Logger.Error().Err(err).Msg("Error fetching commission")
 			continue
@@ -208,7 +212,8 @@ func (f *DataFetcher) GetProposal(id string) (*responses.Proposal, bool) {
 	}
 
 	for _, node := range f.TendermintApiClients {
-		notCachedEntry, err, _ := node.GetProposal(id)
+		notCachedEntry, err, queryInfo := node.GetProposal(id)
+		f.MetricsManager.LogTendermintQuery(f.Chain.Name, queryInfo, QueryInfo.QueryTypeProposal)
 		if err != nil {
 			f.Logger.Error().Err(err).Msg("Error fetching proposal")
 			continue
@@ -235,7 +240,9 @@ func (f *DataFetcher) GetStakingParams() (*responses.StakingParams, bool) {
 	}
 
 	for _, node := range f.TendermintApiClients {
-		notCachedEntry, err, _ := node.GetStakingParams()
+		notCachedEntry, err, queryInfo := node.GetStakingParams()
+		f.MetricsManager.LogTendermintQuery(f.Chain.Name, queryInfo, QueryInfo.QueryTypeStakingParams)
+
 		if err != nil {
 			f.Logger.Error().Err(err).Msg("Error fetching staking params")
 			continue

@@ -9,7 +9,7 @@ import (
 )
 
 // This interface is only here to avoid a cyclic dependencyL
-// DataFetcher -> MetricsManager -> types -> DataFetcher
+// DataFetcher -> MetricsManager -> types -> DataFetcher.
 type DataFetcher interface {
 	GetPriceFetcher(info *configTypes.DenomInfo) priceFetchers.PriceFetcher
 	GetPrice(denomInfo *configTypes.DenomInfo) (float64, bool)
