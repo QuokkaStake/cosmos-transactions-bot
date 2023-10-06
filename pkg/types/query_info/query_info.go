@@ -12,6 +12,16 @@ const (
 	QueryTypeValidator     QueryType = "validator"
 )
 
+func GetQueryTypes() []QueryType {
+	return []QueryType{
+		QueryTypeRewards,
+		QueryTypeCommission,
+		QueryTypeProposal,
+		QueryTypeStakingParams,
+		QueryTypeValidator,
+	}
+}
+
 type QueryInfo struct {
 	Success bool
 	Time    time.Duration
