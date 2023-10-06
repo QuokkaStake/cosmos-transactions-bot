@@ -3,11 +3,12 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"main/pkg/types/query_info"
 	"net/http"
 	"strconv"
 	"time"
 
-	"main/pkg/config/types"
+	configTypes "main/pkg/config/types"
 	"main/pkg/types/responses"
 
 	"github.com/rs/zerolog"
@@ -19,7 +20,7 @@ type TendermintApiClient struct {
 	Timeout time.Duration
 }
 
-func NewTendermintApiClient(logger *zerolog.Logger, url string, chain *types.Chain) *TendermintApiClient {
+func NewTendermintApiClient(logger *zerolog.Logger, url string, chain *configTypes.Chain) *TendermintApiClient {
 	return &TendermintApiClient{
 		Logger: logger.With().
 			Str("component", "tendermint_api_client").
@@ -31,29 +32,25 @@ func NewTendermintApiClient(logger *zerolog.Logger, url string, chain *types.Cha
 	}
 }
 
-func (c *TendermintApiClient) GetValidator(address string) (*responses.Validator, error) {
-	url := fmt.Sprintf(
-		"%s/cosmos/staking/v1beta1/validators/%s",
-		c.URL,
-		address,
-	)
+func (c *TendermintApiClient) GetValidator(address string) (*responses.Validator, error, query_info.QueryInfo) {
+	url := fmt.Sprintf("/cosmos/staking/v1beta1/validators/%s", address)
 
 	var response *responses.ValidatorResponse
-	if err := c.Get(url, &response); err != nil {
-		return nil, err
+	err, queryInfo := c.Get(url, &response)
+	if err != nil {
+		return nil, err, queryInfo
 	}
 
-	return &response.Validator, nil
+	return &response.Validator, nil, queryInfo
 }
 
 func (c *TendermintApiClient) GetDelegatorsRewardsAtBlock(
 	delegator string,
 	validator string,
 	block int64,
-) ([]responses.Reward, error) {
+) ([]responses.Reward, error, query_info.QueryInfo) {
 	url := fmt.Sprintf(
-		"%s/cosmos/distribution/v1beta1/delegators/%s/rewards/%s",
-		c.URL,
+		"/cosmos/distribution/v1beta1/delegators/%s/rewards/%s",
 		delegator,
 		validator,
 	)
@@ -63,20 +60,20 @@ func (c *TendermintApiClient) GetDelegatorsRewardsAtBlock(
 	}
 
 	var response *responses.RewardsResponse
-	if err := c.GetWithHeaders(url, &response, headers); err != nil || response == nil {
-		return nil, err
+	err, queryInfo := c.GetWithHeaders(url, &response, headers)
+	if err != nil || response == nil {
+		return nil, err, queryInfo
 	}
 
-	return response.Rewards, nil
+	return response.Rewards, nil, queryInfo
 }
 
 func (c *TendermintApiClient) GetValidatorCommissionAtBlock(
 	validator string,
 	block int64,
-) ([]responses.Commission, error) {
+) ([]responses.Commission, error, query_info.QueryInfo) {
 	url := fmt.Sprintf(
-		"%s/cosmos/distribution/v1beta1/validators/%s/commission",
-		c.URL,
+		"/cosmos/distribution/v1beta1/validators/%s/commission",
 		validator,
 	)
 
@@ -85,56 +82,60 @@ func (c *TendermintApiClient) GetValidatorCommissionAtBlock(
 	}
 
 	var response *responses.CommissionResponse
-	if err := c.GetWithHeaders(url, &response, headers); err != nil || response == nil {
-		return nil, err
+	err, queryInfo := c.GetWithHeaders(url, &response, headers)
+	if err != nil || response == nil {
+		return nil, err, queryInfo
 	}
 
-	return response.Commission.Commission, nil
+	return response.Commission.Commission, nil, queryInfo
 }
 
-func (c *TendermintApiClient) GetProposal(id string) (*responses.Proposal, error) {
-	url := fmt.Sprintf(
-		"%s/cosmos/gov/v1beta1/proposals/%s",
-		c.URL,
-		id,
-	)
+func (c *TendermintApiClient) GetProposal(id string) (*responses.Proposal, error, query_info.QueryInfo) {
+	url := fmt.Sprintf("/cosmos/gov/v1beta1/proposals/%s", id)
 
 	var response *responses.ProposalResponse
-	if err := c.Get(url, &response); err != nil {
-		return nil, err
+	err, queryInfo := c.Get(url, &response)
+	if err != nil {
+		return nil, err, queryInfo
 	}
 
-	return &response.Proposal, nil
+	return &response.Proposal, nil, queryInfo
 }
 
-func (c *TendermintApiClient) GetStakingParams() (*responses.StakingParams, error) {
-	url := fmt.Sprintf("%s/cosmos/staking/v1beta1/params", c.URL)
+func (c *TendermintApiClient) GetStakingParams() (*responses.StakingParams, error, query_info.QueryInfo) {
+	url := fmt.Sprintf("/cosmos/staking/v1beta1/params")
 
 	var response *responses.StakingParamsResponse
-	if err := c.Get(url, &response); err != nil {
-		return nil, err
+	err, queryInfo := c.Get(url, &response)
+	if err != nil {
+		return nil, err, queryInfo
 	}
 
-	return &response.Params, nil
+	return &response.Params, nil, queryInfo
 }
 
-func (c *TendermintApiClient) Get(url string, target interface{}) error {
+func (c *TendermintApiClient) Get(url string, target interface{}) (error, query_info.QueryInfo) {
 	return c.GetWithHeaders(url, target, map[string]string{})
 }
 
 func (c *TendermintApiClient) GetWithHeaders(
-	url string,
+	relativeURL string,
 	target interface{},
 	headers map[string]string,
-) error {
-	client := &http.Client{
-		Timeout: c.Timeout,
-	}
+) (error, query_info.QueryInfo) {
+	url := fmt.Sprintf("%s%s", c.URL, relativeURL)
+
+	client := &http.Client{Timeout: c.Timeout}
 	start := time.Now()
+	queryInfo := query_info.QueryInfo{
+		Success: false,
+		Node:    c.URL,
+		Time:    0,
+	}
 
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
-		return err
+		return err, queryInfo
 	}
 
 	req.Header.Set("User-Agent", "cosmos-transactions-bot")
@@ -146,9 +147,10 @@ func (c *TendermintApiClient) GetWithHeaders(
 	c.Logger.Trace().Str("url", url).Msg("Doing a query...")
 
 	res, err := client.Do(req)
+	queryInfo.Time = time.Since(start)
 	if err != nil {
 		c.Logger.Warn().Str("url", url).Err(err).Msg("Query failed")
-		return err
+		return err, queryInfo
 	}
 	defer res.Body.Close()
 
@@ -158,10 +160,15 @@ func (c *TendermintApiClient) GetWithHeaders(
 			Err(err).
 			Int("status", res.StatusCode).
 			Msg("Query returned bad HTTP code")
-		return fmt.Errorf("bad HTTP code: %d", res.StatusCode)
+		return fmt.Errorf("bad HTTP code: %d", res.StatusCode), queryInfo
 	}
 
 	c.Logger.Debug().Str("url", url).Dur("duration", time.Since(start)).Msg("Query is finished")
 
-	return json.NewDecoder(res.Body).Decode(target)
+	if err := json.NewDecoder(res.Body).Decode(target); err != nil {
+		return err, queryInfo
+	}
+
+	queryInfo.Success = true
+	return nil, queryInfo
 }

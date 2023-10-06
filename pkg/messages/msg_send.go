@@ -2,7 +2,6 @@ package messages
 
 import (
 	configTypes "main/pkg/config/types"
-	"main/pkg/data_fetcher"
 	"main/pkg/types"
 	"main/pkg/types/amount"
 	"main/pkg/types/event"
@@ -38,16 +37,16 @@ func (m MsgSend) Type() string {
 	return "/cosmos.bank.v1beta1.MsgSend"
 }
 
-func (m *MsgSend) GetAdditionalData(fetcher data_fetcher.DataFetcher) {
+func (m *MsgSend) GetAdditionalData(fetcher types.DataFetcher) {
 	for _, amount := range m.Amount {
 		fetcher.PopulateAmount(amount)
 	}
 
-	if alias := fetcher.AliasManager.Get(fetcher.Chain.Name, m.From.Value); alias != "" {
+	if alias := fetcher.GetAliasManager().Get(fetcher.GetChain().Name, m.From.Value); alias != "" {
 		m.From.Title = alias
 	}
 
-	if alias := fetcher.AliasManager.Get(fetcher.Chain.Name, m.To.Value); alias != "" {
+	if alias := fetcher.GetAliasManager().Get(fetcher.GetChain().Name, m.To.Value); alias != "" {
 		m.To.Title = alias
 	}
 }

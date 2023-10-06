@@ -2,7 +2,6 @@ package messages
 
 import (
 	configTypes "main/pkg/config/types"
-	dataFetcher "main/pkg/data_fetcher"
 	"main/pkg/types"
 	"main/pkg/types/amount"
 	"main/pkg/types/event"
@@ -38,7 +37,7 @@ func (m MsgWithdrawDelegatorReward) Type() string {
 	return "/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward"
 }
 
-func (m *MsgWithdrawDelegatorReward) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
+func (m *MsgWithdrawDelegatorReward) GetAdditionalData(fetcher types.DataFetcher) {
 	rewards, found := fetcher.GetRewardsAtBlock(
 		m.DelegatorAddress.Value,
 		m.ValidatorAddress.Value,
@@ -60,7 +59,7 @@ func (m *MsgWithdrawDelegatorReward) GetAdditionalData(fetcher dataFetcher.DataF
 		m.ValidatorAddress.Title = validator.Description.Moniker
 	}
 
-	if alias := fetcher.AliasManager.Get(fetcher.Chain.Name, m.DelegatorAddress.Value); alias != "" {
+	if alias := fetcher.GetAliasManager().Get(fetcher.GetChain().Name, m.DelegatorAddress.Value); alias != "" {
 		m.DelegatorAddress.Title = alias
 	}
 }

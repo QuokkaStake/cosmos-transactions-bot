@@ -10,6 +10,7 @@ type TomlConfig struct {
 	AliasesPath    string         `toml:"aliases"`
 	TelegramConfig TelegramConfig `toml:"telegram"`
 	LogConfig      LogConfig      `toml:"log"`
+	MetricsConfig  MetricsConfig  `toml:"metrics"`
 	Chains         Chains         `toml:"chains"`
 }
 

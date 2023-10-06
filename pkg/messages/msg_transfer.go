@@ -2,7 +2,6 @@ package messages
 
 import (
 	configTypes "main/pkg/config/types"
-	dataFetcher "main/pkg/data_fetcher"
 	"main/pkg/types"
 	"main/pkg/types/amount"
 	"main/pkg/types/event"
@@ -37,10 +36,10 @@ func (m MsgTransfer) Type() string {
 	return "/ibc.applications.transfer.v1.MsgTransfer"
 }
 
-func (m *MsgTransfer) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
+func (m *MsgTransfer) GetAdditionalData(fetcher types.DataFetcher) {
 	fetcher.PopulateAmount(m.Token)
 
-	if alias := fetcher.AliasManager.Get(fetcher.Chain.Name, m.Sender.Value); alias != "" {
+	if alias := fetcher.GetAliasManager().Get(fetcher.GetChain().Name, m.Sender.Value); alias != "" {
 		m.Sender.Title = alias
 	}
 }

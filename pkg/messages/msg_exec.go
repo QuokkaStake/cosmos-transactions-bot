@@ -3,7 +3,6 @@ package messages
 import (
 	"fmt"
 	configTypes "main/pkg/config/types"
-	dataFetcher "main/pkg/data_fetcher"
 	"main/pkg/types"
 	"main/pkg/types/event"
 	"strconv"
@@ -37,8 +36,8 @@ func (m MsgExec) Type() string {
 	return "/cosmos.authz.v1beta1.MsgExec"
 }
 
-func (m *MsgExec) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
-	if alias := fetcher.AliasManager.Get(fetcher.Chain.Name, m.Grantee.Value); alias != "" {
+func (m *MsgExec) GetAdditionalData(fetcher types.DataFetcher) {
+	if alias := fetcher.GetAliasManager().Get(fetcher.GetChain().Name, m.Grantee.Value); alias != "" {
 		m.Grantee.Title = alias
 	}
 

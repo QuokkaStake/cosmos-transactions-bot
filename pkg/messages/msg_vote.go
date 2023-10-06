@@ -2,13 +2,12 @@ package messages
 
 import (
 	"fmt"
+	"main/pkg/types"
 	"strconv"
 
 	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
 
 	configTypes "main/pkg/config/types"
-	dataFetcher "main/pkg/data_fetcher"
-	"main/pkg/types"
 	"main/pkg/types/event"
 	"main/pkg/types/responses"
 
@@ -42,7 +41,7 @@ func (m MsgVote) Type() string {
 	return "/cosmos.gov.v1beta1.MsgVote"
 }
 
-func (m *MsgVote) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
+func (m *MsgVote) GetAdditionalData(fetcher types.DataFetcher) {
 	proposal, found := fetcher.GetProposal(m.ProposalID.Value)
 	if found {
 		m.Proposal = proposal
@@ -51,7 +50,7 @@ func (m *MsgVote) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
 		m.ProposalID.Title = fmt.Sprintf("#%s", m.ProposalID.Value)
 	}
 
-	if alias := fetcher.AliasManager.Get(fetcher.Chain.Name, m.Voter.Value); alias != "" {
+	if alias := fetcher.GetAliasManager().Get(fetcher.GetChain().Name, m.Voter.Value); alias != "" {
 		m.Voter.Title = alias
 	}
 }

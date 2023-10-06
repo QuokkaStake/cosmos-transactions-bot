@@ -1,12 +1,11 @@
 package messages
 
 import (
+	"main/pkg/types"
 	"main/pkg/types/amount"
 	"time"
 
 	configTypes "main/pkg/config/types"
-	dataFetcher "main/pkg/data_fetcher"
-	"main/pkg/types"
 	"main/pkg/types/event"
 	"main/pkg/utils"
 
@@ -96,12 +95,12 @@ func (m MsgGrant) Type() string {
 	return "/cosmos.authz.v1beta1.MsgGrant"
 }
 
-func (m *MsgGrant) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
-	if alias := fetcher.AliasManager.Get(fetcher.Chain.Name, m.Grantee.Value); alias != "" {
+func (m *MsgGrant) GetAdditionalData(fetcher types.DataFetcher) {
+	if alias := fetcher.GetAliasManager().Get(fetcher.GetChain().Name, m.Grantee.Value); alias != "" {
 		m.Grantee.Title = alias
 	}
 
-	if alias := fetcher.AliasManager.Get(fetcher.Chain.Name, m.Granter.Value); alias != "" {
+	if alias := fetcher.GetAliasManager().Get(fetcher.GetChain().Name, m.Granter.Value); alias != "" {
 		m.Granter.Title = alias
 	}
 }

@@ -2,6 +2,7 @@ package ws
 
 import (
 	"context"
+	metricsPkg "main/pkg/metrics"
 	"reflect"
 	"strings"
 	"time"
@@ -19,14 +20,15 @@ import (
 )
 
 type TendermintWebsocketClient struct {
-	Logger    zerolog.Logger
-	Chain     configTypes.Chain
-	URL       string
-	Queries   []query.Query
-	Client    *tmClient.WSClient
-	Converter *converter.Converter
-	Active    bool
-	Error     error
+	Logger         zerolog.Logger
+	Chain          configTypes.Chain
+	MetricsManager *metricsPkg.Manager
+	URL            string
+	Queries        []query.Query
+	Client         *tmClient.WSClient
+	Converter      *converter.Converter
+	Active         bool
+	Error          error
 
 	Parsers map[string]types.MessageParser
 	Channel chan types.Report
@@ -36,6 +38,7 @@ func NewTendermintClient(
 	logger *zerolog.Logger,
 	url string,
 	chain *configTypes.Chain,
+	metricsManager *metricsPkg.Manager,
 ) *TendermintWebsocketClient {
 	return &TendermintWebsocketClient{
 		Logger: logger.With().
@@ -43,12 +46,13 @@ func NewTendermintClient(
 			Str("url", url).
 			Str("chain", chain.Name).
 			Logger(),
-		URL:       url,
-		Chain:     *chain,
-		Queries:   chain.Queries,
-		Active:    false,
-		Channel:   make(chan types.Report),
-		Converter: converter.NewConverter(logger, chain),
+		MetricsManager: metricsManager,
+		URL:            url,
+		Chain:          *chain,
+		Queries:        chain.Queries,
+		Active:         false,
+		Channel:        make(chan types.Report),
+		Converter:      converter.NewConverter(logger, chain),
 	}
 }
 
@@ -86,6 +90,7 @@ func (t *TendermintWebsocketClient) Listen() {
 		t.Logger.Error().Err(err).Msg("Failed to create a client")
 		t.Error = err
 		t.Channel <- t.MakeReport(&types.NodeConnectError{Error: err, URL: t.URL, Chain: t.Chain.GetName()})
+		t.MetricsManager.LogNodeConnection(t.Chain.Name, t.URL, false)
 		return
 	}
 
@@ -103,9 +108,11 @@ func (t *TendermintWebsocketClient) Listen() {
 		t.Error = err
 		t.Channel <- t.MakeReport(&types.NodeConnectError{Error: err, URL: t.URL, Chain: t.Chain.GetName()})
 		t.Logger.Warn().Err(err).Msg("Error connecting to node")
+		t.MetricsManager.LogNodeConnection(t.Chain.Name, t.URL, false)
 	} else {
 		t.Logger.Debug().Msg("Connected to a node")
 		t.Active = true
+		t.MetricsManager.LogNodeConnection(t.Chain.Name, t.URL, true)
 	}
 
 	t.SubscribeToUpdates()
@@ -143,6 +150,7 @@ func (t *TendermintWebsocketClient) SubscribeToUpdates() {
 func (t *TendermintWebsocketClient) ProcessEvent(event jsonRpcTypes.RPCResponse) {
 	reportable := t.Converter.ParseEvent(event)
 	if reportable != nil {
+		t.MetricsManager.LogWSEvent(t.Chain.Name, t.URL)
 		t.Channel <- t.MakeReport(reportable)
 	}
 }

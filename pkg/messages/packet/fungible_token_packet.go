@@ -2,7 +2,6 @@ package packet
 
 import (
 	configTypes "main/pkg/config/types"
-	dataFetcher "main/pkg/data_fetcher"
 	"main/pkg/types"
 	"main/pkg/types/amount"
 	"main/pkg/types/event"
@@ -35,13 +34,13 @@ func (p FungibleTokenPacket) Type() string {
 	return "FungibleTokenPacket"
 }
 
-func (p *FungibleTokenPacket) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
+func (p *FungibleTokenPacket) GetAdditionalData(fetcher types.DataFetcher) {
 	trace := ibcTypes.ParseDenomTrace(p.Token.Denom)
 	p.Token.Denom = trace.BaseDenom
 
 	fetcher.PopulateAmount(p.Token)
 
-	if alias := fetcher.AliasManager.Get(fetcher.Chain.Name, p.Receiver.Value); alias != "" {
+	if alias := fetcher.GetAliasManager().Get(fetcher.GetChain().Name, p.Receiver.Value); alias != "" {
 		p.Receiver.Title = alias
 	}
 }

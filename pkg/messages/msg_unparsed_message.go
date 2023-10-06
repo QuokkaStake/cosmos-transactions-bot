@@ -1,7 +1,6 @@
 package messages
 
 import (
-	"main/pkg/data_fetcher"
 	"main/pkg/types"
 	"main/pkg/types/event"
 
@@ -16,7 +15,7 @@ func (m MsgUnparsedMessage) Type() string {
 	return "MsgUnparsedMessage"
 }
 
-func (m *MsgUnparsedMessage) GetAdditionalData(fetcher data_fetcher.DataFetcher) {
+func (m *MsgUnparsedMessage) GetAdditionalData(fetcher types.DataFetcher) {
 }
 
 func (m *MsgUnparsedMessage) GetValues() event.EventValues {

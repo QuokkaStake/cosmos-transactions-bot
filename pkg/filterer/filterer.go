@@ -4,6 +4,7 @@ import (
 	"fmt"
 	configTypes "main/pkg/config/types"
 	messagesPkg "main/pkg/messages"
+	metricsPkg "main/pkg/metrics"
 	"main/pkg/types"
 	"strconv"
 
@@ -12,6 +13,7 @@ import (
 
 type Filterer struct {
 	Logger          zerolog.Logger
+	MetricsManager  *metricsPkg.Manager
 	Chain           *configTypes.Chain
 	lastBlockHeight int64
 }
@@ -19,12 +21,14 @@ type Filterer struct {
 func NewFilterer(
 	logger *zerolog.Logger,
 	chain *configTypes.Chain,
+	metricsManager *metricsPkg.Manager,
 ) *Filterer {
 	return &Filterer{
 		Logger: logger.With().
 			Str("component", "filterer").
 			Str("chain", chain.Name).
 			Logger(),
+		MetricsManager:  metricsManager,
 		Chain:           chain,
 		lastBlockHeight: 0,
 	}
@@ -34,25 +38,30 @@ func (f *Filterer) Filter(reportable types.Reportable) types.Reportable {
 	// Filtering out TxError only if chain's log-node-errors = true.
 	if _, ok := reportable.(*types.TxError); ok {
 		if !f.Chain.LogNodeErrors {
+			f.MetricsManager.LogFilteredEvent(f.Chain.Name, reportable.Type())
 			f.Logger.Debug().Msg("Got transaction error, skipping as node errors logging is disabled")
 			return nil
 		}
 
+		f.MetricsManager.LogMatchedEvent(f.Chain.Name, reportable.Type())
 		return reportable
 	}
 
 	if _, ok := reportable.(*types.NodeConnectError); ok {
 		if !f.Chain.LogNodeErrors {
+			f.MetricsManager.LogFilteredEvent(f.Chain.Name, reportable.Type())
 			f.Logger.Debug().Msg("Got node error, skipping as node errors logging is disabled")
 			return nil
 		}
 
+		f.MetricsManager.LogMatchedEvent(f.Chain.Name, reportable.Type())
 		return reportable
 	}
 
 	tx, ok := reportable.(*types.Tx)
 	if !ok {
 		f.Logger.Error().Str("type", reportable.Type()).Msg("Unsupported reportable type, ignoring.")
+		f.MetricsManager.LogFilteredEvent(f.Chain.Name, reportable.Type())
 		return nil
 	}
 
@@ -60,6 +69,7 @@ func (f *Filterer) Filter(reportable types.Reportable) types.Reportable {
 		f.Logger.Debug().
 			Str("hash", tx.GetHash()).
 			Msg("Transaction is failed, skipping")
+		f.MetricsManager.LogFilteredEvent(f.Chain.Name, reportable.Type())
 		return nil
 	}
 
@@ -94,10 +104,12 @@ func (f *Filterer) Filter(reportable types.Reportable) types.Reportable {
 		f.Logger.Debug().
 			Str("hash", tx.GetHash()).
 			Msg("All messages in transaction were filtered out, skipping.")
+		f.MetricsManager.LogFilteredEvent(f.Chain.Name, reportable.Type())
 		return nil
 	}
 
 	tx.Messages = messages
+	f.MetricsManager.LogMatchedEvent(f.Chain.Name, reportable.Type())
 	return tx
 }
 

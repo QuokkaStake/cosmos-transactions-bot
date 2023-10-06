@@ -2,7 +2,6 @@ package messages
 
 import (
 	configTypes "main/pkg/config/types"
-	dataFetcher "main/pkg/data_fetcher"
 	"main/pkg/types"
 	"main/pkg/types/event"
 
@@ -34,8 +33,8 @@ func (m MsgUpdateClient) Type() string {
 	return "/ibc.core.client.v1.MsgUpdateClient"
 }
 
-func (m *MsgUpdateClient) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
-	if alias := fetcher.AliasManager.Get(fetcher.Chain.Name, m.Signer.Value); alias != "" {
+func (m *MsgUpdateClient) GetAdditionalData(fetcher types.DataFetcher) {
+	if alias := fetcher.GetAliasManager().Get(fetcher.GetChain().Name, m.Signer.Value); alias != "" {
 		m.Signer.Title = alias
 	}
 }

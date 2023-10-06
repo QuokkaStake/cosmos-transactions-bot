@@ -2,8 +2,8 @@ package main
 
 import (
 	"main/pkg"
-	"main/pkg/config"
-	"main/pkg/logger"
+	configPkg "main/pkg/config"
+	loggerPkg "main/pkg/logger"
 
 	"github.com/spf13/cobra"
 )
@@ -13,13 +13,13 @@ var (
 )
 
 func Execute(configPath string) {
-	config, err := config.GetConfig(configPath)
+	config, err := configPkg.GetConfig(configPath)
 	if err != nil {
-		logger.GetDefaultLogger().Fatal().Err(err).Msg("Could not load config")
+		loggerPkg.GetDefaultLogger().Fatal().Err(err).Msg("Could not load config")
 	}
-	config.DisplayWarnings(logger.GetLogger(config.LogConfig))
+	config.DisplayWarnings(loggerPkg.GetLogger(config.LogConfig))
 
-	app := pkg.NewApp(config)
+	app := pkg.NewApp(config, version)
 	app.Start()
 }
 
@@ -37,10 +37,10 @@ func main() {
 
 	rootCmd.PersistentFlags().StringVar(&ConfigPath, "config", "", "Config file path")
 	if err := rootCmd.MarkPersistentFlagRequired("config"); err != nil {
-		logger.GetDefaultLogger().Fatal().Err(err).Msg("Could not set flag as required")
+		loggerPkg.GetDefaultLogger().Fatal().Err(err).Msg("Could not set flag as required")
 	}
 
 	if err := rootCmd.Execute(); err != nil {
-		logger.GetDefaultLogger().Fatal().Err(err).Msg("Could not start application")
+		loggerPkg.GetDefaultLogger().Fatal().Err(err).Msg("Could not start application")
 	}
 }

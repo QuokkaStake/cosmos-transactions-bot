@@ -3,7 +3,6 @@ package packet
 import (
 	"fmt"
 	configTypes "main/pkg/config/types"
-	dataFetcher "main/pkg/data_fetcher"
 	"main/pkg/types"
 	"main/pkg/types/event"
 	"strconv"
@@ -45,7 +44,7 @@ func (p InterchainAccountsPacket) Type() string {
 	return "InterchainAccountsPacket"
 }
 
-func (p *InterchainAccountsPacket) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
+func (p *InterchainAccountsPacket) GetAdditionalData(fetcher types.DataFetcher) {
 	for _, message := range p.TxMessages {
 		message.GetAdditionalData(fetcher)
 	}

@@ -2,7 +2,6 @@ package messages
 
 import (
 	configTypes "main/pkg/config/types"
-	dataFetcher "main/pkg/data_fetcher"
 	"main/pkg/types"
 	"main/pkg/types/amount"
 	"main/pkg/types/event"
@@ -45,13 +44,13 @@ func (m MsgAcknowledgement) Type() string {
 	return "/ibc.core.channel.v1.MsgAcknowledgement"
 }
 
-func (m *MsgAcknowledgement) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
+func (m *MsgAcknowledgement) GetAdditionalData(fetcher types.DataFetcher) {
 	fetcher.PopulateAmount(m.Token)
-	if alias := fetcher.AliasManager.Get(fetcher.Chain.Name, m.Sender.Value); alias != "" {
+	if alias := fetcher.GetAliasManager().Get(fetcher.GetChain().Name, m.Sender.Value); alias != "" {
 		m.Sender.Title = alias
 	}
 
-	if alias := fetcher.AliasManager.Get(fetcher.Chain.Name, m.Signer.Value); alias != "" {
+	if alias := fetcher.GetAliasManager().Get(fetcher.GetChain().Name, m.Signer.Value); alias != "" {
 		m.Signer.Title = alias
 	}
 }

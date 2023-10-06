@@ -1,6 +1,7 @@
 package pkg
 
 import (
+	configTypes "main/pkg/config/types"
 	"main/pkg/types"
 	"os"
 	"os/signal"
@@ -10,55 +11,70 @@ import (
 	"main/pkg/config"
 	"main/pkg/data_fetcher"
 	"main/pkg/filterer"
-	"main/pkg/logger"
-	nodesManager "main/pkg/nodes_manager"
-	"main/pkg/reporters"
+	loggerPkg "main/pkg/logger"
+	metricsPkg "main/pkg/metrics"
+	nodesManagerPkg "main/pkg/nodes_manager"
+	reportersPkg "main/pkg/reporters"
 	"main/pkg/reporters/telegram"
 
 	"github.com/rs/zerolog"
 )
 
 type App struct {
-	Logger       zerolog.Logger
-	NodesManager *nodesManager.NodesManager
-	Reporters    []reporters.Reporter
-	DataFetchers map[string]*data_fetcher.DataFetcher
-	Filterers    map[string]*filterer.Filterer
+	Logger         zerolog.Logger
+	Chains         []*configTypes.Chain
+	NodesManager   *nodesManagerPkg.NodesManager
+	Reporters      []reportersPkg.Reporter
+	DataFetchers   map[string]*data_fetcher.DataFetcher
+	Filterers      map[string]*filterer.Filterer
+	MetricsManager *metricsPkg.Manager
+
+	Version string
 }
 
-func NewApp(config *config.AppConfig) *App {
-	log := logger.GetLogger(config.LogConfig)
-	aliasManager := alias_manager.NewAliasManager(log, config)
+func NewApp(config *config.AppConfig, version string) *App {
+	logger := loggerPkg.GetLogger(config.LogConfig)
+	aliasManager := alias_manager.NewAliasManager(logger, config)
 	aliasManager.Load()
 
-	nodesManager := nodesManager.NewNodesManager(log, config)
+	metricsManager := metricsPkg.NewManager(logger, config.Metrics)
 
-	reporters := []reporters.Reporter{
-		telegram.NewTelegramReporter(config, log, nodesManager, aliasManager),
+	nodesManager := nodesManagerPkg.NewNodesManager(logger, config, metricsManager)
+
+	reporters := []reportersPkg.Reporter{
+		telegram.NewTelegramReporter(config, logger, nodesManager, aliasManager),
 	}
 
 	dataFetchers := make(map[string]*data_fetcher.DataFetcher, len(config.Chains))
 	for _, chain := range config.Chains {
-		dataFetchers[chain.Name] = data_fetcher.NewDataFetcher(log, chain, aliasManager)
+		dataFetchers[chain.Name] = data_fetcher.NewDataFetcher(logger, chain, aliasManager, metricsManager)
 	}
 
 	filterers := make(map[string]*filterer.Filterer, len(config.Chains))
 	for _, chain := range config.Chains {
-		filterers[chain.Name] = filterer.NewFilterer(log, chain)
+		filterers[chain.Name] = filterer.NewFilterer(logger, chain, metricsManager)
 	}
 
 	return &App{
-		Logger:       log.With().Str("component", "app").Logger(),
-		Reporters:    reporters,
-		NodesManager: nodesManager,
-		DataFetchers: dataFetchers,
-		Filterers:    filterers,
+		Logger:         logger.With().Str("component", "app").Logger(),
+		Chains:         config.Chains,
+		Reporters:      reporters,
+		NodesManager:   nodesManager,
+		DataFetchers:   dataFetchers,
+		Filterers:      filterers,
+		MetricsManager: metricsManager,
+		Version:        version,
 	}
 }
 
 func (a *App) Start() {
+	go a.MetricsManager.Start()
+	a.MetricsManager.LogAppVersion(a.Version)
+	a.MetricsManager.SetAllDefaultMetrics(a.Chains)
+
 	for _, reporter := range a.Reporters {
 		reporter.Init()
+		a.MetricsManager.LogReporterEnabled(reporter.Name(), reporter.Enabled())
 		if reporter.Enabled() {
 			a.Logger.Info().Str("name", reporter.Name()).Msg("Init reporter")
 		}
@@ -97,7 +113,9 @@ func (a *App) Start() {
 				Str("hash", report.Reportable.GetHash()).
 				Msg("Got report")
 
-			rawReport.Reportable.GetAdditionalData(*fetcher)
+			a.MetricsManager.LogReport(report)
+
+			rawReport.Reportable.GetAdditionalData(fetcher)
 
 			for _, reporter := range a.Reporters {
 				if err := reporter.Send(report); err != nil {

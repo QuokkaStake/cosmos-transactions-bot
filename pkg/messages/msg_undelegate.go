@@ -1,14 +1,13 @@
 package messages
 
 import (
+	"main/pkg/types"
 	"main/pkg/types/amount"
 	"time"
 
 	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
 
 	configTypes "main/pkg/config/types"
-	dataFetcher "main/pkg/data_fetcher"
-	"main/pkg/types"
 	"main/pkg/types/event"
 
 	cosmosTypes "github.com/cosmos/cosmos-sdk/types"
@@ -40,7 +39,7 @@ func (m MsgUndelegate) Type() string {
 	return "/cosmos.staking.v1beta1.MsgUndelegate"
 }
 
-func (m *MsgUndelegate) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
+func (m *MsgUndelegate) GetAdditionalData(fetcher types.DataFetcher) {
 	if validator, found := fetcher.GetValidator(m.ValidatorAddress.Value); found {
 		m.ValidatorAddress.Title = validator.Description.Moniker
 	}
@@ -51,7 +50,7 @@ func (m *MsgUndelegate) GetAdditionalData(fetcher dataFetcher.DataFetcher) {
 
 	fetcher.PopulateAmount(m.Amount)
 
-	if alias := fetcher.AliasManager.Get(fetcher.Chain.Name, m.DelegatorAddress.Value); alias != "" {
+	if alias := fetcher.GetAliasManager().Get(fetcher.GetChain().Name, m.DelegatorAddress.Value); alias != "" {
 		m.DelegatorAddress.Title = alias
 	}
 }
