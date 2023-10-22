@@ -34,6 +34,7 @@ type TelegramReporter struct {
 	NodesManager *nodesManager.NodesManager
 	Config       *config.AppConfig
 	AliasManager *alias_manager.AliasManager
+	Version      string
 }
 
 const (
@@ -45,6 +46,7 @@ func NewTelegramReporter(
 	logger *zerolog.Logger,
 	nodesManager *nodesManager.NodesManager,
 	aliasManager *alias_manager.AliasManager,
+	version string,
 ) *TelegramReporter {
 	return &TelegramReporter{
 		Token:        config.TelegramConfig.Token,
@@ -55,6 +57,7 @@ func NewTelegramReporter(
 		Templates:    make(map[string]*template.Template, 0),
 		NodesManager: nodesManager,
 		AliasManager: aliasManager,
+		Version:      version,
 	}
 }
 

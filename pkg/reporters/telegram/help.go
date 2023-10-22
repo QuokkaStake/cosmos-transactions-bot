@@ -10,7 +10,7 @@ func (reporter *TelegramReporter) HandleHelp(c tele.Context) error {
 		Str("text", c.Text()).
 		Msg("Got help query")
 
-	template, err := reporter.Render("Help", nil)
+	template, err := reporter.Render("Help", reporter.Version)
 	if err != nil {
 		return err
 	}
