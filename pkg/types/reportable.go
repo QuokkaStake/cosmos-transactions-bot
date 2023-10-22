@@ -4,5 +4,5 @@ type Reportable interface {
 	Type() string
 	GetHash() string
 	GetMessages() []Message
-	GetAdditionalData(DataFetcher)
+	GetAdditionalData(dataFetcher DataFetcher)
 }

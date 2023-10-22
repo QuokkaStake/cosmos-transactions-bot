@@ -42,7 +42,7 @@ func NewApp(config *config.AppConfig, version string) *App {
 	nodesManager := nodesManagerPkg.NewNodesManager(logger, config, metricsManager)
 
 	reporters := []reportersPkg.Reporter{
-		telegram.NewTelegramReporter(config, logger, nodesManager, aliasManager),
+		telegram.NewTelegramReporter(config, logger, nodesManager, aliasManager, version),
 	}
 
 	dataFetchers := make(map[string]*data_fetcher.DataFetcher, len(config.Chains))

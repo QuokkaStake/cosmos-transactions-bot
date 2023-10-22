@@ -8,5 +8,5 @@ type Reporter interface {
 	Init()
 	Name() string
 	Enabled() bool
-	Send(types.Report) error
+	Send(report types.Report) error
 }
