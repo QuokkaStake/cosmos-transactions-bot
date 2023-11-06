@@ -152,6 +152,10 @@ func (t *TendermintWebsocketClient) ProcessEvent(event jsonRpcTypes.RPCResponse)
 	if reportable != nil {
 		t.MetricsManager.LogWSEvent(t.Chain.Name, t.URL)
 		t.Channel <- t.MakeReport(reportable)
+
+		if _, ok := reportable.(*types.TxError); ok {
+			t.SubscribeToUpdates()
+		}
 	}
 }
 
