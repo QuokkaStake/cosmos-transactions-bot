@@ -2,7 +2,6 @@
 
 ![Latest release](https://img.shields.io/github/v/release/QuokkaStake/cosmos-transactions-bot)
 [![Actions Status](https://github.com/QuokkaStake/cosmos-transactions-bot/workflows/test/badge.svg)](https://github.com/QuokkaStake/cosmos-transactions-bot/actions)
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FQuokkaStake%2Fcosmos-transactions-bot.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FQuokkaStake%2Fcosmos-transactions-bot?ref=badge_shield)
 
 cosmos-transactions-bot is a tool that listens to transactions with a specific filter on multiple chains and reports them to a Telegram channel.
 
@@ -169,7 +168,3 @@ In theory, it should work on a Cosmos-based blockchains that expose a Tendermint
 ## How can I contribute?
 
 Bug reports and feature requests are always welcome! If you want to contribute, feel free to open issues or PRs.
-
-
-## License
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FQuokkaStake%2Fcosmos-transactions-bot.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FQuokkaStake%2Fcosmos-transactions-bot?ref=badge_large)
