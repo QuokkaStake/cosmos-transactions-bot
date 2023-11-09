@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"main/pkg/config/types"
 
-	"github.com/tendermint/tendermint/libs/pubsub/query"
+	"github.com/cometbft/cometbft/libs/pubsub/query"
 	"gopkg.in/guregu/null.v4"
 )
 

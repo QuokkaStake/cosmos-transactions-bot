@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/cometbft/cometbft/libs/pubsub/query"
 	"github.com/rs/zerolog"
-	"github.com/tendermint/tendermint/libs/pubsub/query"
 )
 
 type Chain struct {
