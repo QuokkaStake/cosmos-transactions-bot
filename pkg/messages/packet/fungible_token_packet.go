@@ -10,7 +10,7 @@ import (
 	cosmosBankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
-	ibcTypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
+	ibcTypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 )
 
 type FungibleTokenPacket struct {

@@ -8,15 +8,15 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/tendermint/tendermint/libs/pubsub/query"
+	"github.com/cometbft/cometbft/libs/pubsub/query"
 
 	configTypes "main/pkg/config/types"
 	"main/pkg/converter"
 	"main/pkg/types"
 
+	tmClient "github.com/cometbft/cometbft/rpc/jsonrpc/client"
+	jsonRpcTypes "github.com/cometbft/cometbft/rpc/jsonrpc/types"
 	"github.com/rs/zerolog"
-	tmClient "github.com/tendermint/tendermint/rpc/jsonrpc/client"
-	jsonRpcTypes "github.com/tendermint/tendermint/rpc/jsonrpc/types"
 )
 
 type TendermintWebsocketClient struct {

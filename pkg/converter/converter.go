@@ -6,16 +6,16 @@ import (
 	"main/pkg/messages"
 	"main/pkg/types"
 
+	abciTypes "github.com/cometbft/cometbft/abci/types"
+	"github.com/cometbft/cometbft/crypto/tmhash"
+	"github.com/cometbft/cometbft/libs/json"
+	coreTypes "github.com/cometbft/cometbft/rpc/core/types"
+	jsonRpcTypes "github.com/cometbft/cometbft/rpc/jsonrpc/types"
+	tendermintTypes "github.com/cometbft/cometbft/types"
 	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/types/tx"
 	"github.com/gogo/protobuf/proto"
 	"github.com/rs/zerolog"
-	abciTypes "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/crypto/tmhash"
-	"github.com/tendermint/tendermint/libs/json"
-	coreTypes "github.com/tendermint/tendermint/rpc/core/types"
-	jsonRpcTypes "github.com/tendermint/tendermint/rpc/jsonrpc/types"
-	tendermintTypes "github.com/tendermint/tendermint/types"
 )
 
 type Converter struct {

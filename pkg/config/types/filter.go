@@ -4,8 +4,8 @@ import (
 	"main/pkg/types/event"
 	"strings"
 
+	"github.com/cometbft/cometbft/libs/pubsub/query"
 	cosmosTypes "github.com/cosmos/cosmos-sdk/types"
-	"github.com/tendermint/tendermint/libs/pubsub/query"
 )
 
 type Filters []query.Query

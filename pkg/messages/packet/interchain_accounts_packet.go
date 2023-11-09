@@ -2,14 +2,15 @@ package packet
 
 import (
 	"fmt"
+	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/std"
 	configTypes "main/pkg/config/types"
 	"main/pkg/types"
 	"main/pkg/types/event"
 	"strconv"
 
 	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
-	"github.com/cosmos/cosmos-sdk/simapp"
-	icaTypes "github.com/cosmos/ibc-go/v6/modules/apps/27-interchain-accounts/types"
+	icaTypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/types"
 )
 
 type InterchainAccountsPacket struct {
@@ -24,10 +25,15 @@ func ParseInterchainAccountsPacket(
 	packetData icaTypes.InterchainAccountPacketData,
 	chain *configTypes.Chain,
 ) (types.Message, error) {
-	simappConfig := simapp.MakeTestEncodingConfig()
+	cdc := codec.NewLegacyAmino()
+	interfaceRegistry := codecTypes.NewInterfaceRegistry()
+	codec := codec.NewProtoCodec(interfaceRegistry)
+
+	std.RegisterLegacyAminoCodec(cdc)
+	std.RegisterInterfaces(interfaceRegistry)
 
 	var cosmosTx icaTypes.CosmosTx
-	if err := simappConfig.Codec.Unmarshal(packetData.Data, &cosmosTx); err != nil {
+	if err := codec.Unmarshal(packetData.Data, &cosmosTx); err != nil {
 		return nil, err
 	}
 

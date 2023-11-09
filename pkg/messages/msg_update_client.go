@@ -8,7 +8,7 @@ import (
 	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
 
 	cosmosTypes "github.com/cosmos/cosmos-sdk/types"
-	ibcClientTypes "github.com/cosmos/ibc-go/v6/modules/core/02-client/types"
+	ibcClientTypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	"github.com/gogo/protobuf/proto"
 )
 
