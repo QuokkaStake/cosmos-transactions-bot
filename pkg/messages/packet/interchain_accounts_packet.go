@@ -2,12 +2,13 @@ package packet
 
 import (
 	"fmt"
-	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/std"
 	configTypes "main/pkg/config/types"
 	"main/pkg/types"
 	"main/pkg/types/event"
 	"strconv"
+
+	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/std"
 
 	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
 	icaTypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/types"
