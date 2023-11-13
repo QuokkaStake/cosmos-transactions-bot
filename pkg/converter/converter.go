@@ -58,7 +58,8 @@ func NewConverter(logger *zerolog.Logger, chain *configTypes.Chain) *Converter {
 
 func (c *Converter) ParseEvent(event jsonRpcTypes.RPCResponse) types.Reportable {
 	if event.Error != nil && event.Error.Message != "" {
-		if strings.Contains(event.Error.Message, "already subscribed") {
+		if strings.Contains(event.Error.Error(), "already subscribed") {
+			c.Logger.Error().Str("msg", event.Error.Error()).Msg("Client is already subscribed!")
 			return nil
 		}
 
