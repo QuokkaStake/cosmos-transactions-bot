@@ -5,6 +5,7 @@ import (
 	configTypes "main/pkg/config/types"
 	"main/pkg/messages"
 	"main/pkg/types"
+	"strings"
 
 	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/types/tx"
@@ -57,6 +58,10 @@ func NewConverter(logger *zerolog.Logger, chain *configTypes.Chain) *Converter {
 
 func (c *Converter) ParseEvent(event jsonRpcTypes.RPCResponse) types.Reportable {
 	if event.Error != nil && event.Error.Message != "" {
+		if strings.Contains(event.Error.Message, "already subscribed") {
+			return nil
+		}
+
 		c.Logger.Error().Str("msg", event.Error.Error()).Msg("Got error in RPC response")
 		return &types.TxError{Error: event.Error}
 	}
