@@ -5,6 +5,7 @@ import (
 	configTypes "main/pkg/config/types"
 	"main/pkg/messages"
 	"main/pkg/types"
+	"strings"
 
 	abciTypes "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/crypto/tmhash"
@@ -57,6 +58,11 @@ func NewConverter(logger *zerolog.Logger, chain *configTypes.Chain) *Converter {
 
 func (c *Converter) ParseEvent(event jsonRpcTypes.RPCResponse) types.Reportable {
 	if event.Error != nil && event.Error.Message != "" {
+		if strings.Contains(event.Error.Error(), "already subscribed") {
+			c.Logger.Error().Str("msg", event.Error.Error()).Msg("Client is already subscribed!")
+			return nil
+		}
+
 		c.Logger.Error().Str("msg", event.Error.Error()).Msg("Got error in RPC response")
 		return &types.TxError{Error: event.Error}
 	}
