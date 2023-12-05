@@ -28,3 +28,7 @@ func (c *CoingeckoPriceFetcher) GetPrice(denomInfo *configTypes.DenomInfo) (floa
 
 	return float64(result.MarketPrice), nil
 }
+
+func (c *CoingeckoPriceFetcher) Name() string {
+	return CoingeckoPriceFetcherName
+}

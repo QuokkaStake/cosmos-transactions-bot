@@ -54,12 +54,12 @@ func NewDataFetcher(
 
 func (f *DataFetcher) GetPriceFetcher(info *configTypes.DenomInfo) priceFetchers.PriceFetcher {
 	if info.CoingeckoCurrency != "" {
-		if fetcher, ok := f.PriceFetchers["coingecko"]; ok {
+		if fetcher, ok := f.PriceFetchers[priceFetchers.CoingeckoPriceFetcherName]; ok {
 			return fetcher
 		}
 
-		f.PriceFetchers["coingecko"] = priceFetchers.NewCoingeckoPriceFetcher(f.Logger)
-		return f.PriceFetchers["coingecko"]
+		f.PriceFetchers[priceFetchers.CoingeckoPriceFetcherName] = priceFetchers.NewCoingeckoPriceFetcher(f.Logger)
+		return f.PriceFetchers[priceFetchers.CoingeckoPriceFetcherName]
 	}
 
 	return nil
