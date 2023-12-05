@@ -93,11 +93,10 @@ func (f *DataFetcher) PopulateAmount(amount *amountPkg.Amount) {
 }
 
 func (f *DataFetcher) PopulateAmounts(amounts amountPkg.Amounts) {
-	denomInfos1 := make(configTypes.DenomInfos, len(amounts))
 	denomsToQueryByPriceFetcher := make(map[string]configTypes.DenomInfos)
 
 	// 1. Getting cached prices.
-	for index, amount := range amounts {
+	for _, amount := range amounts {
 		denomInfo := f.Chain.Denoms.Find(amount.BaseDenom)
 		if denomInfo == nil {
 			continue
@@ -117,8 +116,6 @@ func (f *DataFetcher) PopulateAmounts(amounts amountPkg.Amounts) {
 		if priceFetcher == nil {
 			continue
 		}
-
-		denomInfos1[index] = denomInfo
 
 		if _, ok := denomsToQueryByPriceFetcher[priceFetcher.Name()]; !ok {
 			denomsToQueryByPriceFetcher[priceFetcher.Name()] = make(configTypes.DenomInfos, 0)
