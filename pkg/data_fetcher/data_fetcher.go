@@ -3,7 +3,7 @@ package data_fetcher
 import (
 	"fmt"
 	"main/pkg/metrics"
-	"main/pkg/types/amount"
+	amountPkg "main/pkg/types/amount"
 	"strconv"
 
 	"main/pkg/alias_manager"
@@ -93,19 +93,25 @@ func (f *DataFetcher) GetPrice(denomInfo *configTypes.DenomInfo) (float64, bool)
 	return notCachedPrice, true
 }
 
-func (f *DataFetcher) PopulateAmount(amount *amount.Amount) {
-	denomInfo := f.Chain.Denoms.Find(amount.Denom)
-	if denomInfo == nil {
-		return
-	}
+func (f *DataFetcher) PopulateAmount(amount *amountPkg.Amount) {
+	f.PopulateAmounts(amountPkg.Amounts{amount})
+}
 
-	amount.ConvertDenom(denomInfo.DisplayDenom, denomInfo.DenomCoefficient)
-	price, fetched := f.GetPrice(denomInfo)
-	if fetched == false {
-		return
-	}
+func (f *DataFetcher) PopulateAmounts(amounts amountPkg.Amounts) {
+	for _, amount := range amounts {
+		denomInfo := f.Chain.Denoms.Find(amount.Denom)
+		if denomInfo == nil {
+			return
+		}
 
-	amount.AddUSDPrice(price)
+		amount.ConvertDenom(denomInfo.DisplayDenom, denomInfo.DenomCoefficient)
+		price, fetched := f.GetPrice(denomInfo)
+		if fetched == false {
+			return
+		}
+
+		amount.AddUSDPrice(price)
+	}
 }
 
 func (f *DataFetcher) GetValidator(address string) (*responses.Validator, bool) {

@@ -14,6 +14,8 @@ type DataFetcher interface {
 	GetPriceFetcher(info *configTypes.DenomInfo) priceFetchers.PriceFetcher
 	GetPrice(denomInfo *configTypes.DenomInfo) (float64, bool)
 	PopulateAmount(amount *amount.Amount)
+	PopulateAmounts(amount amount.Amounts)
+
 	GetValidator(address string) (*responses.Validator, bool)
 	GetRewardsAtBlock(
 		delegator string,

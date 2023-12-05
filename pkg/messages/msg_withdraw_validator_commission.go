@@ -47,9 +47,7 @@ func (m *MsgWithdrawValidatorCommission) GetAdditionalData(fetcher types.DataFet
 			m.Amount[index] = amount.AmountFromString(reward.Amount, reward.Denom)
 		}
 
-		for _, amount := range m.Amount {
-			fetcher.PopulateAmount(amount)
-		}
+		fetcher.PopulateAmounts(m.Amount)
 	}
 
 	if validator, found := fetcher.GetValidator(m.ValidatorAddress.Value); found {

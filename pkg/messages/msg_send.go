@@ -38,9 +38,7 @@ func (m MsgSend) Type() string {
 }
 
 func (m *MsgSend) GetAdditionalData(fetcher types.DataFetcher) {
-	for _, amount := range m.Amount {
-		fetcher.PopulateAmount(amount)
-	}
+	fetcher.PopulateAmounts(m.Amount)
 
 	if alias := fetcher.GetAliasManager().Get(fetcher.GetChain().Name, m.From.Value); alias != "" {
 		m.From.Title = alias
