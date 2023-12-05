@@ -65,34 +65,6 @@ func (f *DataFetcher) GetPriceFetcher(info *configTypes.DenomInfo) priceFetchers
 	return nil
 }
 
-func (f *DataFetcher) GetPrice(denomInfo *configTypes.DenomInfo) (float64, bool) {
-	cacheKey := fmt.Sprintf("%s_price_%s", f.Chain.Name, denomInfo.Denom)
-
-	if cachedPrice, cachedPricePresent := f.Cache.Get(cacheKey); cachedPricePresent {
-		if cachedPriceFloat, ok := cachedPrice.(float64); ok {
-			return cachedPriceFloat, true
-		}
-
-		f.Logger.Error().Msg("Could not convert cached price to float64")
-		return 0, false
-	}
-
-	fetcher := f.GetPriceFetcher(denomInfo)
-	if fetcher == nil {
-		f.Logger.Warn().Str("denom", denomInfo.Denom).Msg("Price fetcher is not enabled, not calculating price.")
-		return 0, false
-	}
-
-	notCachedPrice, err := fetcher.GetPrice(denomInfo)
-	if err != nil {
-		f.Logger.Error().Msg("Error fetching price")
-		return 0, false
-	}
-
-	f.Cache.Set(cacheKey, notCachedPrice)
-	return notCachedPrice, true
-}
-
 func (f *DataFetcher) GetDenomPriceKey(denomInfo *configTypes.DenomInfo) string {
 	return fmt.Sprintf("%s_price_%s", f.Chain.Name, denomInfo.Denom)
 }
