@@ -30,7 +30,7 @@ func (c *CoingeckoPriceFetcher) GetPrice(denomInfo *configTypes.DenomInfo) (floa
 	return float64(result.MarketPrice), nil
 }
 
-func (c *CoingeckoPriceFetcher) GetPrices(denomInfos configTypes.DenomInfos) (map[string]float64, error) {
+func (c *CoingeckoPriceFetcher) GetPrices(denomInfos configTypes.DenomInfos) (map[*configTypes.DenomInfo]float64, error) {
 	currenciesToFetch := utils.Map(denomInfos, func(denomInfo *configTypes.DenomInfo) string {
 		return denomInfo.CoingeckoCurrency
 	})
@@ -42,12 +42,12 @@ func (c *CoingeckoPriceFetcher) GetPrices(denomInfos configTypes.DenomInfos) (ma
 
 	if err != nil || pricesRaw == nil {
 		c.Logger.Error().Err(err).Msg("Could not get rates")
-		return make(map[string]float64, 0), err
+		return make(map[*configTypes.DenomInfo]float64, 0), err
 	}
 
 	prices := *pricesRaw
 
-	result := make(map[string]float64, 0)
+	result := make(map[*configTypes.DenomInfo]float64, 0)
 
 	for _, denomInfo := range denomInfos {
 		coinPrice, ok := prices[denomInfo.CoingeckoCurrency]
@@ -60,7 +60,7 @@ func (c *CoingeckoPriceFetcher) GetPrices(denomInfos configTypes.DenomInfos) (ma
 			continue
 		}
 
-		result[denomInfo.Denom] = float64(usdCoinPrice)
+		result[denomInfo] = float64(usdCoinPrice)
 	}
 
 	return result, nil

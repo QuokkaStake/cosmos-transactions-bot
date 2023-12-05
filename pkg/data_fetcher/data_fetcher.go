@@ -93,24 +93,109 @@ func (f *DataFetcher) GetPrice(denomInfo *configTypes.DenomInfo) (float64, bool)
 	return notCachedPrice, true
 }
 
+func (f *DataFetcher) GetDenomPriceKey(denomInfo *configTypes.DenomInfo) string {
+	return fmt.Sprintf("%s_price_%s", f.Chain.Name, denomInfo.Denom)
+}
+func (f *DataFetcher) MaybeGetCachedPrice(denomInfo *configTypes.DenomInfo) (float64, bool) {
+	cacheKey := f.GetDenomPriceKey(denomInfo)
+
+	if cachedPrice, cachedPricePresent := f.Cache.Get(cacheKey); cachedPricePresent {
+		if cachedPriceFloat, ok := cachedPrice.(float64); ok {
+			return cachedPriceFloat, true
+		}
+
+		f.Logger.Error().Msg("Could not convert cached price to float64")
+		return 0, false
+	}
+
+	return 0, false
+}
+
+func (f *DataFetcher) SetCachedPrice(denomInfo *configTypes.DenomInfo, notCachedPrice float64) {
+	cacheKey := f.GetDenomPriceKey(denomInfo)
+	f.Cache.Set(cacheKey, notCachedPrice)
+}
+
 func (f *DataFetcher) PopulateAmount(amount *amountPkg.Amount) {
 	f.PopulateAmounts(amountPkg.Amounts{amount})
 }
 
 func (f *DataFetcher) PopulateAmounts(amounts amountPkg.Amounts) {
-	for _, amount := range amounts {
-		denomInfo := f.Chain.Denoms.Find(amount.Denom)
+	denomInfos1 := make(configTypes.DenomInfos, len(amounts))
+	denomsToQueryByPriceFetcher := make(map[string]configTypes.DenomInfos)
+
+	// 1. Getting cached prices.
+	for index, amount := range amounts {
+		denomInfo := f.Chain.Denoms.Find(amount.BaseDenom)
 		if denomInfo == nil {
-			return
+			continue
 		}
 
 		amount.ConvertDenom(denomInfo.DisplayDenom, denomInfo.DenomCoefficient)
-		price, fetched := f.GetPrice(denomInfo)
-		if fetched == false {
-			return
+
+		// If we've found cached price, then using it.
+		if price, cached := f.MaybeGetCachedPrice(denomInfo); cached {
+			amount.AddUSDPrice(price)
+			continue
 		}
 
-		amount.AddUSDPrice(price)
+		// Otherwise, we try to figure out what price fetcher to use
+		// and put it into a map to query it all at once.
+		priceFetcher := f.GetPriceFetcher(denomInfo)
+		if priceFetcher == nil {
+			continue
+		}
+
+		denomInfos1[index] = denomInfo
+
+		if _, ok := denomsToQueryByPriceFetcher[priceFetcher.Name()]; !ok {
+			denomsToQueryByPriceFetcher[priceFetcher.Name()] = make(configTypes.DenomInfos, 0)
+		}
+
+		denomsToQueryByPriceFetcher[priceFetcher.Name()] = append(
+			denomsToQueryByPriceFetcher[priceFetcher.Name()],
+			denomInfo,
+		)
+	}
+
+	// 2. If we do not need to fetch any prices from price fetcher (e.g. no prices here
+	// or all prices are taken from cache), then we do not need to do anything else.
+	if len(denomsToQueryByPriceFetcher) == 0 {
+		return
+	}
+
+	uncachedPrices := make(map[string]float64, 0)
+
+	// 3. Fetching all prices by price fetcher.
+	for priceFetcherKey, priceFetcher := range f.PriceFetchers {
+		pricesToFetch, ok := denomsToQueryByPriceFetcher[priceFetcherKey]
+		if !ok {
+			continue
+		}
+
+		// Actually fetching prices.
+		prices, err := priceFetcher.GetPrices(pricesToFetch)
+
+		if err != nil {
+			continue
+		}
+
+		// Saving it to cache
+		for denomInfo, price := range prices {
+			f.SetCachedPrice(denomInfo, price)
+
+			uncachedPrices[denomInfo.Denom] = price
+		}
+	}
+
+	// 4. Converting USD amounts for newly fetched prices.
+	for _, amount := range amounts {
+		uncachedPrice, ok := uncachedPrices[amount.BaseDenom]
+		if !ok {
+			continue
+		}
+
+		amount.AddUSDPrice(uncachedPrice)
 	}
 }
 
