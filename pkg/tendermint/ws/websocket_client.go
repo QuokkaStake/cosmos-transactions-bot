@@ -156,7 +156,7 @@ func (t *TendermintWebsocketClient) SubscribeToUpdates() {
 }
 
 func (t *TendermintWebsocketClient) ProcessEvent(event jsonRpcTypes.RPCResponse) {
-	reportable := t.Converter.ParseEvent(event)
+	reportable := t.Converter.ParseEvent(event, t.URL)
 	if reportable != nil {
 		t.MetricsManager.LogWSEvent(t.Chain.Name, t.URL)
 		t.Channel <- t.MakeReport(reportable)

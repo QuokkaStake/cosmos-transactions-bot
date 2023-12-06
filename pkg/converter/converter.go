@@ -56,14 +56,20 @@ func NewConverter(logger *zerolog.Logger, chain *configTypes.Chain) *Converter {
 	}
 }
 
-func (c *Converter) ParseEvent(event jsonRpcTypes.RPCResponse) types.Reportable {
+func (c *Converter) ParseEvent(event jsonRpcTypes.RPCResponse, nodeURL string) types.Reportable {
 	if event.Error != nil && event.Error.Message != "" {
 		if strings.Contains(event.Error.Error(), "already subscribed") {
-			c.Logger.Error().Str("msg", event.Error.Error()).Msg("Client is already subscribed!")
+			c.Logger.Error().
+				Str("msg", event.Error.Error()).
+				Str("node", nodeURL).
+				Msg("Client is already subscribed!")
 			return nil
 		}
 
-		c.Logger.Error().Str("msg", event.Error.Error()).Msg("Got error in RPC response")
+		c.Logger.Error().
+			Str("msg", event.Error.Error()).
+			Str("node", nodeURL).
+			Msg("Got error in RPC response")
 		return &types.TxError{Error: event.Error}
 	}
 
@@ -103,6 +109,7 @@ func (c *Converter) ParseEvent(event jsonRpcTypes.RPCResponse) types.Reportable 
 		Str("memo", txProto.GetBody().GetMemo()).
 		Str("hash", txHash).
 		Int("len", len(txProto.GetBody().Messages)).
+		Str("node", nodeURL).
 		Msg("Got transaction")
 
 	txMessages := []types.Message{}
