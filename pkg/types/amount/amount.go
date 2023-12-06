@@ -11,15 +11,17 @@ import (
 )
 
 type Amount struct {
-	Value    *big.Float
-	Denom    string
-	PriceUSD *big.Float
+	Value     *big.Float
+	Denom     string
+	BaseDenom string
+	PriceUSD  *big.Float
 }
 
 func AmountFrom(coin cosmosTypes.Coin) *Amount {
 	return &Amount{
-		Value: new(big.Float).SetInt(coin.Amount.BigInt()),
-		Denom: coin.Denom,
+		Value:     new(big.Float).SetInt(coin.Amount.BigInt()),
+		Denom:     coin.Denom,
+		BaseDenom: coin.Denom,
 	}
 }
 
@@ -30,14 +32,16 @@ func AmountFromString(amount string, denom string) *Amount {
 	}
 
 	return &Amount{
-		Value: parsedAmount,
-		Denom: denom,
+		Value:     parsedAmount,
+		Denom:     denom,
+		BaseDenom: denom,
 	}
 }
 
 func (a *Amount) ConvertDenom(displayDenom string, denomCoefficient int64) {
 	denomCoefficientBigFloat := new(big.Float).SetInt64(denomCoefficient)
 	a.Value = new(big.Float).Quo(a.Value, denomCoefficientBigFloat)
+	a.BaseDenom = a.Denom
 	a.Denom = displayDenom
 }
 

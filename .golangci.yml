@@ -48,3 +48,4 @@ linters:
     - varcheck
     - deadcode
     - depguard
+    - interfacebloat

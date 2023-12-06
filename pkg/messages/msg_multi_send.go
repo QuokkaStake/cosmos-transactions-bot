@@ -56,9 +56,7 @@ func (m *MsgMultiSend) GetAdditionalData(fetcher types.DataFetcher) {
 			input.Address.Title = alias
 		}
 
-		for _, amount := range input.Amount {
-			fetcher.PopulateAmount(amount)
-		}
+		fetcher.PopulateAmounts(input.Amount)
 	}
 
 	for _, output := range m.Outputs {
@@ -66,9 +64,7 @@ func (m *MsgMultiSend) GetAdditionalData(fetcher types.DataFetcher) {
 			output.Address.Title = alias
 		}
 
-		for _, amount := range output.Amount {
-			fetcher.PopulateAmount(amount)
-		}
+		fetcher.PopulateAmounts(output.Amount)
 	}
 }
 
