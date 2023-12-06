@@ -27,7 +27,7 @@ func (c *CoingeckoPriceFetcher) GetPrices(denomInfos configTypes.DenomInfos) (ma
 
 	pricesRaw, err := c.Client.SimplePrice(
 		currenciesToFetch,
-		[]string{"usd"},
+		[]string{CoingeckoBaseCurrency},
 	)
 
 	if err != nil || pricesRaw == nil {
@@ -45,7 +45,7 @@ func (c *CoingeckoPriceFetcher) GetPrices(denomInfos configTypes.DenomInfos) (ma
 			continue
 		}
 
-		usdCoinPrice, ok := coinPrice["usd"]
+		usdCoinPrice, ok := coinPrice[CoingeckoBaseCurrency]
 		if !ok {
 			continue
 		}
