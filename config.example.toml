@@ -1,3 +1,8 @@
+# Path to where aliases in .toml will be stored. If omitted, no aliases setting/displaying would work.
+aliases = "/home/monitoring/config/cosmos-transactions-bot-aliases.toml"
+# Timezone in which time (like undelegation finish time) will be displayed. Defaults to "Etc/GMT", so UTC+0
+timezone = "Europe/Moscow"
+
 # Logging configuration
 [log]
 # Log level. Set to "debug" or "trace" to make it more verbose, or to "warn"/"error" to make it less verbose.

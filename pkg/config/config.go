@@ -3,6 +3,7 @@ package config
 import (
 	"bytes"
 	"os"
+	"time"
 
 	"gopkg.in/guregu/null.v4"
 
@@ -34,6 +35,7 @@ type AppConfig struct {
 	LogConfig      LogConfig
 	Chains         Chains
 	Metrics        MetricsConfig
+	Timezone       *time.Location
 }
 
 type TelegramConfig struct {
@@ -77,6 +79,8 @@ func GetConfig(path string) (*AppConfig, error) {
 }
 
 func FromTomlConfig(c *tomlConfig.TomlConfig, path string) *AppConfig {
+	timezone, _ := time.LoadLocation(c.Timezone)
+
 	return &AppConfig{
 		Path:        path,
 		AliasesPath: c.AliasesPath,
@@ -96,6 +100,7 @@ func FromTomlConfig(c *tomlConfig.TomlConfig, path string) *AppConfig {
 		Chains: utils.Map(c.Chains, func(c *tomlConfig.Chain) *types.Chain {
 			return c.ToAppConfigChain()
 		}),
+		Timezone: timezone,
 	}
 }
 
@@ -115,7 +120,8 @@ func (c *AppConfig) ToTomlConfig() *tomlConfig.TomlConfig {
 			ListenAddr: c.Metrics.ListenAddr,
 			Enabled:    null.BoolFrom(c.Metrics.Enabled),
 		},
-		Chains: utils.Map(c.Chains, tomlConfig.FromAppConfigChain),
+		Chains:   utils.Map(c.Chains, tomlConfig.FromAppConfigChain),
+		Timezone: c.Timezone.String(),
 	}
 }
 

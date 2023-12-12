@@ -252,5 +252,5 @@ func (reporter *TelegramReporter) SerializeAmount(amount amount.Amount) template
 }
 
 func (reporter *TelegramReporter) SerializeDate(date time.Time) template.HTML {
-	return template.HTML(date.Format(time.RFC822))
+	return template.HTML(date.In(reporter.Config.Timezone).Format(time.RFC822))
 }
