@@ -2,6 +2,7 @@ package toml_config
 
 import (
 	"fmt"
+	"time"
 
 	"gopkg.in/guregu/null.v4"
 )
@@ -12,6 +13,7 @@ type TomlConfig struct {
 	LogConfig      LogConfig      `toml:"log"`
 	MetricsConfig  MetricsConfig  `toml:"metrics"`
 	Chains         Chains         `toml:"chains"`
+	Timezone       string         `default:"Etc/GMT" toml:"timezone"`
 }
 
 type TelegramConfig struct {
@@ -28,6 +30,10 @@ type LogConfig struct {
 func (c *TomlConfig) Validate() error {
 	if len(c.Chains) == 0 {
 		return fmt.Errorf("no chains provided")
+	}
+
+	if _, err := time.LoadLocation(c.Timezone); err != nil {
+		return fmt.Errorf("error parsing timezone: %s", err)
 	}
 
 	for index, chain := range c.Chains {
