@@ -40,6 +40,7 @@ type Manager struct {
 	reporterQueriesCounter *prometheus.CounterVec
 
 	appVersionGauge *prometheus.GaugeVec
+	startTimeGauge  *prometheus.GaugeVec
 	chainInfoGauge  *prometheus.GaugeVec
 }
 
@@ -87,6 +88,10 @@ func NewManager(logger *zerolog.Logger, config configPkg.MetricsConfig) *Manager
 			Name: constants.PrometheusMetricsPrefix + "version",
 			Help: "App version",
 		}, []string{"version"}),
+		startTimeGauge: promauto.NewGaugeVec(prometheus.GaugeOpts{
+			Name: constants.PrometheusMetricsPrefix + "start_time",
+			Help: "Unix timestamp on when the app was started. Useful for annotations.",
+		}, []string{}),
 		eventsTotalCounter: promauto.NewCounterVec(prometheus.CounterOpts{
 			Name: constants.PrometheusMetricsPrefix + "events_total",
 			Help: "WebSocket events received by node",
@@ -111,6 +116,10 @@ func NewManager(logger *zerolog.Logger, config configPkg.MetricsConfig) *Manager
 }
 
 func (m *Manager) SetAllDefaultMetrics(chains []*configTypes.Chain) {
+	m.startTimeGauge.
+		With(prometheus.Labels{}).
+		Set(float64(time.Now().Unix()))
+
 	for _, chain := range chains {
 		m.SetDefaultMetrics(chain)
 	}
