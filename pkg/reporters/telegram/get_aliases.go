@@ -16,10 +16,11 @@ func (reporter *TelegramReporter) HandleGetAliases(c tele.Context) error {
 		return reporter.BotReply(c, "Aliases manager not enabled")
 	}
 
-	aliases, err := reporter.AliasManager.GetAsToml()
+	aliases := reporter.AliasManager.GetAliasesLinks()
+	template, err := reporter.Render("Aliases", aliases)
 	if err != nil {
-		return reporter.BotReply(c, fmt.Sprintf("Error getting aliases: %s", err))
+		return reporter.BotReply(c, fmt.Sprintf("Error displaying aliases: %s", err))
 	}
 
-	return reporter.BotReply(c, fmt.Sprintf("<pre>%s</pre>", aliases))
+	return reporter.BotReply(c, template)
 }

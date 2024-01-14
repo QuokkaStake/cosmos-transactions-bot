@@ -1,7 +1,6 @@
 package alias_manager
 
 import (
-	"bytes"
 	"os"
 
 	"main/pkg/config"
@@ -13,16 +12,6 @@ import (
 
 type Aliases *map[string]string
 type TomlAliases map[string]Aliases
-
-func (t TomlAliases) ToTomlString() (string, error) {
-	buffer := new(bytes.Buffer)
-
-	if err := toml.NewEncoder(buffer).Encode(t); err != nil {
-		return "", err
-	}
-
-	return buffer.String(), nil
-}
 
 type ChainAliases struct {
 	Chain   *types.Chain
@@ -44,6 +33,36 @@ func (a AllChainAliases) ToTomlAliases() TomlAliases {
 	}
 
 	return tomlAliases
+}
+
+type ChainAliasesLinks struct {
+	Chain *types.Chain
+	Links map[string]types.Link
+}
+
+func (a AllChainAliases) ToAliasesLinks() []ChainAliasesLinks {
+	aliasesLinks := make([]ChainAliasesLinks, 0)
+
+	for _, chainAliases := range a {
+		links := make(map[string]types.Link)
+
+		if chainAliases.Aliases == nil {
+			continue
+		}
+
+		for wallet, alias := range *chainAliases.Aliases {
+			link := chainAliases.Chain.GetWalletLink(wallet)
+			link.Title = alias
+			links[wallet] = link
+		}
+
+		aliasesLinks = append(aliasesLinks, ChainAliasesLinks{
+			Chain: chainAliases.Chain,
+			Links: links,
+		})
+	}
+
+	return aliasesLinks
 }
 
 func NewAliasManager(logger *zerolog.Logger, config *config.AppConfig) *AliasManager {
@@ -168,7 +187,6 @@ func (m *AliasManager) Set(chain, address, alias string) error {
 	return m.Save()
 }
 
-func (m *AliasManager) GetAsToml() (string, error) {
-	tomlAliases := m.Aliases.ToTomlAliases()
-	return tomlAliases.ToTomlString()
+func (m *AliasManager) GetAliasesLinks() []ChainAliasesLinks {
+	return m.Aliases.ToAliasesLinks()
 }
