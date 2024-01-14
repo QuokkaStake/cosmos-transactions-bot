@@ -1,0 +1,10 @@
+{{ if not . }}
+No aliases set!
+{{ end }}
+{{ range . }}
+{{ $chain := .Chain }}
+<strong>{{ .Chain.GetName }}</strong>
+{{- range $address, $link := .Links }}
+- {{ SerializeLink $link }} -> <code>{{ $address }}</code>
+{{- end -}}
+{{ end }}
