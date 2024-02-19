@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html"
 	"html/template"
+	"main/pkg/constants"
 	"main/pkg/types"
 	"main/pkg/types/amount"
 	"time"
@@ -192,6 +193,10 @@ func (reporter *Reporter) Send(report types.Report) error {
 
 func (reporter *Reporter) Name() string {
 	return reporter.ReporterName
+}
+
+func (reporter *Reporter) Type() string {
+	return constants.ReporterTypeTelegram
 }
 
 func (reporter *Reporter) BotSend(msg string) error {

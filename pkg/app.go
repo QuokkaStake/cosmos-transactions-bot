@@ -85,6 +85,7 @@ func (a *App) Start() {
 		if reporter.Enabled() {
 			a.Logger.Info().
 				Str("name", reporter.Name()).
+				Str("type", reporter.Type()).
 				Msg("Init reporter")
 		}
 	}
