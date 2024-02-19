@@ -6,7 +6,7 @@ import (
 	tele "gopkg.in/telebot.v3"
 )
 
-func (reporter *TelegramReporter) HandleGetAliases(c tele.Context) error {
+func (reporter *Reporter) HandleGetAliases(c tele.Context) error {
 	reporter.Logger.Info().
 		Str("sender", c.Sender().Username).
 		Str("text", c.Text()).
