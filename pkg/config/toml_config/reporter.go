@@ -16,12 +16,17 @@ type TelegramConfig struct {
 }
 
 type Reporter struct {
+	Name string `toml:"name"`
 	Type string `default:"telegram" toml:"type"`
 
 	TelegramConfig *TelegramConfig `toml:"telegram-config"`
 }
 
 func (reporter *Reporter) Validate() error {
+	if reporter.Name == "" {
+		return errors.New("reporter name not provided")
+	}
+
 	reporterTypes := constants.GetReporterTypes()
 	if !utils.Contains(reporterTypes, reporter.Type) {
 		return fmt.Errorf(
@@ -33,6 +38,29 @@ func (reporter *Reporter) Validate() error {
 
 	if reporter.Type == constants.ReporterTypeTelegram && reporter.TelegramConfig == nil {
 		return errors.New("missing telegram-config for Telegram reporter")
+	}
+
+	return nil
+}
+
+type Reporters []*Reporter
+
+func (reporters Reporters) Validate() error {
+	for index, reporter := range reporters {
+		if err := reporter.Validate(); err != nil {
+			return fmt.Errorf("error in reporter %d: %s", index, err)
+		}
+	}
+
+	// checking names uniqueness
+	names := map[string]bool{}
+
+	for _, reporter := range reporters {
+		if _, ok := names[reporter.Name]; ok {
+			return fmt.Errorf("duplicate reporter name: %s", reporter.Name)
+		}
+
+		names[reporter.Name] = true
 	}
 
 	return nil

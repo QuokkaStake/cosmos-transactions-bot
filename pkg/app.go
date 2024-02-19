@@ -83,7 +83,9 @@ func (a *App) Start() {
 		reporter.Init()
 		a.MetricsManager.LogReporterEnabled(reporter.Name(), reporter.Enabled())
 		if reporter.Enabled() {
-			a.Logger.Info().Str("name", reporter.Name()).Msg("Init reporter")
+			a.Logger.Info().
+				Str("name", reporter.Name()).
+				Msg("Init reporter")
 		}
 	}
 

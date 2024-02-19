@@ -152,3 +152,24 @@ func FromAppConfigChain(c *types.Chain) *Chain {
 }
 
 type Chains []*Chain
+
+func (chains Chains) Validate() error {
+	for index, chain := range chains {
+		if err := chain.Validate(); err != nil {
+			return fmt.Errorf("error in chain %d: %s", index, err)
+		}
+	}
+
+	// checking names uniqueness
+	names := map[string]bool{}
+
+	for _, chain := range chains {
+		if _, ok := names[chain.Name]; ok {
+			return fmt.Errorf("duplicate chain name: %s", chain.Name)
+		}
+
+		names[chain.Name] = true
+	}
+
+	return nil
+}

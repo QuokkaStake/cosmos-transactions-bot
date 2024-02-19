@@ -14,7 +14,7 @@ type TomlConfig struct {
 	Chains        Chains        `toml:"chains"`
 	Timezone      string        `default:"Etc/GMT" toml:"timezone"`
 
-	Reporters []*Reporter `toml:"reporters"`
+	Reporters Reporters `toml:"reporters"`
 }
 
 type LogConfig struct {
@@ -31,16 +31,12 @@ func (c *TomlConfig) Validate() error {
 		return fmt.Errorf("error parsing timezone: %s", err)
 	}
 
-	for index, chain := range c.Chains {
-		if err := chain.Validate(); err != nil {
-			return fmt.Errorf("error in chain %d: %s", index, err)
-		}
+	if err := c.Chains.Validate(); err != nil {
+		return fmt.Errorf("error in chains: %s", err)
 	}
 
-	for index, reporter := range c.Reporters {
-		if err := reporter.Validate(); err != nil {
-			return fmt.Errorf("error in reporter %d: %s", index, err)
-		}
+	if err := c.Reporters.Validate(); err != nil {
+		return fmt.Errorf("error in reporters: %s", err)
 	}
 
 	return nil
