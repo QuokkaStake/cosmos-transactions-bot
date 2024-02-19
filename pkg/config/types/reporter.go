@@ -7,6 +7,7 @@ type TelegramConfig struct {
 }
 
 type Reporter struct {
+	Name string
 	Type string
 
 	TelegramConfig *TelegramConfig

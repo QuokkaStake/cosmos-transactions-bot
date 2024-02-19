@@ -29,7 +29,7 @@ func GetReporter(
 ) Reporter {
 	if reporterConfig.Type == constants.ReporterTypeTelegram {
 		return telegram.NewTelegramReporter(
-			reporterConfig.TelegramConfig,
+			reporterConfig,
 			appConfig,
 			logger,
 			nodesManager,

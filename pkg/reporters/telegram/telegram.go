@@ -24,6 +24,8 @@ import (
 )
 
 type TelegramReporter struct {
+	ReporterName string
+
 	Token  string
 	Chat   int64
 	Admins []int64
@@ -42,7 +44,7 @@ const (
 )
 
 func NewTelegramReporter(
-	telegramConfig *configTypes.TelegramConfig,
+	reporterConfig *configTypes.Reporter,
 	config *config.AppConfig,
 	logger *zerolog.Logger,
 	nodesManager *nodesManager.NodesManager,
@@ -50,9 +52,10 @@ func NewTelegramReporter(
 	version string,
 ) *TelegramReporter {
 	return &TelegramReporter{
-		Token:        telegramConfig.Token,
-		Chat:         telegramConfig.Chat,
-		Admins:       telegramConfig.Admins,
+		ReporterName: reporterConfig.Name,
+		Token:        reporterConfig.TelegramConfig.Token,
+		Chat:         reporterConfig.TelegramConfig.Chat,
+		Admins:       reporterConfig.TelegramConfig.Admins,
 		Config:       config,
 		Logger:       logger.With().Str("component", "telegram_reporter").Logger(),
 		Templates:    make(map[string]*template.Template, 0),
@@ -93,11 +96,11 @@ func (reporter *TelegramReporter) Init() {
 	go reporter.TelegramBot.Start()
 }
 
-func (reporter TelegramReporter) Enabled() bool {
+func (reporter *TelegramReporter) Enabled() bool {
 	return reporter.Token != "" && reporter.Chat != 0
 }
 
-func (reporter TelegramReporter) GetTemplate(name string) (*template.Template, error) {
+func (reporter *TelegramReporter) GetTemplate(name string) (*template.Template, error) {
 	if cachedTemplate, ok := reporter.Templates[name]; ok {
 		reporter.Logger.Trace().Str("type", name).Msg("Using cached template")
 		return cachedTemplate, nil
@@ -163,7 +166,7 @@ func (reporter *TelegramReporter) SerializeMessage(msg types.Message) template.H
 	return template.HTML(buffer.String())
 }
 
-func (reporter TelegramReporter) Send(report types.Report) error {
+func (reporter *TelegramReporter) Send(report types.Report) error {
 	reportString, err := reporter.SerializeReport(report)
 	if err != nil {
 		reporter.Logger.Error().
@@ -187,8 +190,8 @@ func (reporter TelegramReporter) Send(report types.Report) error {
 	return nil
 }
 
-func (reporter TelegramReporter) Name() string {
-	return "telegram-reporter"
+func (reporter *TelegramReporter) Name() string {
+	return reporter.ReporterName
 }
 
 func (reporter *TelegramReporter) BotSend(msg string) error {

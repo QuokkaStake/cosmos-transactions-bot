@@ -78,6 +78,7 @@ func FromAppConfigReporter(reporter *types.Reporter) *Reporter {
 	}
 
 	return &Reporter{
+		Name:           reporter.Name,
 		Type:           reporter.Type,
 		TelegramConfig: telegramConfig,
 	}
@@ -95,6 +96,7 @@ func (reporter *Reporter) ToAppConfigReporter() *types.Reporter {
 	}
 
 	return &types.Reporter{
+		Name:           reporter.Name,
 		Type:           reporter.Type,
 		TelegramConfig: telegramConfig,
 	}
