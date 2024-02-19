@@ -42,6 +42,7 @@ const (
 )
 
 func NewTelegramReporter(
+	telegramConfig *configTypes.TelegramConfig,
 	config *config.AppConfig,
 	logger *zerolog.Logger,
 	nodesManager *nodesManager.NodesManager,
@@ -49,9 +50,9 @@ func NewTelegramReporter(
 	version string,
 ) *TelegramReporter {
 	return &TelegramReporter{
-		Token:        config.TelegramConfig.Token,
-		Chat:         config.TelegramConfig.Chat,
-		Admins:       config.TelegramConfig.Admins,
+		Token:        telegramConfig.Token,
+		Chat:         telegramConfig.Chat,
+		Admins:       telegramConfig.Admins,
 		Config:       config,
 		Logger:       logger.With().Str("component", "telegram_reporter").Logger(),
 		Templates:    make(map[string]*template.Template, 0),

@@ -46,19 +46,19 @@ func (c *Chain) Validate() error {
 
 	for index, q := range c.Queries {
 		if _, err := query.New(q); err != nil {
-			return fmt.Errorf("Error in query %d: %s", index, err)
+			return fmt.Errorf("error in query %d: %s", index, err)
 		}
 	}
 
 	for index, filter := range c.Filters {
 		if _, err := query.New(filter); err != nil {
-			return fmt.Errorf("Error in filter %d: %s", index, err)
+			return fmt.Errorf("error in filter %d: %s", index, err)
 		}
 	}
 
 	for index, denom := range c.Denoms {
 		if err := denom.Validate(); err != nil {
-			return fmt.Errorf("Error in denom %d: %s", index, err)
+			return fmt.Errorf("error in denom %d: %s", index, err)
 		}
 	}
 

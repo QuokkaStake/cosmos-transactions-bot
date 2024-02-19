@@ -28,20 +28,16 @@ func (c Chains) FindByName(name string) *types.Chain {
 	return nil
 }
 
-type AppConfig struct {
-	Path           string
-	AliasesPath    string
-	TelegramConfig TelegramConfig
-	LogConfig      LogConfig
-	Chains         Chains
-	Metrics        MetricsConfig
-	Timezone       *time.Location
-}
+type Reporters []*types.Reporter
 
-type TelegramConfig struct {
-	Chat   int64
-	Token  string
-	Admins []int64
+type AppConfig struct {
+	Path        string
+	AliasesPath string
+	LogConfig   LogConfig
+	Chains      Chains
+	Reporters   Reporters
+	Metrics     MetricsConfig
+	Timezone    *time.Location
 }
 
 type LogConfig struct {
@@ -84,11 +80,6 @@ func FromTomlConfig(c *tomlConfig.TomlConfig, path string) *AppConfig {
 	return &AppConfig{
 		Path:        path,
 		AliasesPath: c.AliasesPath,
-		TelegramConfig: TelegramConfig{
-			Chat:   c.TelegramConfig.Chat,
-			Token:  c.TelegramConfig.Token,
-			Admins: c.TelegramConfig.Admins,
-		},
 		LogConfig: LogConfig{
 			LogLevel:   c.LogConfig.LogLevel,
 			JSONOutput: c.LogConfig.JSONOutput.Bool,
@@ -100,6 +91,9 @@ func FromTomlConfig(c *tomlConfig.TomlConfig, path string) *AppConfig {
 		Chains: utils.Map(c.Chains, func(c *tomlConfig.Chain) *types.Chain {
 			return c.ToAppConfigChain()
 		}),
+		Reporters: utils.Map(c.Reporters, func(r *tomlConfig.Reporter) *types.Reporter {
+			return r.ToAppConfigReporter()
+		}),
 		Timezone: timezone,
 	}
 }
@@ -107,11 +101,6 @@ func FromTomlConfig(c *tomlConfig.TomlConfig, path string) *AppConfig {
 func (c *AppConfig) ToTomlConfig() *tomlConfig.TomlConfig {
 	return &tomlConfig.TomlConfig{
 		AliasesPath: c.AliasesPath,
-		TelegramConfig: tomlConfig.TelegramConfig{
-			Chat:   c.TelegramConfig.Chat,
-			Token:  c.TelegramConfig.Token,
-			Admins: c.TelegramConfig.Admins,
-		},
 		LogConfig: tomlConfig.LogConfig{
 			LogLevel:   c.LogConfig.LogLevel,
 			JSONOutput: null.BoolFrom(c.LogConfig.JSONOutput),
@@ -120,8 +109,9 @@ func (c *AppConfig) ToTomlConfig() *tomlConfig.TomlConfig {
 			ListenAddr: c.Metrics.ListenAddr,
 			Enabled:    null.BoolFrom(c.Metrics.Enabled),
 		},
-		Chains:   utils.Map(c.Chains, tomlConfig.FromAppConfigChain),
-		Timezone: c.Timezone.String(),
+		Chains:    utils.Map(c.Chains, tomlConfig.FromAppConfigChain),
+		Reporters: utils.Map(c.Reporters, tomlConfig.FromAppConfigReporter),
+		Timezone:  c.Timezone.String(),
 	}
 }
 

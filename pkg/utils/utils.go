@@ -14,6 +14,16 @@ func Map[T any, V any](source []T, mapper func(T) V) []V {
 	return destination
 }
 
+func Contains[T comparable](slice []T, value T) bool {
+	for _, elt := range slice {
+		if elt == value {
+			return true
+		}
+	}
+
+	return false
+}
+
 func RemoveFirstSlash(str string) string {
 	if len(str) == 0 {
 		return str
