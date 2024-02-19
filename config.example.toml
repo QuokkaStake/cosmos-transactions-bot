@@ -12,16 +12,13 @@ level = "info"
 # solutions like ELK. Defaults to false.
 json = false
 
-# Telegram reporter configuration. See README.md for more details
-[telegram]
-# Telegram bot token.
-token = "xxx:yyy"
-# Chat ID to send reports to.
-chat = 12345
-# A list of user IDs that are allowed to contact the bot. The bot won't respond to others
-# if this list is not empty. Strongly recommended to not leave it out, as otherwise
-# anyone would be able to use your bot.
-admins = [67890]
+# Reporters configuration.
+[[reporters]]
+# Reporter type. Currently, the only supported type is "telegram", which is the default.
+type = "telegram"
+# Telegram config configuration. Required if the type is "telegram".
+# See README.md for more details.
+telegram-config = { token = "xxx:yyy", chat = 12345, admins = [67890] }
 
 # Per-chain configuration. There can be multiple chains.
 [[chains]]

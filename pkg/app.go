@@ -15,7 +15,6 @@ import (
 	metricsPkg "main/pkg/metrics"
 	nodesManagerPkg "main/pkg/nodes_manager"
 	reportersPkg "main/pkg/reporters"
-	"main/pkg/reporters/telegram"
 
 	"github.com/rs/zerolog"
 )
@@ -41,8 +40,16 @@ func NewApp(config *config.AppConfig, version string) *App {
 
 	nodesManager := nodesManagerPkg.NewNodesManager(logger, config, metricsManager)
 
-	reporters := []reportersPkg.Reporter{
-		telegram.NewTelegramReporter(config, logger, nodesManager, aliasManager, version),
+	reporters := make([]reportersPkg.Reporter, len(config.Reporters))
+	for index, reporterConfig := range config.Reporters {
+		reporters[index] = reportersPkg.GetReporter(
+			reporterConfig,
+			config,
+			logger,
+			nodesManager,
+			aliasManager,
+			version,
+		)
 	}
 
 	dataFetchers := make(map[string]*data_fetcher.DataFetcher, len(config.Chains))
@@ -76,7 +83,10 @@ func (a *App) Start() {
 		reporter.Init()
 		a.MetricsManager.LogReporterEnabled(reporter.Name(), reporter.Enabled())
 		if reporter.Enabled() {
-			a.Logger.Info().Str("name", reporter.Name()).Msg("Init reporter")
+			a.Logger.Info().
+				Str("name", reporter.Name()).
+				Str("type", reporter.Type()).
+				Msg("Init reporter")
 		}
 	}
 

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html"
 	"html/template"
+	"main/pkg/constants"
 	"main/pkg/types"
 	"main/pkg/types/amount"
 	"time"
@@ -23,7 +24,9 @@ import (
 	tele "gopkg.in/telebot.v3"
 )
 
-type TelegramReporter struct {
+type Reporter struct {
+	ReporterName string
+
 	Token  string
 	Chat   int64
 	Admins []int64
@@ -41,17 +44,19 @@ const (
 	MaxMessageSize = 4096
 )
 
-func NewTelegramReporter(
+func NewReporter(
+	reporterConfig *configTypes.Reporter,
 	config *config.AppConfig,
 	logger *zerolog.Logger,
 	nodesManager *nodesManager.NodesManager,
 	aliasManager *alias_manager.AliasManager,
 	version string,
-) *TelegramReporter {
-	return &TelegramReporter{
-		Token:        config.TelegramConfig.Token,
-		Chat:         config.TelegramConfig.Chat,
-		Admins:       config.TelegramConfig.Admins,
+) *Reporter {
+	return &Reporter{
+		ReporterName: reporterConfig.Name,
+		Token:        reporterConfig.TelegramConfig.Token,
+		Chat:         reporterConfig.TelegramConfig.Chat,
+		Admins:       reporterConfig.TelegramConfig.Admins,
 		Config:       config,
 		Logger:       logger.With().Str("component", "telegram_reporter").Logger(),
 		Templates:    make(map[string]*template.Template, 0),
@@ -61,7 +66,7 @@ func NewTelegramReporter(
 	}
 }
 
-func (reporter *TelegramReporter) Init() {
+func (reporter *Reporter) Init() {
 	if reporter.Token == "" || reporter.Chat == 0 {
 		reporter.Logger.Debug().Msg("Telegram credentials not set, not creating Telegram reporter.")
 		return
@@ -92,11 +97,11 @@ func (reporter *TelegramReporter) Init() {
 	go reporter.TelegramBot.Start()
 }
 
-func (reporter TelegramReporter) Enabled() bool {
+func (reporter *Reporter) Enabled() bool {
 	return reporter.Token != "" && reporter.Chat != 0
 }
 
-func (reporter TelegramReporter) GetTemplate(name string) (*template.Template, error) {
+func (reporter *Reporter) GetTemplate(name string) (*template.Template, error) {
 	if cachedTemplate, ok := reporter.Templates[name]; ok {
 		reporter.Logger.Trace().Str("type", name).Msg("Using cached template")
 		return cachedTemplate, nil
@@ -121,7 +126,7 @@ func (reporter TelegramReporter) GetTemplate(name string) (*template.Template, e
 	return t, nil
 }
 
-func (reporter *TelegramReporter) Render(templateName string, data interface{}) (string, error) {
+func (reporter *Reporter) Render(templateName string, data interface{}) (string, error) {
 	template, err := reporter.GetTemplate(templateName)
 	if err != nil {
 		reporter.Logger.Error().Err(err).Str("type", templateName).Msg("Error loading template")
@@ -138,12 +143,12 @@ func (reporter *TelegramReporter) Render(templateName string, data interface{}) 
 	return buffer.String(), err
 }
 
-func (reporter *TelegramReporter) SerializeReport(r types.Report) (string, error) {
+func (reporter *Reporter) SerializeReport(r types.Report) (string, error) {
 	reportableType := r.Reportable.Type()
 	return reporter.Render(reportableType, r)
 }
 
-func (reporter *TelegramReporter) SerializeMessage(msg types.Message) template.HTML {
+func (reporter *Reporter) SerializeMessage(msg types.Message) template.HTML {
 	msgType := msg.Type()
 
 	reporterTemplate, err := reporter.GetTemplate(msgType)
@@ -162,7 +167,7 @@ func (reporter *TelegramReporter) SerializeMessage(msg types.Message) template.H
 	return template.HTML(buffer.String())
 }
 
-func (reporter TelegramReporter) Send(report types.Report) error {
+func (reporter *Reporter) Send(report types.Report) error {
 	reportString, err := reporter.SerializeReport(report)
 	if err != nil {
 		reporter.Logger.Error().
@@ -186,11 +191,15 @@ func (reporter TelegramReporter) Send(report types.Report) error {
 	return nil
 }
 
-func (reporter TelegramReporter) Name() string {
-	return "telegram-reporter"
+func (reporter *Reporter) Name() string {
+	return reporter.ReporterName
 }
 
-func (reporter *TelegramReporter) BotSend(msg string) error {
+func (reporter *Reporter) Type() string {
+	return constants.ReporterTypeTelegram
+}
+
+func (reporter *Reporter) BotSend(msg string) error {
 	messages := utils.SplitStringIntoChunks(msg, MaxMessageSize)
 
 	for _, message := range messages {
@@ -209,7 +218,7 @@ func (reporter *TelegramReporter) BotSend(msg string) error {
 	return nil
 }
 
-func (reporter *TelegramReporter) BotReply(c tele.Context, msg string) error {
+func (reporter *Reporter) BotReply(c tele.Context, msg string) error {
 	messages := utils.SplitStringIntoChunks(msg, MaxMessageSize)
 
 	for _, message := range messages {
@@ -221,7 +230,7 @@ func (reporter *TelegramReporter) BotReply(c tele.Context, msg string) error {
 	return nil
 }
 
-func (reporter *TelegramReporter) SerializeLink(link configTypes.Link) template.HTML {
+func (reporter *Reporter) SerializeLink(link configTypes.Link) template.HTML {
 	value := link.Title
 	if value == "" {
 		value = link.Value
@@ -234,7 +243,7 @@ func (reporter *TelegramReporter) SerializeLink(link configTypes.Link) template.
 	return template.HTML(value)
 }
 
-func (reporter *TelegramReporter) SerializeAmount(amount amount.Amount) template.HTML {
+func (reporter *Reporter) SerializeAmount(amount amount.Amount) template.HTML {
 	if amount.PriceUSD == nil {
 		return template.HTML(fmt.Sprintf(
 			"%s %s",
@@ -251,6 +260,6 @@ func (reporter *TelegramReporter) SerializeAmount(amount amount.Amount) template
 	))
 }
 
-func (reporter *TelegramReporter) SerializeDate(date time.Time) template.HTML {
+func (reporter *Reporter) SerializeDate(date time.Time) template.HTML {
 	return template.HTML(date.In(reporter.Config.Timezone).Format(time.RFC822))
 }

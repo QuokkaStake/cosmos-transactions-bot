@@ -8,18 +8,13 @@ import (
 )
 
 type TomlConfig struct {
-	AliasesPath    string         `toml:"aliases"`
-	TelegramConfig TelegramConfig `toml:"telegram"`
-	LogConfig      LogConfig      `toml:"log"`
-	MetricsConfig  MetricsConfig  `toml:"metrics"`
-	Chains         Chains         `toml:"chains"`
-	Timezone       string         `default:"Etc/GMT" toml:"timezone"`
-}
+	AliasesPath   string        `toml:"aliases"`
+	LogConfig     LogConfig     `toml:"log"`
+	MetricsConfig MetricsConfig `toml:"metrics"`
+	Chains        Chains        `toml:"chains"`
+	Timezone      string        `default:"Etc/GMT" toml:"timezone"`
 
-type TelegramConfig struct {
-	Chat   int64   `toml:"chat"`
-	Token  string  `toml:"token"`
-	Admins []int64 `toml:"admins"`
+	Reporters Reporters `toml:"reporters"`
 }
 
 type LogConfig struct {
@@ -36,10 +31,12 @@ func (c *TomlConfig) Validate() error {
 		return fmt.Errorf("error parsing timezone: %s", err)
 	}
 
-	for index, chain := range c.Chains {
-		if err := chain.Validate(); err != nil {
-			return fmt.Errorf("error in chain %d: %s", index, err)
-		}
+	if err := c.Chains.Validate(); err != nil {
+		return fmt.Errorf("error in chains: %s", err)
+	}
+
+	if err := c.Reporters.Validate(); err != nil {
+		return fmt.Errorf("error in reporters: %s", err)
 	}
 
 	return nil

@@ -46,19 +46,19 @@ func (c *Chain) Validate() error {
 
 	for index, q := range c.Queries {
 		if _, err := query.New(q); err != nil {
-			return fmt.Errorf("Error in query %d: %s", index, err)
+			return fmt.Errorf("error in query %d: %s", index, err)
 		}
 	}
 
 	for index, filter := range c.Filters {
 		if _, err := query.New(filter); err != nil {
-			return fmt.Errorf("Error in filter %d: %s", index, err)
+			return fmt.Errorf("error in filter %d: %s", index, err)
 		}
 	}
 
 	for index, denom := range c.Denoms {
 		if err := denom.Validate(); err != nil {
-			return fmt.Errorf("Error in denom %d: %s", index, err)
+			return fmt.Errorf("error in denom %d: %s", index, err)
 		}
 	}
 
@@ -152,3 +152,24 @@ func FromAppConfigChain(c *types.Chain) *Chain {
 }
 
 type Chains []*Chain
+
+func (chains Chains) Validate() error {
+	for index, chain := range chains {
+		if err := chain.Validate(); err != nil {
+			return fmt.Errorf("error in chain %d: %s", index, err)
+		}
+	}
+
+	// checking names uniqueness
+	names := map[string]bool{}
+
+	for _, chain := range chains {
+		if _, ok := names[chain.Name]; ok {
+			return fmt.Errorf("duplicate chain name: %s", chain.Name)
+		}
+
+		names[chain.Name] = true
+	}
+
+	return nil
+}
