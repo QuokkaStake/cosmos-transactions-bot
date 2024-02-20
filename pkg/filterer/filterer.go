@@ -124,6 +124,19 @@ func (f *Filterer) FilterMessage(message types.Message, internal bool) types.Mes
 		}
 	}
 
+	if unparsedMsg, ok := message.(*messagesPkg.MsgUnparsedMessage); ok {
+		if f.Chain.LogUnparsedMessages {
+			f.Logger.Error().Err(unparsedMsg.Error).Str("type", unparsedMsg.MsgType).Msg("Error parsing message")
+			return message
+		}
+
+		f.Logger.Debug().
+			Err(unparsedMsg.Error).
+			Str("type", unparsedMsg.MsgType).
+			Msg("Not logging unparsed messages, skipping.")
+		return nil
+	}
+
 	// internal -> filter only if f.Chain.FilterInternalMessages is true
 	// !internal -> filter regardless
 	if !internal || f.Chain.FilterInternalMessages {

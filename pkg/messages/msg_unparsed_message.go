@@ -8,7 +8,8 @@ import (
 )
 
 type MsgUnparsedMessage struct {
-	Error error
+	MsgType string
+	Error   error
 }
 
 func (m MsgUnparsedMessage) Type() string {
