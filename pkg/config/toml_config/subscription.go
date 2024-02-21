@@ -11,9 +11,15 @@ import (
 type Subscriptions []*Subscription
 
 type Subscription struct {
-	Name                   string    `toml:"name"`
-	Reporter               string    `toml:"reporter"`
-	Chain                  string    `toml:"chain"`
+	Name              string             `toml:"name"`
+	Reporter          string             `toml:"reporter"`
+	ChainSubscription ChainSubscriptions `toml:"chains"`
+}
+
+type ChainSubscriptions []*ChainSubscription
+
+type ChainSubscription struct {
+	Chain                  string    `toml:"name"`
 	Filters                []string  `toml:"filters"`
 	LogUnknownMessages     null.Bool `default:"false" toml:"log-unknown-messages"`
 	LogUnparsedMessages    null.Bool `default:"true"  toml:"log-unparsed-messages"`
@@ -52,6 +58,16 @@ func (s *Subscription) Validate() error {
 		return fmt.Errorf("empty reporter name")
 	}
 
+	for index, subscription := range s.ChainSubscription {
+		if err := subscription.Validate(); err != nil {
+			return fmt.Errorf("error in subscription %d: %s", index, err)
+		}
+	}
+
+	return nil
+}
+
+func (s *ChainSubscription) Validate() error {
 	if s.Chain == "" {
 		return fmt.Errorf("empty chain name")
 	}
@@ -65,15 +81,13 @@ func (s *Subscription) Validate() error {
 	return nil
 }
 
-func (s *Subscription) ToAppConfigSubscription() *types.Subscription {
+func (s *ChainSubscription) ToAppConfigChainSubscription() *types.ChainSubscription {
 	filters := make([]query.Query, len(s.Filters))
 	for index, filter := range s.Filters {
 		filters[index] = *query.MustParse(filter)
 	}
 
-	return &types.Subscription{
-		Name:                   s.Name,
-		Reporter:               s.Reporter,
+	return &types.ChainSubscription{
 		Chain:                  s.Chain,
 		Filters:                filters,
 		LogUnknownMessages:     s.LogUnknownMessages.Bool,
@@ -84,10 +98,21 @@ func (s *Subscription) ToAppConfigSubscription() *types.Subscription {
 	}
 }
 
-func FromAppConfigSubscription(s *types.Subscription) *Subscription {
-	subscription := &Subscription{
-		Name:                   s.Name,
-		Reporter:               s.Reporter,
+func (s *Subscription) ToAppConfigSubscription() *types.Subscription {
+	chainSubscriptions := make(types.ChainSubscriptions, len(s.ChainSubscription))
+	for index, chainSubscription := range s.ChainSubscription {
+		chainSubscriptions[index] = chainSubscription.ToAppConfigChainSubscription()
+	}
+
+	return &types.Subscription{
+		Name:               s.Name,
+		Reporter:           s.Reporter,
+		ChainSubscriptions: chainSubscriptions,
+	}
+}
+
+func FromAppConfigChainSubscription(s *types.ChainSubscription) *ChainSubscription {
+	subscription := &ChainSubscription{
 		Chain:                  s.Chain,
 		LogUnknownMessages:     null.BoolFrom(s.LogUnknownMessages),
 		LogUnparsedMessages:    null.BoolFrom(s.LogUnparsedMessages),
@@ -99,6 +124,20 @@ func FromAppConfigSubscription(s *types.Subscription) *Subscription {
 	subscription.Filters = make([]string, len(s.Filters))
 	for index, filter := range s.Filters {
 		subscription.Filters[index] = filter.String()
+	}
+
+	return subscription
+}
+
+func FromAppConfigSubscription(s *types.Subscription) *Subscription {
+	subscription := &Subscription{
+		Name:              s.Name,
+		Reporter:          s.Reporter,
+		ChainSubscription: make(ChainSubscriptions, len(s.ChainSubscriptions)),
+	}
+
+	for index, chainSubscription := range s.ChainSubscriptions {
+		subscription.ChainSubscription[index] = FromAppConfigChainSubscription(chainSubscription)
 	}
 
 	return subscription
