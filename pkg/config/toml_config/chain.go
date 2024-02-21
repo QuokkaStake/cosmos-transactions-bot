@@ -15,7 +15,7 @@ type Chain struct {
 	Queries         []string   `default:"[\"tx.height > 1\"]" toml:"queries"`
 	MintscanPrefix  string     `toml:"mintscan-prefix"`
 	PingPrefix      string     `toml:"ping-prefix"`
-	PingBaseUrl     string     `default:"https://ping.pub" toml:"ping-base-url"`
+	PingBaseUrl     string     `default:"https://ping.pub"    toml:"ping-base-url"`
 	Explorer        *Explorer  `toml:"explorer"`
 	Denoms          DenomInfos `toml:"denoms"`
 }
