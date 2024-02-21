@@ -13,7 +13,7 @@ type TomlConfig struct {
 	MetricsConfig MetricsConfig `toml:"metrics"`
 	Chains        Chains        `toml:"chains"`
 	Subscriptions Subscriptions `toml:"subscriptions"`
-	Timezone      string        `default:"Etc/GMT" toml:"timezone"`
+	Timezone      string        `default:"Etc/GMT"    toml:"timezone"`
 
 	Reporters Reporters `toml:"reporters"`
 }

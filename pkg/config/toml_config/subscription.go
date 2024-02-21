@@ -2,9 +2,10 @@ package toml_config
 
 import (
 	"fmt"
+	"main/pkg/config/types"
+
 	"github.com/cometbft/cometbft/libs/pubsub/query"
 	"gopkg.in/guregu/null.v4"
-	"main/pkg/config/types"
 )
 
 type Subscriptions []*Subscription
@@ -14,11 +15,11 @@ type Subscription struct {
 	Reporter               string    `toml:"reporter"`
 	Chain                  string    `toml:"chain"`
 	Filters                []string  `toml:"filters"`
-	LogUnknownMessages     null.Bool `default:"false"            toml:"log-unknown-messages"`
-	LogUnparsedMessages    null.Bool `default:"true"             toml:"log-unparsed-messages"`
-	LogFailedTransactions  null.Bool `default:"true"             toml:"log-failed-transactions"`
-	LogNodeErrors          null.Bool `default:"true"             toml:"log-node-errors"`
-	FilterInternalMessages null.Bool `default:"true"             toml:"filter-internal-messages"`
+	LogUnknownMessages     null.Bool `default:"false" toml:"log-unknown-messages"`
+	LogUnparsedMessages    null.Bool `default:"true"  toml:"log-unparsed-messages"`
+	LogFailedTransactions  null.Bool `default:"true"  toml:"log-failed-transactions"`
+	LogNodeErrors          null.Bool `default:"true"  toml:"log-node-errors"`
+	FilterInternalMessages null.Bool `default:"true"  toml:"filter-internal-messages"`
 }
 
 func (subscriptions Subscriptions) Validate() error {
