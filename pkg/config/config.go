@@ -16,28 +16,15 @@ import (
 	"github.com/rs/zerolog"
 )
 
-type Chains []*types.Chain
-
-func (c Chains) FindByName(name string) *types.Chain {
-	for _, chain := range c {
-		if chain.Name == name {
-			return chain
-		}
-	}
-
-	return nil
-}
-
-type Reporters []*types.Reporter
-
 type AppConfig struct {
-	Path        string
-	AliasesPath string
-	LogConfig   LogConfig
-	Chains      Chains
-	Reporters   Reporters
-	Metrics     MetricsConfig
-	Timezone    *time.Location
+	Path          string
+	AliasesPath   string
+	LogConfig     LogConfig
+	Chains        types.Chains
+	Subscriptions types.Subscriptions
+	Reporters     types.Reporters
+	Metrics       MetricsConfig
+	Timezone      *time.Location
 }
 
 type LogConfig struct {
@@ -94,6 +81,9 @@ func FromTomlConfig(c *tomlConfig.TomlConfig, path string) *AppConfig {
 		Reporters: utils.Map(c.Reporters, func(r *tomlConfig.Reporter) *types.Reporter {
 			return r.ToAppConfigReporter()
 		}),
+		Subscriptions: utils.Map(c.Subscriptions, func(s *tomlConfig.Subscription) *types.Subscription {
+			return s.ToAppConfigSubscription()
+		}),
 		Timezone: timezone,
 	}
 }
@@ -109,9 +99,10 @@ func (c *AppConfig) ToTomlConfig() *tomlConfig.TomlConfig {
 			ListenAddr: c.Metrics.ListenAddr,
 			Enabled:    null.BoolFrom(c.Metrics.Enabled),
 		},
-		Chains:    utils.Map(c.Chains, tomlConfig.FromAppConfigChain),
-		Reporters: utils.Map(c.Reporters, tomlConfig.FromAppConfigReporter),
-		Timezone:  c.Timezone.String(),
+		Chains:        utils.Map(c.Chains, tomlConfig.FromAppConfigChain),
+		Reporters:     utils.Map(c.Reporters, tomlConfig.FromAppConfigReporter),
+		Subscriptions: utils.Map(c.Subscriptions, tomlConfig.FromAppConfigSubscription),
+		Timezone:      c.Timezone.String(),
 	}
 }
 

@@ -66,6 +66,16 @@ func (reporters Reporters) Validate() error {
 	return nil
 }
 
+func (reporters Reporters) HasReporterByName(name string) bool {
+	for _, reporter := range reporters {
+		if reporter.Name == name {
+			return true
+		}
+	}
+
+	return false
+}
+
 func FromAppConfigReporter(reporter *types.Reporter) *Reporter {
 	var telegramConfig *TelegramConfig
 

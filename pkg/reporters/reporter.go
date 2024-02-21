@@ -20,6 +20,18 @@ type Reporter interface {
 	Send(report types.Report) error
 }
 
+type Reporters []Reporter
+
+func (r Reporters) FindByName(name string) Reporter {
+	for _, reporter := range r {
+		if reporter.Name() == name {
+			return reporter
+		}
+	}
+
+	return nil
+}
+
 func GetReporter(
 	reporterConfig *configTypes.Reporter,
 	appConfig *config.AppConfig,

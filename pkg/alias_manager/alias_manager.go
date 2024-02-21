@@ -4,7 +4,7 @@ import (
 	"os"
 
 	"main/pkg/config"
-	"main/pkg/config/types"
+	configTypes "main/pkg/config/types"
 
 	"github.com/BurntSushi/toml"
 	"github.com/rs/zerolog"
@@ -14,7 +14,7 @@ type Aliases *map[string]string
 type TomlAliases map[string]Aliases
 
 type ChainAliases struct {
-	Chain   *types.Chain
+	Chain   *configTypes.Chain
 	Aliases Aliases
 }
 type AllChainAliases map[string]*ChainAliases
@@ -22,7 +22,7 @@ type AllChainAliases map[string]*ChainAliases
 type AliasManager struct {
 	Logger  zerolog.Logger
 	Path    string
-	Chains  config.Chains
+	Chains  configTypes.Chains
 	Aliases AllChainAliases
 }
 
@@ -36,15 +36,15 @@ func (a AllChainAliases) ToTomlAliases() TomlAliases {
 }
 
 type ChainAliasesLinks struct {
-	Chain *types.Chain
-	Links map[string]types.Link
+	Chain *configTypes.Chain
+	Links map[string]configTypes.Link
 }
 
 func (a AllChainAliases) ToAliasesLinks() []ChainAliasesLinks {
 	aliasesLinks := make([]ChainAliasesLinks, 0)
 
 	for _, chainAliases := range a {
-		links := make(map[string]types.Link)
+		links := make(map[string]configTypes.Link)
 
 		if chainAliases.Aliases == nil {
 			continue

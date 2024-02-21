@@ -10,7 +10,7 @@ import (
 	"main/pkg/alias_manager"
 	"main/pkg/config"
 	"main/pkg/data_fetcher"
-	"main/pkg/filterer"
+	filtererPkg "main/pkg/filterer"
 	loggerPkg "main/pkg/logger"
 	metricsPkg "main/pkg/metrics"
 	nodesManagerPkg "main/pkg/nodes_manager"
@@ -23,9 +23,9 @@ type App struct {
 	Logger         zerolog.Logger
 	Chains         []*configTypes.Chain
 	NodesManager   *nodesManagerPkg.NodesManager
-	Reporters      []reportersPkg.Reporter
+	Reporters      reportersPkg.Reporters
 	DataFetchers   map[string]*data_fetcher.DataFetcher
-	Filterers      map[string]*filterer.Filterer
+	Filterer       *filtererPkg.Filterer
 	MetricsManager *metricsPkg.Manager
 
 	Version string
@@ -57,10 +57,7 @@ func NewApp(config *config.AppConfig, version string) *App {
 		dataFetchers[chain.Name] = data_fetcher.NewDataFetcher(logger, chain, aliasManager, metricsManager)
 	}
 
-	filterers := make(map[string]*filterer.Filterer, len(config.Chains))
-	for _, chain := range config.Chains {
-		filterers[chain.Name] = filterer.NewFilterer(logger, chain, metricsManager)
-	}
+	filterer := filtererPkg.NewFilterer(logger, config, metricsManager)
 
 	return &App{
 		Logger:         logger.With().Str("component", "app").Logger(),
@@ -68,7 +65,7 @@ func NewApp(config *config.AppConfig, version string) *App {
 		Reporters:      reporters,
 		NodesManager:   nodesManager,
 		DataFetchers:   dataFetchers,
-		Filterers:      filterers,
+		Filterer:       filterer,
 		MetricsManager: metricsManager,
 		Version:        version,
 	}
@@ -98,36 +95,39 @@ func (a *App) Start() {
 	for {
 		select {
 		case rawReport := <-a.NodesManager.Channel:
-			chainFilterer, _ := a.Filterers[rawReport.Chain.Name]
 			fetcher, _ := a.DataFetchers[rawReport.Chain.Name]
 
-			reportableFiltered := chainFilterer.Filter(rawReport.Reportable)
-			if reportableFiltered == nil {
+			reportablesForReporters := a.Filterer.GetReportableForReporters(rawReport.Reportable)
+
+			if len(reportablesForReporters) == 0 {
 				a.Logger.Debug().
 					Str("node", rawReport.Node).
 					Str("chain", rawReport.Chain.Name).
 					Str("hash", rawReport.Reportable.GetHash()).
-					Msg("Got report")
+					Msg("Got report which is nowhere to send")
 				continue
 			}
 
-			report := types.Report{
-				Node:       rawReport.Node,
-				Chain:      rawReport.Chain,
-				Reportable: reportableFiltered,
-			}
+			for reporterName, reportable := range reportablesForReporters {
+				report := types.Report{
+					Node:       rawReport.Node,
+					Chain:      rawReport.Chain,
+					Reportable: reportable,
+				}
 
-			a.Logger.Info().
-				Str("node", report.Node).
-				Str("chain", report.Chain.Name).
-				Str("hash", report.Reportable.GetHash()).
-				Msg("Got report")
+				a.Logger.Info().
+					Str("node", report.Node).
+					Str("chain", report.Chain.Name).
+					Str("reporter", reporterName).
+					Str("hash", report.Reportable.GetHash()).
+					Msg("Got report")
 
-			a.MetricsManager.LogReport(report)
+				a.MetricsManager.LogReport(report)
 
-			rawReport.Reportable.GetAdditionalData(fetcher)
+				rawReport.Reportable.GetAdditionalData(fetcher)
 
-			for _, reporter := range a.Reporters {
+				reporter := a.Reporters.FindByName(reporterName)
+
 				if err := reporter.Send(report); err != nil {
 					a.Logger.Error().
 						Err(err).

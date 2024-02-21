@@ -2,6 +2,7 @@ package filterer
 
 import (
 	"fmt"
+	configPkg "main/pkg/config"
 	configTypes "main/pkg/config/types"
 	messagesPkg "main/pkg/messages"
 	metricsPkg "main/pkg/metrics"
@@ -12,64 +13,98 @@ import (
 )
 
 type Filterer struct {
-	Logger          zerolog.Logger
-	MetricsManager  *metricsPkg.Manager
-	Chain           *configTypes.Chain
-	lastBlockHeight int64
+	Logger           zerolog.Logger
+	MetricsManager   *metricsPkg.Manager
+	Config           *configPkg.AppConfig
+	lastBlockHeights map[string]int64
 }
 
 func NewFilterer(
 	logger *zerolog.Logger,
-	chain *configTypes.Chain,
+	config *configPkg.AppConfig,
 	metricsManager *metricsPkg.Manager,
 ) *Filterer {
 	return &Filterer{
 		Logger: logger.With().
 			Str("component", "filterer").
-			Str("chain", chain.Name).
 			Logger(),
-		MetricsManager:  metricsManager,
-		Chain:           chain,
-		lastBlockHeight: 0,
+		MetricsManager:   metricsManager,
+		Config:           config,
+		lastBlockHeights: map[string]int64{},
 	}
 }
 
-func (f *Filterer) Filter(reportable types.Reportable) types.Reportable {
+func (f *Filterer) GetReportableForReporters(
+	reportable types.Reportable,
+) map[string]types.Reportable {
+	reportables := make(map[string]types.Reportable)
+
+	for _, subscription := range f.Config.Subscriptions {
+		chain := f.Config.Chains.FindByName(subscription.Chain)
+
+		reportableFiltered := f.FilterForChainAndSubscription(
+			reportable,
+			chain,
+			subscription,
+		)
+
+		if reportableFiltered != nil {
+			f.Logger.Info().
+				Str("type", reportable.Type()).
+				Str("subscription_name", subscription.Name).
+				Msg("Got report for subscription")
+			reportables[subscription.Reporter] = reportableFiltered
+		} else {
+			f.Logger.Info().
+				Str("type", reportable.Type()).
+				Str("subscription_name", subscription.Name).
+				Msg("No report for subscription")
+		}
+	}
+
+	return reportables
+}
+
+func (f *Filterer) FilterForChainAndSubscription(
+	reportable types.Reportable,
+	chain *configTypes.Chain,
+	subscription *configTypes.Subscription,
+) types.Reportable {
 	// Filtering out TxError only if chain's log-node-errors = true.
 	if _, ok := reportable.(*types.TxError); ok {
-		if !f.Chain.LogNodeErrors {
-			f.MetricsManager.LogFilteredEvent(f.Chain.Name, reportable.Type())
+		if !subscription.LogNodeErrors {
+			f.MetricsManager.LogFilteredEvent(subscription.Name, reportable.Type())
 			f.Logger.Debug().Msg("Got transaction error, skipping as node errors logging is disabled")
 			return nil
 		}
 
-		f.MetricsManager.LogMatchedEvent(f.Chain.Name, reportable.Type())
+		f.MetricsManager.LogMatchedEvent(subscription.Name, reportable.Type())
 		return reportable
 	}
 
 	if _, ok := reportable.(*types.NodeConnectError); ok {
-		if !f.Chain.LogNodeErrors {
-			f.MetricsManager.LogFilteredEvent(f.Chain.Name, reportable.Type())
+		if !subscription.LogNodeErrors {
+			f.MetricsManager.LogFilteredEvent(subscription.Name, reportable.Type())
 			f.Logger.Debug().Msg("Got node error, skipping as node errors logging is disabled")
 			return nil
 		}
 
-		f.MetricsManager.LogMatchedEvent(f.Chain.Name, reportable.Type())
+		f.MetricsManager.LogMatchedEvent(subscription.Name, reportable.Type())
 		return reportable
 	}
 
 	tx, ok := reportable.(*types.Tx)
 	if !ok {
 		f.Logger.Error().Str("type", reportable.Type()).Msg("Unsupported reportable type, ignoring.")
-		f.MetricsManager.LogFilteredEvent(f.Chain.Name, reportable.Type())
+		f.MetricsManager.LogFilteredEvent(subscription.Name, reportable.Type())
 		return nil
 	}
 
-	if !f.Chain.LogFailedTransactions && tx.Code > 0 {
+	if !subscription.LogFailedTransactions && tx.Code > 0 {
 		f.Logger.Debug().
 			Str("hash", tx.GetHash()).
 			Msg("Transaction is failed, skipping")
-		f.MetricsManager.LogFilteredEvent(f.Chain.Name, reportable.Type())
+		f.MetricsManager.LogFilteredEvent(subscription.Name, reportable.Type())
 		return nil
 	}
 
@@ -78,23 +113,24 @@ func (f *Filterer) Filter(reportable types.Reportable) types.Reportable {
 		f.Logger.Fatal().Err(err).Msg("Error converting height to int64")
 	}
 
-	if f.lastBlockHeight != 0 && f.lastBlockHeight > txHeight {
+	chainLastBlockHeight, ok := f.lastBlockHeights[chain.Name]
+	if ok && chainLastBlockHeight > txHeight {
 		f.Logger.Debug().
 			Str("hash", tx.GetHash()).
 			Int64("height", txHeight).
-			Int64("last_height", f.lastBlockHeight).
+			Int64("last_height", chainLastBlockHeight).
 			Msg("Transaction height is less than the last one received, skipping")
 		return nil
 	}
 
-	if f.lastBlockHeight == 0 || f.lastBlockHeight < txHeight {
-		f.lastBlockHeight = txHeight
+	if !ok || chainLastBlockHeight < txHeight {
+		f.lastBlockHeights[chain.Name] = txHeight
 	}
 
 	messages := make([]types.Message, 0)
 
 	for _, message := range tx.Messages {
-		filteredMessage := f.FilterMessage(message, false)
+		filteredMessage := f.FilterMessage(message, subscription, false)
 		if filteredMessage != nil {
 			messages = append(messages, filteredMessage)
 		}
@@ -104,18 +140,22 @@ func (f *Filterer) Filter(reportable types.Reportable) types.Reportable {
 		f.Logger.Debug().
 			Str("hash", tx.GetHash()).
 			Msg("All messages in transaction were filtered out, skipping.")
-		f.MetricsManager.LogFilteredEvent(f.Chain.Name, reportable.Type())
+		f.MetricsManager.LogFilteredEvent(subscription.Name, reportable.Type())
 		return nil
 	}
 
 	tx.Messages = messages
-	f.MetricsManager.LogMatchedEvent(f.Chain.Name, reportable.Type())
+	f.MetricsManager.LogMatchedEvent(subscription.Name, reportable.Type())
 	return tx
 }
 
-func (f *Filterer) FilterMessage(message types.Message, internal bool) types.Message {
+func (f *Filterer) FilterMessage(
+	message types.Message,
+	subscription *configTypes.Subscription,
+	internal bool,
+) types.Message {
 	if unsupportedMsg, ok := message.(*messagesPkg.MsgUnsupportedMessage); ok {
-		if f.Chain.LogUnknownMessages {
+		if subscription.LogUnknownMessages {
 			f.Logger.Error().Str("type", unsupportedMsg.MsgType).Msg("Unsupported message type")
 			return message
 		} else {
@@ -125,7 +165,7 @@ func (f *Filterer) FilterMessage(message types.Message, internal bool) types.Mes
 	}
 
 	if unparsedMsg, ok := message.(*messagesPkg.MsgUnparsedMessage); ok {
-		if f.Chain.LogUnparsedMessages {
+		if subscription.LogUnparsedMessages {
 			f.Logger.Error().Err(unparsedMsg.Error).Str("type", unparsedMsg.MsgType).Msg("Error parsing message")
 			return message
 		}
@@ -137,15 +177,15 @@ func (f *Filterer) FilterMessage(message types.Message, internal bool) types.Mes
 		return nil
 	}
 
-	// internal -> filter only if f.Chain.FilterInternalMessages is true
+	// internal -> filter only if subscription.FilterInternalMessages is true
 	// !internal -> filter regardless
-	if !internal || f.Chain.FilterInternalMessages {
-		matches, err := f.Chain.Filters.Matches(message.GetValues())
+	if !internal || subscription.FilterInternalMessages {
+		matches, err := subscription.Filters.Matches(message.GetValues())
 
 		f.Logger.Trace().
 			Str("type", message.Type()).
 			Str("values", fmt.Sprintf("%+v", message.GetValues().ToMap())).
-			Str("filters", fmt.Sprintf("%+v", f.Chain.Filters)).
+			Str("filters", fmt.Sprintf("%+v", subscription.Filters)).
 			Bool("matches", matches).
 			Msg("Result of matching message events against filters")
 
@@ -170,7 +210,7 @@ func (f *Filterer) FilterMessage(message types.Message, internal bool) types.Mes
 
 	// Processing internal messages (such as ones in MsgExec)
 	for _, internalMessage := range message.GetParsedMessages() {
-		if internalMessageParsed := f.FilterMessage(internalMessage, true); internalMessageParsed != nil {
+		if internalMessageParsed := f.FilterMessage(internalMessage, subscription, true); internalMessageParsed != nil {
 			parsedInternalMessages = append(parsedInternalMessages, internalMessageParsed)
 		}
 	}
