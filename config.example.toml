@@ -1,11 +1,14 @@
-# Path to where aliases in .toml will be stored. If omitted, no aliases setting/displaying would work.
-aliases = "/home/monitoring/config/cosmos-transactions-bot-aliases.toml"
-# Timezone in which time (like undelegation finish time) will be displayed. Defaults to "Etc/GMT", so UTC+0
+# Path to where aliases in .toml will be stored.
+# If omitted, no aliases setting/displaying would work.
+aliases = "cosmos-transactions-bot-aliases.toml"
+# Timezone in which time (like undelegation finish time) will be displayed.
+# Defaults to "Etc/GMT", so UTC+0
 timezone = "Europe/Moscow"
 
 # Logging configuration
 [log]
-# Log level. Set to "debug" or "trace" to make it more verbose, or to "warn"/"error" to make it less verbose.
+# Log level. Set to "debug" or "trace" to make it more verbose, or to "warn"/"error"
+# to make it less verbose.
 # Defaults to "info"
 level = "info"
 # If true, all logs would be displayed in JSON. Useful if you are using centralized logging
@@ -14,46 +17,41 @@ json = false
 
 # Reporters configuration.
 [[reporters]]
+# Reporter name. Should be unique.
+name = "telegram-1"
 # Reporter type. Currently, the only supported type is "telegram", which is the default.
 type = "telegram"
 # Telegram config configuration. Required if the type is "telegram".
 # See README.md for more details.
+# Has 3 params:
+# - token - bot token
+# - chat - a chat/channel to post messages to
+# - admins - a whitelist of user IDs allowed to send commands to the bot, optional but recommended.
 telegram-config = { token = "xxx:yyy", chat = 12345, admins = [67890] }
 
-# Per-chain configuration. There can be multiple chains.
-[[chains]]
-# Chain codename, required.
+# There can be multiple reporters.
+[[reporters]]
+name = "telegram-2"
+type = "telegram"
+telegram-config = { token = "zzz:aaa", chat = 98765, admins = [43210] }
+
+# Subscriptions config. See README.md on how this schema works.
+[[subscriptions]]
+# Reporter name to send events matching this subscription to.
+# Should be one of the names of the reporters declared above, or the app won't start
+# with the config validation error
+reporter = "telegram-1"
+# Subscription name, for metrics. Should be unique.
+name = "subscription-1"
+
+# Chain subscriptions for this subscription.
+[[subscriptions.chains]]
+# Chain name. Should be one of the names declared below in chains section,
+# or the app won't start with the config validation error.
 name = "cosmos"
-# Chain pretty name, optional. If provided, would be used in reports, if not,
-# codename would be used.
-pretty-name = "Cosmos Hub"
-# Tendermint RPC nodes to subscribe to. At least one is required, better to have multiple ones
-# as a failover.
-tendermint-nodes = [
-    "https://rpc.cosmos.quokkastake.io:443",
-]
-# API nodes to get blockchain data (validators, proposals etc.) from.
-api-nodes = [
-    "https://api.cosmos.quokkastake.io",
-]
-# Queries, see README.md for details.
-queries = [
-    "tx.height > 0"
-]
 # Filter, see README.md for details.
 filters = [
     "message.action = '/cosmos.gov.v1beta1.MsgVote'",
-]
-# Denoms list.
-denoms = [
-    # Each denom inside must have "denom" and "display-denom" fields and additionaly
-    # denom-coefficient (set to 1000000 by default) and coingecko-currency.
-    # Example: if there's a transfer transaction for 10,000,000 uatom,
-    # and the coingecko price for $ATOM is 10$ and if all fields are set,
-    # instead of displaying amount as `10000000.000000uatom` it would be displayed
-    # as `10.000000atom ($100.00)`.
-    # If coingecko-currency is omitted, no price would be displayed.
-    { denom = "uatom", display-denom = "atom", denom-coefficient = 1000000, coingecko-currency = "cosmos" }
 ]
 # If set to true and there is a message not supported by this app,
 # it would post a message about that, otherwise it would ignore such a message.
@@ -84,6 +82,58 @@ filter-internal-messages = true
 # - `Error: RPC error -32000 - Server error: subscription was cancelled (reason: Tendermint exited)`
 # If this is set to true (default), such messages would be displayed, if not, they will be skipped.
 log-node-errors = true
+
+# There can be multiple chain subscriptions per subscription.
+[[subscriptions.chains]]
+name = "sentinel"
+filters = ["message.action = '/cosmos.staking.v1beta1.MsgDelegate'"]
+
+# There can also be multiple subscriptions. This one, for example,
+# sends everything to a different reporter.
+[[subscriptions]]
+name = "subscription-2"
+reporter = "telegram-2"
+[[subscriptions.chains]]
+name = "cosmos"
+filters = ["message.action = '/cosmos.staking.v1beta1.MsgUndelegate'"]
+[[subscriptions.chains]]
+name = "sentinel"
+filters = ["message.action = '/cosmos.staking.v1beta1.MsgBeginRedelegate'"]
+
+
+
+# Per-chain configuration.
+[[chains]]
+# Chain codename, required.
+name = "cosmos"
+# Chain pretty name, optional. If provided, would be used in reports, if not,
+# codename would be used.
+pretty-name = "Cosmos Hub"
+# Tendermint RPC nodes to subscribe to. At least one is required, better to have multiple ones
+# as a failover.
+tendermint-nodes = [
+    "https://rpc.cosmos.quokkastake.io:443",
+]
+# API nodes to get blockchain data (validators, proposals etc.) from.
+api-nodes = [
+    "https://api.cosmos.quokkastake.io",
+]
+# Queries, see README.md for details.
+# Defaults to ["tx.height > 0"], so basically all transactions on chain.
+queries = [
+    "tx.height > 0"
+]
+# Denoms list.
+denoms = [
+    # Each denom inside must have "denom" and "display-denom" fields and additionaly
+    # denom-coefficient (set to 1000000 by default) and coingecko-currency.
+    # Example: if there's a transfer transaction for 10,000,000 uatom,
+    # and the coingecko price for $ATOM is 10$ and if all fields are set,
+    # instead of displaying amount as `10000000.000000uatom` it would be displayed
+    # as `10.000000atom ($100.00)`.
+    # If coingecko-currency is omitted, no price would be displayed.
+    { denom = "uatom", display-denom = "atom", denom-coefficient = 1000000, coingecko-currency = "cosmos" }
+]
 # Explorer configuration.
 # Priorities:
 # 1) ping.pub
@@ -111,3 +161,14 @@ block-link-pattern = "https://mintscan.io/cosmos/blocks/%s"
 # A pattern for validator links for the explorer.
 validator-link-pattern = "https://mintscan.io/cosmos/validators/%s"
 
+
+# There can be multiple chains.
+[[chains]]
+name = "sentinel"
+pretty-name = "Sentinel"
+tendermint-nodes = ["https://rpc.sentinel.quokkastake.io:443"]
+api-nodes = ["https://api.sentinel.quokkastake.io"]
+denoms = [
+    { denom = "udvpn", display-denom = "dvpn",  coingecko-currency = "sentinel" }
+]
+mintscan-prefix = "sentinel"
