@@ -12,7 +12,7 @@ type Chain struct {
 	PrettyName      string     `toml:"pretty-name"`
 	TendermintNodes []string   `toml:"tendermint-nodes"`
 	APINodes        []string   `toml:"api-nodes"`
-	Queries         []string   `toml:"queries"`
+	Queries         []string   `default:"[\"tx.height > 1\"]" toml:"queries"`
 	MintscanPrefix  string     `toml:"mintscan-prefix"`
 	PingPrefix      string     `toml:"ping-prefix"`
 	PingBaseUrl     string     `default:"https://ping.pub" toml:"ping-base-url"`
