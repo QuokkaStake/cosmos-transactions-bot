@@ -35,30 +35,30 @@ func NewFilterer(
 }
 
 func (f *Filterer) GetReportableForReporters(
-	reportable types.Reportable,
-) map[string]types.Reportable {
-	reportables := make(map[string]types.Reportable)
+	report types.Report,
+) map[string]types.Report {
+	reportables := make(map[string]types.Report)
 
 	for _, subscription := range f.Config.Subscriptions {
 		chain := f.Config.Chains.FindByName(subscription.Chain)
 
 		reportableFiltered := f.FilterForChainAndSubscription(
-			reportable,
+			report.Reportable,
 			chain,
 			subscription,
 		)
 
 		if reportableFiltered != nil {
 			f.Logger.Info().
-				Str("type", reportable.Type()).
+				Str("type", report.Reportable.Type()).
 				Str("subscription_name", subscription.Name).
 				Msg("Got report for subscription")
-			reportables[subscription.Reporter] = reportableFiltered
-		} else {
-			f.Logger.Info().
-				Str("type", reportable.Type()).
-				Str("subscription_name", subscription.Name).
-				Msg("No report for subscription")
+			reportables[subscription.Reporter] = types.Report{
+				Chain:        report.Chain,
+				Node:         report.Node,
+				Reportable:   reportableFiltered,
+				Subscription: subscription,
+			}
 		}
 	}
 

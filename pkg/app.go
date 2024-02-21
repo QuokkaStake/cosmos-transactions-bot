@@ -2,7 +2,6 @@ package pkg
 
 import (
 	configTypes "main/pkg/config/types"
-	"main/pkg/types"
 	"os"
 	"os/signal"
 	"syscall"
@@ -97,7 +96,7 @@ func (a *App) Start() {
 		case rawReport := <-a.NodesManager.Channel:
 			fetcher, _ := a.DataFetchers[rawReport.Chain.Name]
 
-			reportablesForReporters := a.Filterer.GetReportableForReporters(rawReport.Reportable)
+			reportablesForReporters := a.Filterer.GetReportableForReporters(rawReport)
 
 			if len(reportablesForReporters) == 0 {
 				a.Logger.Debug().
@@ -108,13 +107,7 @@ func (a *App) Start() {
 				continue
 			}
 
-			for reporterName, reportable := range reportablesForReporters {
-				report := types.Report{
-					Node:       rawReport.Node,
-					Chain:      rawReport.Chain,
-					Reportable: reportable,
-				}
-
+			for reporterName, report := range reportablesForReporters {
 				a.Logger.Info().
 					Str("node", report.Node).
 					Str("chain", report.Chain.Name).
