@@ -94,7 +94,7 @@ func (f *Filterer) FilterForChainAndSubscription(
 			return nil
 		}
 
-		f.MetricsManager.LogMatchedEvent(subscription.Name, reportable.Type())
+		f.MetricsManager.LogMatchedEvent(chainSubscription.Chain, reportable.Type(), subscription.Name)
 		return reportable
 	}
 
@@ -109,7 +109,7 @@ func (f *Filterer) FilterForChainAndSubscription(
 			return nil
 		}
 
-		f.MetricsManager.LogMatchedEvent(subscription.Name, reportable.Type())
+		f.MetricsManager.LogMatchedEvent(chainSubscription.Chain, reportable.Type(), subscription.Name)
 		return reportable
 	}
 
@@ -178,7 +178,7 @@ func (f *Filterer) FilterForChainAndSubscription(
 	}
 
 	tx.Messages = messages
-	f.MetricsManager.LogMatchedEvent(subscription.Name, reportable.Type())
+	f.MetricsManager.LogMatchedEvent(chainSubscription.Chain, reportable.Type(), subscription.Name)
 	return tx
 }
 

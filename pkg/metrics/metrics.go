@@ -110,7 +110,7 @@ func NewManager(logger *zerolog.Logger, config configPkg.MetricsConfig) *Manager
 		eventsMatchedCounter: promauto.NewCounterVec(prometheus.CounterOpts{
 			Name: constants.PrometheusMetricsPrefix + "events_matched",
 			Help: "WebSocket events matching filters by chain",
-		}, []string{"chain", "type"}),
+		}, []string{"chain", "type", "subscription"}),
 
 		// App metrics
 		appVersionGauge: promauto.NewGaugeVec(prometheus.GaugeOpts{
@@ -275,9 +275,13 @@ func (m *Manager) LogFilteredEvent(chain string, eventType string, reason consta
 		Inc()
 }
 
-func (m *Manager) LogMatchedEvent(chain string, eventType string) {
+func (m *Manager) LogMatchedEvent(chain string, eventType string, subscription string) {
 	m.eventsMatchedCounter.
-		With(prometheus.Labels{"chain": chain, "type": eventType}).
+		With(prometheus.Labels{
+			"chain":        chain,
+			"type":         eventType,
+			"subscription": subscription,
+		}).
 		Inc()
 }
 
