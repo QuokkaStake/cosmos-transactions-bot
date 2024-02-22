@@ -35,9 +35,10 @@ type Manager struct {
 	reconnectsCounter      *prometheus.CounterVec
 
 	// Reporters metrics
-	reportsCounter       *prometheus.CounterVec
-	reportEntriesCounter *prometheus.CounterVec
-	reporterEnabledGauge *prometheus.GaugeVec
+	reporterReportsCounter *prometheus.CounterVec
+	reporterErrorsCounter  *prometheus.CounterVec
+	reportEntriesCounter   *prometheus.CounterVec
+	reporterEnabledGauge   *prometheus.GaugeVec
 
 	// Subscriptions metrics
 	eventsMatchedCounter *prometheus.CounterVec
@@ -97,13 +98,17 @@ func NewManager(logger *zerolog.Logger, config configPkg.MetricsConfig) *Manager
 			Name: constants.PrometheusMetricsPrefix + "reporter_enabled",
 			Help: "Whether the reporter is enabled (1 if yes, 0 if no)",
 		}, []string{"name", "type"}),
-		reportsCounter: promauto.NewCounterVec(prometheus.CounterOpts{
-			Name: constants.PrometheusMetricsPrefix + "node_reports",
-			Help: "Counter of reports send",
+		reporterReportsCounter: promauto.NewCounterVec(prometheus.CounterOpts{
+			Name: constants.PrometheusMetricsPrefix + "reporter_reports",
+			Help: "Counter of reports sent successfully",
+		}, []string{"chain", "reporter", "type", "subscription"}),
+		reporterErrorsCounter: promauto.NewCounterVec(prometheus.CounterOpts{
+			Name: constants.PrometheusMetricsPrefix + "reporter_errors",
+			Help: "Counter of failed reports sends",
 		}, []string{"chain", "reporter", "type", "subscription"}),
 		reportEntriesCounter: promauto.NewCounterVec(prometheus.CounterOpts{
-			Name: constants.PrometheusMetricsPrefix + "node_report_entries_total",
-			Help: "Counter of report entries send",
+			Name: constants.PrometheusMetricsPrefix + "report_entries_total",
+			Help: "Counter of messages types per each successfully sent report",
 		}, []string{"chain", "reporter", "type", "subscription"}),
 
 		// Subscription metrics
@@ -222,8 +227,20 @@ func (m *Manager) LogTendermintQuery(chain string, query queryInfo.QueryInfo, qu
 	}
 }
 
-func (m *Manager) LogReport(report types.Report, reporterName string) {
-	m.reportsCounter.
+func (m *Manager) LogReport(report types.Report, reporterName string, success bool) {
+	if !success {
+		m.reporterErrorsCounter.
+			With(prometheus.Labels{
+				"chain":        report.Chain.Name,
+				"reporter":     reporterName,
+				"type":         report.Reportable.Type(),
+				"subscription": report.Subscription.Name,
+			}).
+			Inc()
+		return
+	}
+
+	m.reporterReportsCounter.
 		With(prometheus.Labels{
 			"chain":        report.Chain.Name,
 			"reporter":     reporterName,

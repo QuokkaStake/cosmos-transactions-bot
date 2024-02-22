@@ -113,8 +113,6 @@ func (a *App) Start() {
 					Str("hash", report.Reportable.GetHash()).
 					Msg("Got report")
 
-				a.MetricsManager.LogReport(report, reporterName)
-
 				rawReport.Reportable.GetAdditionalData(fetcher)
 
 				reporter := a.Reporters.FindByName(reporterName)
@@ -123,6 +121,9 @@ func (a *App) Start() {
 					a.Logger.Error().
 						Err(err).
 						Msg("Error sending report")
+					a.MetricsManager.LogReport(report, reporterName, false)
+				} else {
+					a.MetricsManager.LogReport(report, reporterName, true)
 				}
 			}
 		case <-quit:
