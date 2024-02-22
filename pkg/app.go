@@ -77,13 +77,11 @@ func (a *App) Start() {
 
 	for _, reporter := range a.Reporters {
 		reporter.Init()
-		a.MetricsManager.LogReporterEnabled(reporter.Name(), reporter.Enabled())
-		if reporter.Enabled() {
-			a.Logger.Info().
-				Str("name", reporter.Name()).
-				Str("type", reporter.Type()).
-				Msg("Init reporter")
-		}
+		a.MetricsManager.LogReporterEnabled(reporter.Name(), reporter.Type())
+		a.Logger.Info().
+			Str("name", reporter.Name()).
+			Str("type", reporter.Type()).
+			Msg("Init reporter")
 	}
 
 	a.NodesManager.Listen()
@@ -115,7 +113,7 @@ func (a *App) Start() {
 					Str("hash", report.Reportable.GetHash()).
 					Msg("Got report")
 
-				a.MetricsManager.LogReport(report)
+				a.MetricsManager.LogReport(report, reporterName)
 
 				rawReport.Reportable.GetAdditionalData(fetcher)
 

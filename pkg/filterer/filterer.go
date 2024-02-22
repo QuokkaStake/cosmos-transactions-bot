@@ -4,6 +4,7 @@ import (
 	"fmt"
 	configPkg "main/pkg/config"
 	configTypes "main/pkg/config/types"
+	"main/pkg/constants"
 	messagesPkg "main/pkg/messages"
 	metricsPkg "main/pkg/metrics"
 	"main/pkg/types"
@@ -65,6 +66,7 @@ func (f *Filterer) GetReportableForReporters(
 					Chain:             report.Chain,
 					Node:              report.Node,
 					Reportable:        reportableFiltered,
+					Subscription:      subscription,
 					ChainSubscription: chainSubscription,
 				}
 			}
@@ -83,7 +85,11 @@ func (f *Filterer) FilterForChainAndSubscription(
 	// Filtering out TxError only if chain's log-node-errors = true.
 	if _, ok := reportable.(*types.TxError); ok {
 		if !chainSubscription.LogNodeErrors {
-			f.MetricsManager.LogFilteredEvent(subscription.Name, reportable.Type())
+			f.MetricsManager.LogFilteredEvent(
+				chainSubscription.Chain,
+				reportable.Type(),
+				constants.EventFilterReasonTxErrorNotLogged,
+			)
 			f.Logger.Debug().Msg("Got transaction error, skipping as node errors logging is disabled")
 			return nil
 		}
@@ -94,7 +100,11 @@ func (f *Filterer) FilterForChainAndSubscription(
 
 	if _, ok := reportable.(*types.NodeConnectError); ok {
 		if !chainSubscription.LogNodeErrors {
-			f.MetricsManager.LogFilteredEvent(subscription.Name, reportable.Type())
+			f.MetricsManager.LogFilteredEvent(
+				chainSubscription.Chain,
+				reportable.Type(),
+				constants.EventFilterReasonNodeErrorNotLogged,
+			)
 			f.Logger.Debug().Msg("Got node error, skipping as node errors logging is disabled")
 			return nil
 		}
@@ -106,7 +116,11 @@ func (f *Filterer) FilterForChainAndSubscription(
 	tx, ok := reportable.(*types.Tx)
 	if !ok {
 		f.Logger.Error().Str("type", reportable.Type()).Msg("Unsupported reportable type, ignoring.")
-		f.MetricsManager.LogFilteredEvent(subscription.Name, reportable.Type())
+		f.MetricsManager.LogFilteredEvent(
+			chainSubscription.Chain,
+			reportable.Type(),
+			constants.EventFilterReasonUnsupportedMsgTypeNotLogged,
+		)
 		return nil
 	}
 
@@ -114,7 +128,11 @@ func (f *Filterer) FilterForChainAndSubscription(
 		f.Logger.Debug().
 			Str("hash", tx.GetHash()).
 			Msg("Transaction is failed, skipping")
-		f.MetricsManager.LogFilteredEvent(subscription.Name, reportable.Type())
+		f.MetricsManager.LogFilteredEvent(
+			chainSubscription.Chain,
+			reportable.Type(),
+			constants.EventFilterReasonFailedTxNotLogged,
+		)
 		return nil
 	}
 
@@ -151,7 +169,11 @@ func (f *Filterer) FilterForChainAndSubscription(
 		f.Logger.Debug().
 			Str("hash", tx.GetHash()).
 			Msg("All messages in transaction were filtered out, skipping.")
-		f.MetricsManager.LogFilteredEvent(subscription.Name, reportable.Type())
+		f.MetricsManager.LogFilteredEvent(
+			chainSubscription.Chain,
+			reportable.Type(),
+			constants.EventFilterReasonEmptyTxNotLogged,
+		)
 		return nil
 	}
 

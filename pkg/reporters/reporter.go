@@ -16,7 +16,6 @@ type Reporter interface {
 	Init()
 	Name() string
 	Type() string
-	Enabled() bool
 	Send(report types.Report) error
 }
 

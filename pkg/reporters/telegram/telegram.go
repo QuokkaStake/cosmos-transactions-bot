@@ -96,11 +96,6 @@ func (reporter *Reporter) Init() {
 	reporter.TelegramBot = bot
 	go reporter.TelegramBot.Start()
 }
-
-func (reporter *Reporter) Enabled() bool {
-	return reporter.Token != "" && reporter.Chat != 0
-}
-
 func (reporter *Reporter) GetTemplate(name string) (*template.Template, error) {
 	if cachedTemplate, ok := reporter.Templates[name]; ok {
 		reporter.Logger.Trace().Str("type", name).Msg("Using cached template")
@@ -127,14 +122,14 @@ func (reporter *Reporter) GetTemplate(name string) (*template.Template, error) {
 }
 
 func (reporter *Reporter) Render(templateName string, data interface{}) (string, error) {
-	template, err := reporter.GetTemplate(templateName)
+	reportTemplate, err := reporter.GetTemplate(templateName)
 	if err != nil {
 		reporter.Logger.Error().Err(err).Str("type", templateName).Msg("Error loading template")
 		return "", err
 	}
 
 	var buffer bytes.Buffer
-	err = template.Execute(&buffer, data)
+	err = reportTemplate.Execute(&buffer, data)
 	if err != nil {
 		reporter.Logger.Error().Err(err).Str("type", templateName).Msg("Error rendering template")
 		return "", err
