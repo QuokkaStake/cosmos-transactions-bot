@@ -49,7 +49,7 @@ func (e *MintscanExplorer) ToExplorer() *Explorer {
 		ProposalLinkPattern:    fmt.Sprintf("https://mintscan.io/%s/proposals/%%s", e.Prefix),
 		WalletLinkPattern:      fmt.Sprintf("https://mintscan.io/%s/account/%%s", e.Prefix),
 		ValidatorLinkPattern:   fmt.Sprintf("https://mintscan.io/%s/validators/%%s", e.Prefix),
-		TransactionLinkPattern: fmt.Sprintf("https://mintscan.io/%s/txs/%%s", e.Prefix),
+		TransactionLinkPattern: fmt.Sprintf("https://mintscan.io/%s/tx/%%s", e.Prefix),
 		BlockLinkPattern:       fmt.Sprintf("https://mintscan.io/%s/blocks/%%s", e.Prefix),
 	}
 }
