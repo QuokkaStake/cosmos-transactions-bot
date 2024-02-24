@@ -161,16 +161,6 @@ func (m *Manager) SetDefaultMetrics(chain *configTypes.Chain) {
 		m.reconnectsCounter.
 			With(prometheus.Labels{"chain": chain.Name, "node": node}).
 			Add(0)
-
-		for _, queryType := range queryInfo.GetQueryTypes() {
-			m.successfulQueriesCollector.
-				With(prometheus.Labels{"chain": chain.Name, "node": node, "type": string(queryType)}).
-				Add(0)
-
-			m.failedQueriesCollector.
-				With(prometheus.Labels{"chain": chain.Name, "node": node, "type": string(queryType)}).
-				Add(0)
-		}
 	}
 }
 

@@ -15,16 +15,6 @@ const (
 	QueryTypeIbcDenomTrace            QueryType = "ibc_denom_trace"
 )
 
-func GetQueryTypes() []QueryType {
-	return []QueryType{
-		QueryTypeRewards,
-		QueryTypeCommission,
-		QueryTypeProposal,
-		QueryTypeStakingParams,
-		QueryTypeValidator,
-	}
-}
-
 type QueryInfo struct {
 	Success bool
 	Time    time.Duration
