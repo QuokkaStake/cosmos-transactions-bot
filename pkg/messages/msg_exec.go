@@ -54,6 +54,7 @@ func (m *MsgExec) GetAdditionalData(fetcher types.DataFetcher) {
 func (m *MsgExec) GetValues() event.EventValues {
 	values := []event.EventValue{
 		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, m.Type()),
+		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeySender, m.Grantee.Value),
 	}
 
 	return values

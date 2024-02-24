@@ -111,6 +111,7 @@ func (m *MsgGrant) GetAdditionalData(fetcher types.DataFetcher) {
 func (m *MsgGrant) GetValues() event.EventValues {
 	return []event.EventValue{
 		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, m.Type()),
+		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeySender, m.Grantee.Value),
 	}
 }
 

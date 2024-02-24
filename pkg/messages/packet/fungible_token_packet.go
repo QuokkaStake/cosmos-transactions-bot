@@ -89,6 +89,7 @@ func (p *FungibleTokenPacket) GetValues() event.EventValues {
 	return []event.EventValue{
 		event.From(ibcTypes.EventTypePacket, cosmosBankTypes.AttributeKeyReceiver, p.Receiver.Value),
 		event.From(ibcTypes.EventTypePacket, cosmosTypes.AttributeKeyAmount, p.Token.Value.String()),
+		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeySender, p.Sender.Value),
 	}
 }
 

@@ -49,6 +49,7 @@ func (m *MsgSetWithdrawAddress) GetAdditionalData(fetcher types.DataFetcher) {
 func (m *MsgSetWithdrawAddress) GetValues() event.EventValues {
 	return []event.EventValue{
 		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, m.Type()),
+		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeySender, m.DelegatorAddress.Value),
 	}
 }
 
