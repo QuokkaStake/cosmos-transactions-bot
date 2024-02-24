@@ -5,26 +5,19 @@ import (
 	"main/pkg/config/types"
 
 	"github.com/cometbft/cometbft/libs/pubsub/query"
-	"gopkg.in/guregu/null.v4"
 )
 
 type Chain struct {
-	Name                   string     `toml:"name"`
-	PrettyName             string     `toml:"pretty-name"`
-	TendermintNodes        []string   `toml:"tendermint-nodes"`
-	APINodes               []string   `toml:"api-nodes"`
-	Queries                []string   `toml:"queries"`
-	Filters                []string   `toml:"filters"`
-	MintscanPrefix         string     `toml:"mintscan-prefix"`
-	PingPrefix             string     `toml:"ping-prefix"`
-	PingBaseUrl            string     `default:"https://ping.pub" toml:"ping-base-url"`
-	Explorer               *Explorer  `toml:"explorer"`
-	LogUnknownMessages     null.Bool  `default:"false"            toml:"log-unknown-messages"`
-	LogUnparsedMessages    null.Bool  `default:"true"             toml:"log-unparsed-messages"`
-	LogFailedTransactions  null.Bool  `default:"true"             toml:"log-failed-transactions"`
-	LogNodeErrors          null.Bool  `default:"true"             toml:"log-node-errors"`
-	FilterInternalMessages null.Bool  `default:"true"             toml:"filter-internal-messages"`
-	Denoms                 DenomInfos `toml:"denoms"`
+	Name            string     `toml:"name"`
+	PrettyName      string     `toml:"pretty-name"`
+	TendermintNodes []string   `toml:"tendermint-nodes"`
+	APINodes        []string   `toml:"api-nodes"`
+	Queries         []string   `default:"[\"tx.height > 1\"]" toml:"queries"`
+	MintscanPrefix  string     `toml:"mintscan-prefix"`
+	PingPrefix      string     `toml:"ping-prefix"`
+	PingBaseUrl     string     `default:"https://ping.pub"    toml:"ping-base-url"`
+	Explorer        *Explorer  `toml:"explorer"`
+	Denoms          DenomInfos `toml:"denoms"`
 }
 
 func (c *Chain) Validate() error {
@@ -47,12 +40,6 @@ func (c *Chain) Validate() error {
 	for index, q := range c.Queries {
 		if _, err := query.New(q); err != nil {
 			return fmt.Errorf("error in query %d: %s", index, err)
-		}
-	}
-
-	for index, filter := range c.Filters {
-		if _, err := query.New(filter); err != nil {
-			return fmt.Errorf("error in filter %d: %s", index, err)
 		}
 	}
 
@@ -81,46 +68,30 @@ func (c *Chain) ToAppConfigChain() *types.Chain {
 		explorer = c.Explorer.ToAppConfigExplorer()
 	}
 
-	filters := make([]query.Query, len(c.Filters))
-	for index, filter := range c.Filters {
-		filters[index] = *query.MustParse(filter)
-	}
-
 	queries := make([]query.Query, len(c.Queries))
 	for index, q := range c.Queries {
 		queries[index] = *query.MustParse(q)
 	}
 
 	return &types.Chain{
-		Name:                   c.Name,
-		PrettyName:             c.PrettyName,
-		TendermintNodes:        c.TendermintNodes,
-		APINodes:               c.APINodes,
-		Queries:                queries,
-		Filters:                filters,
-		Explorer:               explorer,
-		SupportedExplorer:      supportedExplorer,
-		LogUnknownMessages:     c.LogUnknownMessages.Bool,
-		LogUnparsedMessages:    c.LogUnparsedMessages.Bool,
-		LogFailedTransactions:  c.LogFailedTransactions.Bool,
-		LogNodeErrors:          c.LogNodeErrors.Bool,
-		FilterInternalMessages: c.FilterInternalMessages.Bool,
-		Denoms:                 c.Denoms.ToAppConfigDenomInfos(),
+		Name:              c.Name,
+		PrettyName:        c.PrettyName,
+		TendermintNodes:   c.TendermintNodes,
+		APINodes:          c.APINodes,
+		Queries:           queries,
+		Explorer:          explorer,
+		SupportedExplorer: supportedExplorer,
+		Denoms:            c.Denoms.ToAppConfigDenomInfos(),
 	}
 }
 
 func FromAppConfigChain(c *types.Chain) *Chain {
 	chain := &Chain{
-		Name:                   c.Name,
-		PrettyName:             c.PrettyName,
-		TendermintNodes:        c.TendermintNodes,
-		APINodes:               c.APINodes,
-		LogUnknownMessages:     null.BoolFrom(c.LogUnknownMessages),
-		LogUnparsedMessages:    null.BoolFrom(c.LogUnparsedMessages),
-		LogFailedTransactions:  null.BoolFrom(c.LogFailedTransactions),
-		LogNodeErrors:          null.BoolFrom(c.LogNodeErrors),
-		FilterInternalMessages: null.BoolFrom(c.FilterInternalMessages),
-		Denoms:                 TomlConfigDenomsFrom(c.Denoms),
+		Name:            c.Name,
+		PrettyName:      c.PrettyName,
+		TendermintNodes: c.TendermintNodes,
+		APINodes:        c.APINodes,
+		Denoms:          TomlConfigDenomsFrom(c.Denoms),
 	}
 
 	if c.SupportedExplorer == nil && c.Explorer != nil {
@@ -136,11 +107,6 @@ func FromAppConfigChain(c *types.Chain) *Chain {
 	} else if ping, ok := c.SupportedExplorer.(*types.PingExplorer); ok {
 		chain.PingPrefix = ping.Prefix
 		chain.PingBaseUrl = ping.BaseUrl
-	}
-
-	chain.Filters = make([]string, len(c.Filters))
-	for index, filter := range c.Filters {
-		chain.Filters[index] = filter.String()
 	}
 
 	chain.Queries = make([]string, len(c.Queries))
@@ -172,4 +138,14 @@ func (chains Chains) Validate() error {
 	}
 
 	return nil
+}
+
+func (chains Chains) HasChainByName(name string) bool {
+	for _, chain := range chains {
+		if chain.Name == name {
+			return true
+		}
+	}
+
+	return false
 }

@@ -5,7 +5,9 @@ import (
 )
 
 type Report struct {
-	Chain      types.Chain
-	Node       string
-	Reportable Reportable
+	Chain             types.Chain
+	Subscription      *types.Subscription
+	ChainSubscription *types.ChainSubscription
+	Node              string
+	Reportable        Reportable
 }

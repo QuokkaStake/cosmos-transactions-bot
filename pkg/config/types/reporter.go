@@ -1,5 +1,7 @@
 package types
 
+type Reporters []*Reporter
+
 type TelegramConfig struct {
 	Chat   int64
 	Token  string

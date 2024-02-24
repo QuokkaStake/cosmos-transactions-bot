@@ -84,10 +84,6 @@ func (c *Converter) ParseEvent(event jsonRpcTypes.RPCResponse, nodeURL string) t
 		return nil
 	}
 
-	c.Logger.Trace().
-		Str("values", fmt.Sprintf("%+v", resultEvent.Events)).
-		Msg("Event values")
-
 	eventDataTx, ok := resultEvent.Data.(tendermintTypes.EventDataTx)
 	if !ok {
 		c.Logger.Debug().Msg("Could not convert tx result to EventDataTx.")

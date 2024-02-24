@@ -1,7 +1,7 @@
 💸 <strong>New transaction on chain {{ .Chain.GetName }}</strong>
 Hash: {{ SerializeLink .Reportable.Hash }}
 Height: {{ SerializeLink .Reportable.Height }}
-{{- if .Chain.LogFailedTransactions }}
+{{- if .ChainSubscription.LogFailedTransactions }}
 {{- if not .Reportable.Code }}
 Status: 👌 Success
 {{- else }}

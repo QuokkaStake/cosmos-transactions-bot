@@ -16,8 +16,19 @@ type Reporter interface {
 	Init()
 	Name() string
 	Type() string
-	Enabled() bool
 	Send(report types.Report) error
+}
+
+type Reporters []Reporter
+
+func (r Reporters) FindByName(name string) Reporter {
+	for _, reporter := range r {
+		if reporter.Name() == name {
+			return reporter
+		}
+	}
+
+	return nil
 }
 
 func GetReporter(

@@ -21,33 +21,39 @@ type Manager struct {
 	logger zerolog.Logger
 	config configPkg.MetricsConfig
 
-	lastBlockHeightCollector *prometheus.GaugeVec
-	lastBlockTimeCollector   *prometheus.GaugeVec
-	nodeConnectedCollector   *prometheus.GaugeVec
-	reconnectsCounter        *prometheus.CounterVec
-
+	// Chains metrics
+	lastBlockHeightCollector   *prometheus.GaugeVec
+	lastBlockTimeCollector     *prometheus.GaugeVec
+	chainInfoGauge             *prometheus.GaugeVec
 	successfulQueriesCollector *prometheus.CounterVec
 	failedQueriesCollector     *prometheus.CounterVec
+	eventsTotalCounter         *prometheus.CounterVec
+	eventsFilteredCounter      *prometheus.CounterVec
 
-	eventsTotalCounter    *prometheus.CounterVec
-	eventsFilteredCounter *prometheus.CounterVec
-	eventsMatchedCounter  *prometheus.CounterVec
+	// Node metrics
+	nodeConnectedCollector *prometheus.GaugeVec
+	reconnectsCounter      *prometheus.CounterVec
 
-	reportsCounter       *prometheus.CounterVec
-	reportEntriesCounter *prometheus.CounterVec
-
+	// Reporters metrics
+	reporterReportsCounter *prometheus.CounterVec
+	reporterErrorsCounter  *prometheus.CounterVec
+	reportEntriesCounter   *prometheus.CounterVec
 	reporterEnabledGauge   *prometheus.GaugeVec
-	reporterQueriesCounter *prometheus.CounterVec
 
+	// Subscriptions metrics
+	eventsMatchedCounter *prometheus.CounterVec
+
+	// App metrics
 	appVersionGauge *prometheus.GaugeVec
 	startTimeGauge  *prometheus.GaugeVec
-	chainInfoGauge  *prometheus.GaugeVec
 }
 
 func NewManager(logger *zerolog.Logger, config configPkg.MetricsConfig) *Manager {
 	return &Manager{
 		logger: logger.With().Str("component", "metrics").Logger(),
 		config: config,
+
+		// Chain metrics
 		lastBlockHeightCollector: promauto.NewGaugeVec(prometheus.GaugeOpts{
 			Name: constants.PrometheusMetricsPrefix + "last_height",
 			Help: "Height of the last block processed",
@@ -56,10 +62,10 @@ func NewManager(logger *zerolog.Logger, config configPkg.MetricsConfig) *Manager
 			Name: constants.PrometheusMetricsPrefix + "last_time",
 			Help: "Time of the last block processed",
 		}, []string{"chain"}),
-		nodeConnectedCollector: promauto.NewGaugeVec(prometheus.GaugeOpts{
-			Name: constants.PrometheusMetricsPrefix + "node_connected",
-			Help: "Whether the node is successfully connected (1 if yes, 0 if no)",
-		}, []string{"chain", "node"}),
+		chainInfoGauge: promauto.NewGaugeVec(prometheus.GaugeOpts{
+			Name: constants.PrometheusMetricsPrefix + "chain_info",
+			Help: "Chain info, with constant 1 as value and pretty_name and chain as labels",
+		}, []string{"chain", "pretty_name"}),
 		successfulQueriesCollector: promauto.NewCounterVec(prometheus.CounterOpts{
 			Name: constants.PrometheusMetricsPrefix + "node_successful_queries_total",
 			Help: "Counter of successful node queries",
@@ -68,22 +74,50 @@ func NewManager(logger *zerolog.Logger, config configPkg.MetricsConfig) *Manager
 			Name: constants.PrometheusMetricsPrefix + "node_failed_queries_total",
 			Help: "Counter of failed node queries",
 		}, []string{"chain", "node", "type"}),
-		reportsCounter: promauto.NewCounterVec(prometheus.CounterOpts{
-			Name: constants.PrometheusMetricsPrefix + "node_reports",
-			Help: "Counter of reports send",
-		}, []string{"chain"}),
-		reportEntriesCounter: promauto.NewCounterVec(prometheus.CounterOpts{
-			Name: constants.PrometheusMetricsPrefix + "node_report_entries_total",
-			Help: "Counter of report entries send",
-		}, []string{"chain", "type"}),
+		eventsTotalCounter: promauto.NewCounterVec(prometheus.CounterOpts{
+			Name: constants.PrometheusMetricsPrefix + "events_total",
+			Help: "WebSocket events received by node",
+		}, []string{"chain", "node"}),
+		eventsFilteredCounter: promauto.NewCounterVec(prometheus.CounterOpts{
+			Name: constants.PrometheusMetricsPrefix + "events_filtered",
+			Help: "WebSocket events filtered out by chain, type and reason",
+		}, []string{"chain", "type", "reason"}),
+
+		// Node metrics
+		nodeConnectedCollector: promauto.NewGaugeVec(prometheus.GaugeOpts{
+			Name: constants.PrometheusMetricsPrefix + "node_connected",
+			Help: "Whether the node is successfully connected (1 if yes, 0 if no)",
+		}, []string{"chain", "node"}),
+		reconnectsCounter: promauto.NewCounterVec(prometheus.CounterOpts{
+			Name: constants.PrometheusMetricsPrefix + "reconnects_total",
+			Help: "Node reconnects count",
+		}, []string{"chain", "node"}),
+
+		// Reporter metrics
 		reporterEnabledGauge: promauto.NewGaugeVec(prometheus.GaugeOpts{
 			Name: constants.PrometheusMetricsPrefix + "reporter_enabled",
 			Help: "Whether the reporter is enabled (1 if yes, 0 if no)",
-		}, []string{"name"}),
-		reporterQueriesCounter: promauto.NewCounterVec(prometheus.CounterOpts{
-			Name: constants.PrometheusMetricsPrefix + "reporter_queries",
-			Help: "Reporters' queries count ",
-		}, []string{"chain", "name", "query"}),
+		}, []string{"name", "type"}),
+		reporterReportsCounter: promauto.NewCounterVec(prometheus.CounterOpts{
+			Name: constants.PrometheusMetricsPrefix + "reporter_reports",
+			Help: "Counter of reports sent successfully",
+		}, []string{"chain", "reporter", "type", "subscription"}),
+		reporterErrorsCounter: promauto.NewCounterVec(prometheus.CounterOpts{
+			Name: constants.PrometheusMetricsPrefix + "reporter_errors",
+			Help: "Counter of failed reports sends",
+		}, []string{"chain", "reporter", "type", "subscription"}),
+		reportEntriesCounter: promauto.NewCounterVec(prometheus.CounterOpts{
+			Name: constants.PrometheusMetricsPrefix + "report_entries_total",
+			Help: "Counter of messages types per each successfully sent report",
+		}, []string{"chain", "reporter", "type", "subscription"}),
+
+		// Subscription metrics
+		eventsMatchedCounter: promauto.NewCounterVec(prometheus.CounterOpts{
+			Name: constants.PrometheusMetricsPrefix + "events_matched",
+			Help: "WebSocket events matching filters by chain",
+		}, []string{"chain", "type", "subscription"}),
+
+		// App metrics
 		appVersionGauge: promauto.NewGaugeVec(prometheus.GaugeOpts{
 			Name: constants.PrometheusMetricsPrefix + "version",
 			Help: "App version",
@@ -92,26 +126,6 @@ func NewManager(logger *zerolog.Logger, config configPkg.MetricsConfig) *Manager
 			Name: constants.PrometheusMetricsPrefix + "start_time",
 			Help: "Unix timestamp on when the app was started. Useful for annotations.",
 		}, []string{}),
-		eventsTotalCounter: promauto.NewCounterVec(prometheus.CounterOpts{
-			Name: constants.PrometheusMetricsPrefix + "events_total",
-			Help: "WebSocket events received by node",
-		}, []string{"chain", "node"}),
-		eventsFilteredCounter: promauto.NewCounterVec(prometheus.CounterOpts{
-			Name: constants.PrometheusMetricsPrefix + "events_filtered",
-			Help: "WebSocket events filtered out by chain",
-		}, []string{"chain", "type"}),
-		eventsMatchedCounter: promauto.NewCounterVec(prometheus.CounterOpts{
-			Name: constants.PrometheusMetricsPrefix + "events_matched",
-			Help: "WebSocket events matching filters by chain",
-		}, []string{"chain", "type"}),
-		reconnectsCounter: promauto.NewCounterVec(prometheus.CounterOpts{
-			Name: constants.PrometheusMetricsPrefix + "reconnects_total",
-			Help: "Node reconnects count",
-		}, []string{"chain", "node"}),
-		chainInfoGauge: promauto.NewGaugeVec(prometheus.GaugeOpts{
-			Name: constants.PrometheusMetricsPrefix + "chain_info",
-			Help: "Chain info, with constant 1 as value and pretty_name and chain as labels",
-		}, []string{"chain", "pretty_name"}),
 	}
 }
 
@@ -125,10 +139,6 @@ func (m *Manager) SetAllDefaultMetrics(chains []*configTypes.Chain) {
 	}
 }
 func (m *Manager) SetDefaultMetrics(chain *configTypes.Chain) {
-	m.reportsCounter.
-		With(prometheus.Labels{"chain": chain.Name}).
-		Add(0)
-
 	m.chainInfoGauge.
 		With(prometheus.Labels{"chain": chain.Name, "pretty_name": chain.PrettyName}).
 		Set(1)
@@ -217,25 +227,47 @@ func (m *Manager) LogTendermintQuery(chain string, query queryInfo.QueryInfo, qu
 	}
 }
 
-func (m *Manager) LogReport(report types.Report) {
-	m.reportsCounter.
-		With(prometheus.Labels{"chain": report.Chain.Name}).
+func (m *Manager) LogReport(report types.Report, reporterName string, success bool) {
+	if !success {
+		m.reporterErrorsCounter.
+			With(prometheus.Labels{
+				"chain":        report.Chain.Name,
+				"reporter":     reporterName,
+				"type":         report.Reportable.Type(),
+				"subscription": report.Subscription.Name,
+			}).
+			Inc()
+		return
+	}
+
+	m.reporterReportsCounter.
+		With(prometheus.Labels{
+			"chain":        report.Chain.Name,
+			"reporter":     reporterName,
+			"type":         report.Reportable.Type(),
+			"subscription": report.Subscription.Name,
+		}).
 		Inc()
 
 	for _, entry := range report.Reportable.GetMessages() {
 		m.reportEntriesCounter.
 			With(prometheus.Labels{
-				"chain": report.Chain.Name,
-				"type":  entry.Type(),
+				"chain":        report.Chain.Name,
+				"reporter":     reporterName,
+				"type":         entry.Type(),
+				"subscription": report.Subscription.Name,
 			}).
 			Inc()
 	}
 }
 
-func (m *Manager) LogReporterEnabled(name string, enabled bool) {
+func (m *Manager) LogReporterEnabled(name, reporterType string) {
 	m.reporterEnabledGauge.
-		With(prometheus.Labels{"name": name}).
-		Set(utils.BoolToFloat64(enabled))
+		With(prometheus.Labels{
+			"name": name,
+			"type": reporterType,
+		}).
+		Set(1)
 }
 
 func (m *Manager) LogAppVersion(version string) {
@@ -250,15 +282,23 @@ func (m *Manager) LogWSEvent(chain string, node string) {
 		Inc()
 }
 
-func (m *Manager) LogFilteredEvent(chain string, eventType string) {
+func (m *Manager) LogFilteredEvent(chain string, eventType string, reason constants.EventFilterReason) {
 	m.eventsFilteredCounter.
-		With(prometheus.Labels{"chain": chain, "type": eventType}).
+		With(prometheus.Labels{
+			"chain":  chain,
+			"type":   eventType,
+			"reason": string(reason),
+		}).
 		Inc()
 }
 
-func (m *Manager) LogMatchedEvent(chain string, eventType string) {
+func (m *Manager) LogMatchedEvent(chain string, eventType string, subscription string) {
 	m.eventsMatchedCounter.
-		With(prometheus.Labels{"chain": chain, "type": eventType}).
+		With(prometheus.Labels{
+			"chain":        chain,
+			"type":         eventType,
+			"subscription": subscription,
+		}).
 		Inc()
 }
 

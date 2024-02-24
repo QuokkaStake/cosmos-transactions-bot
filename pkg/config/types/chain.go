@@ -8,6 +8,18 @@ import (
 	"github.com/rs/zerolog"
 )
 
+type Chains []*Chain
+
+func (c Chains) FindByName(name string) *Chain {
+	for _, chain := range c {
+		if chain.Name == name {
+			return chain
+		}
+	}
+
+	return nil
+}
+
 type Chain struct {
 	Name              string
 	PrettyName        string
@@ -17,14 +29,6 @@ type Chain struct {
 	Explorer          *Explorer
 	SupportedExplorer SupportedExplorer
 	Denoms            DenomInfos
-
-	LogUnknownMessages     bool
-	LogUnparsedMessages    bool
-	LogFailedTransactions  bool
-	LogNodeErrors          bool
-	FilterInternalMessages bool
-
-	Filters Filters
 }
 
 func (c Chain) GetName() string {

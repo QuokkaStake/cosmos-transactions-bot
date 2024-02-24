@@ -12,7 +12,8 @@ type TomlConfig struct {
 	LogConfig     LogConfig     `toml:"log"`
 	MetricsConfig MetricsConfig `toml:"metrics"`
 	Chains        Chains        `toml:"chains"`
-	Timezone      string        `default:"Etc/GMT" toml:"timezone"`
+	Subscriptions Subscriptions `toml:"subscriptions"`
+	Timezone      string        `default:"Etc/GMT"    toml:"timezone"`
 
 	Reporters Reporters `toml:"reporters"`
 }
@@ -37,6 +38,31 @@ func (c *TomlConfig) Validate() error {
 
 	if err := c.Reporters.Validate(); err != nil {
 		return fmt.Errorf("error in reporters: %s", err)
+	}
+
+	if err := c.Subscriptions.Validate(); err != nil {
+		return fmt.Errorf("error in subscriptions: %s", err)
+	}
+
+	for index, subscription := range c.Subscriptions {
+		for chainSubscriptionIndex, chainSubscription := range subscription.ChainSubscription {
+			if !c.Chains.HasChainByName(chainSubscription.Chain) {
+				return fmt.Errorf(
+					"error in subscription %d: error in chain %d: no such chain '%s'",
+					index,
+					chainSubscriptionIndex,
+					chainSubscription.Chain,
+				)
+			}
+		}
+
+		if !c.Reporters.HasReporterByName(subscription.Reporter) {
+			return fmt.Errorf(
+				"error in subscription %d: no such reporter '%s'",
+				index,
+				subscription.Reporter,
+			)
+		}
 	}
 
 	return nil
