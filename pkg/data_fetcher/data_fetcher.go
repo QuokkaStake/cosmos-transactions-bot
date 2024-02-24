@@ -6,6 +6,9 @@ import (
 	"main/pkg/metrics"
 	amountPkg "main/pkg/types/amount"
 	"strconv"
+	"strings"
+
+	transferTypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 
 	"main/pkg/alias_manager"
 	"main/pkg/cache"
@@ -378,7 +381,7 @@ func (f *DataFetcher) GetIbcRemoteChainID(
 
 	for _, node := range f.TendermintApiClients[chain.Name] {
 		ibcChannelClientStateResponse, err, queryInfo := node.GetIbcConnectionClientState(ibcChannel.ConnectionHops[0])
-		f.MetricsManager.LogTendermintQuery(chain.Name, queryInfo, QueryInfo.QueryTypeIbcChannel)
+		f.MetricsManager.LogTendermintQuery(chain.Name, queryInfo, QueryInfo.QueryTypeIbcConnectionClientState)
 		if err != nil {
 			f.Logger.Error().Err(err).Msg("Error fetching IBC client state")
 			continue
@@ -397,23 +400,57 @@ func (f *DataFetcher) GetIbcRemoteChainID(
 	return ibcClientState.ClientState.ChainId, true
 }
 
+func (f *DataFetcher) GetDenomTrace(
+	chain *configTypes.Chain,
+	denom string,
+) (*transferTypes.DenomTrace, bool) {
+	denomSplit := strings.Split(denom, "/")
+	if len(denomSplit) != 2 || denomSplit[0] != transferTypes.DenomPrefix {
+		f.Logger.Error().Msg("Invalid IBC prefix provided")
+		return nil, false
+	}
+
+	denomHash := denomSplit[1]
+
+	keyName := chain.Name + "_denom_trace_" + denom
+
+	if cachedEntry, cachedEntryPresent := f.Cache.Get(keyName); cachedEntryPresent {
+		if cachedEntryParsed, ok := cachedEntry.(*transferTypes.DenomTrace); ok {
+			return cachedEntryParsed, true
+		}
+
+		f.Logger.Error().Msg("Could not convert cached staking params to *types.DenomTrace")
+		return nil, false
+	}
+
+	for _, node := range f.TendermintApiClients[chain.Name] {
+		notCachedEntry, err, queryInfo := node.GetIbcDenomTrace(denomHash)
+		f.MetricsManager.LogTendermintQuery(chain.Name, queryInfo, QueryInfo.QueryTypeIbcDenomTrace)
+
+		if err != nil {
+			f.Logger.Error().Err(err).Msg("Error fetching IBC denom trace")
+			continue
+		}
+
+		f.Cache.Set(keyName, notCachedEntry)
+		return notCachedEntry, true
+	}
+
+	f.Logger.Error().Msg("Could not connect to any nodes to get IBC denom trace")
+	return nil, false
+}
+
 func (f *DataFetcher) GetAliasManager() *alias_manager.AliasManager {
 	return f.AliasManager
 }
 
-func (f *DataFetcher) FindMultichainDenom(
+func (f *DataFetcher) FindChainById(
 	chainID string,
-	baseDenom string,
-) (*configTypes.Chain, *configTypes.DenomInfo, bool) {
+) (*configTypes.Chain, bool) {
 	chain := f.Config.Chains.FindByChainID(chainID)
 	if chain == nil {
-		return nil, nil, false
+		return nil, false
 	}
 
-	denom := chain.Denoms.Find(baseDenom)
-	if denom == nil {
-		return nil, nil, false
-	}
-
-	return chain, denom, true
+	return chain, true
 }

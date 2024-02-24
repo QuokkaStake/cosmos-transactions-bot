@@ -12,6 +12,7 @@ const (
 	QueryTypeValidator                QueryType = "validator"
 	QueryTypeIbcChannel               QueryType = "ibc_channel"
 	QueryTypeIbcConnectionClientState QueryType = "ibc_connection_client_state"
+	QueryTypeIbcDenomTrace            QueryType = "ibc_denom_trace"
 )
 
 func GetQueryTypes() []QueryType {

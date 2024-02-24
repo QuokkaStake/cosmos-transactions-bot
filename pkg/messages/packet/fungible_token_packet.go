@@ -76,7 +76,7 @@ func (p *FungibleTokenPacket) FetchRemoteChainData(fetcher types.DataFetcher) {
 		return
 	}
 
-	if chain, _, found := fetcher.FindMultichainDenom(originalChainID, trace.BaseDenom); found {
+	if chain, found := fetcher.FindChainById(originalChainID); found {
 		fetcher.PopulateAmount(chain, p.Token)
 		p.Sender = chain.GetWalletLink(p.Sender.Value)
 

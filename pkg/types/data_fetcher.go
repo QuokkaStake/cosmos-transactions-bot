@@ -6,6 +6,8 @@ import (
 	priceFetchers "main/pkg/price_fetchers"
 	"main/pkg/types/amount"
 	"main/pkg/types/responses"
+
+	transferTypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 )
 
 // This interface is only here to avoid a cyclic dependency
@@ -32,8 +34,9 @@ type DataFetcher interface {
 	GetStakingParams(chain *configTypes.Chain) (*responses.StakingParams, bool)
 	GetAliasManager() *alias_manager.AliasManager
 	GetIbcRemoteChainID(chain *configTypes.Chain, channel, port string) (string, bool)
-	FindMultichainDenom(
-		chainID string,
-		baseDenom string,
-	) (*configTypes.Chain, *configTypes.DenomInfo, bool)
+	FindChainById(chainID string) (*configTypes.Chain, bool)
+	GetDenomTrace(
+		chain *configTypes.Chain,
+		denom string,
+	) (*transferTypes.DenomTrace, bool)
 }
