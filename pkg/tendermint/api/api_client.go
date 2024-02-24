@@ -114,6 +114,35 @@ func (c *TendermintApiClient) GetStakingParams() (*responses.StakingParams, erro
 	return &response.Params, nil, queryInfo
 }
 
+func (c *TendermintApiClient) GetIbcChannel(
+	channel string,
+	port string,
+) (*responses.IbcChannel, error, query_info.QueryInfo) {
+	url := fmt.Sprintf("/ibc/core/channel/v1/channels/%s/ports/%s", channel, port)
+
+	var response *responses.IbcChannelResponse
+	err, queryInfo := c.Get(url, &response)
+	if err != nil {
+		return nil, err, queryInfo
+	}
+
+	return &response.Channel, nil, queryInfo
+}
+
+func (c *TendermintApiClient) GetIbcConnectionClientState(
+	connectionID string,
+) (*responses.IbcIdentifiedClientState, error, query_info.QueryInfo) {
+	url := fmt.Sprintf("/ibc/core/connection/v1/connections/%s/client_state", connectionID)
+
+	var response *responses.IbcClientStateResponse
+	err, queryInfo := c.Get(url, &response)
+	if err != nil {
+		return nil, err, queryInfo
+	}
+
+	return &response.IdentifiedClientState, nil, queryInfo
+}
+
 func (c *TendermintApiClient) Get(url string, target interface{}) (error, query_info.QueryInfo) {
 	return c.GetWithHeaders(url, target, map[string]string{})
 }

@@ -20,9 +20,20 @@ func (c Chains) FindByName(name string) *Chain {
 	return nil
 }
 
+func (c Chains) FindByChainID(chainID string) *Chain {
+	for _, chain := range c {
+		if chain.ChainID == chainID {
+			return chain
+		}
+	}
+
+	return nil
+}
+
 type Chain struct {
 	Name              string
 	PrettyName        string
+	ChainID           string
 	TendermintNodes   []string
 	APINodes          []string
 	Queries           []query.Query

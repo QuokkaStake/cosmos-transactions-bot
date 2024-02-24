@@ -17,6 +17,8 @@ type MsgExec struct {
 	Grantee     configTypes.Link
 	RawMessages []*codecTypes.Any
 	Messages    []types.Message
+
+	Chain *configTypes.Chain
 }
 
 func ParseMsgExec(data []byte, chain *configTypes.Chain, height int64) (types.Message, error) {
@@ -29,6 +31,7 @@ func ParseMsgExec(data []byte, chain *configTypes.Chain, height int64) (types.Me
 		Grantee:     chain.GetWalletLink(parsedMessage.Grantee),
 		Messages:    make([]types.Message, 0),
 		RawMessages: parsedMessage.Msgs,
+		Chain:       chain,
 	}, nil
 }
 
@@ -37,7 +40,7 @@ func (m MsgExec) Type() string {
 }
 
 func (m *MsgExec) GetAdditionalData(fetcher types.DataFetcher) {
-	if alias := fetcher.GetAliasManager().Get(fetcher.GetChain().Name, m.Grantee.Value); alias != "" {
+	if alias := fetcher.GetAliasManager().Get(m.Chain.Name, m.Grantee.Value); alias != "" {
 		m.Grantee.Title = alias
 	}
 

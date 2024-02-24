@@ -10,6 +10,7 @@ import (
 type Chain struct {
 	Name            string     `toml:"name"`
 	PrettyName      string     `toml:"pretty-name"`
+	ChainID         string     `toml:"chain-id"`
 	TendermintNodes []string   `toml:"tendermint-nodes"`
 	APINodes        []string   `toml:"api-nodes"`
 	Queries         []string   `default:"[\"tx.height > 1\"]" toml:"queries"`
@@ -76,6 +77,7 @@ func (c *Chain) ToAppConfigChain() *types.Chain {
 	return &types.Chain{
 		Name:              c.Name,
 		PrettyName:        c.PrettyName,
+		ChainID:           c.ChainID,
 		TendermintNodes:   c.TendermintNodes,
 		APINodes:          c.APINodes,
 		Queries:           queries,
@@ -89,6 +91,7 @@ func FromAppConfigChain(c *types.Chain) *Chain {
 	chain := &Chain{
 		Name:            c.Name,
 		PrettyName:      c.PrettyName,
+		ChainID:         c.ChainID,
 		TendermintNodes: c.TendermintNodes,
 		APINodes:        c.APINodes,
 		Denoms:          TomlConfigDenomsFrom(c.Denoms),

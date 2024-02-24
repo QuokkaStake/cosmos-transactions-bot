@@ -15,6 +15,8 @@ import (
 type MsgUpdateClient struct {
 	ClientID string
 	Signer   configTypes.Link
+
+	Chain *configTypes.Chain
 }
 
 func ParseMsgUpdateClient(data []byte, chain *configTypes.Chain, height int64) (types.Message, error) {
@@ -26,6 +28,7 @@ func ParseMsgUpdateClient(data []byte, chain *configTypes.Chain, height int64) (
 	return &MsgUpdateClient{
 		ClientID: parsedMessage.ClientId,
 		Signer:   chain.GetWalletLink(parsedMessage.Signer),
+		Chain:    chain,
 	}, nil
 }
 
@@ -34,7 +37,7 @@ func (m MsgUpdateClient) Type() string {
 }
 
 func (m *MsgUpdateClient) GetAdditionalData(fetcher types.DataFetcher) {
-	if alias := fetcher.GetAliasManager().Get(fetcher.GetChain().Name, m.Signer.Value); alias != "" {
+	if alias := fetcher.GetAliasManager().Get(m.Chain.Name, m.Signer.Value); alias != "" {
 		m.Signer.Title = alias
 	}
 }

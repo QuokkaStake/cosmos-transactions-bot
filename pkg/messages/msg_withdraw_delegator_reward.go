@@ -18,6 +18,8 @@ type MsgWithdrawDelegatorReward struct {
 	ValidatorAddress configTypes.Link
 	Height           int64
 	Amount           []*amount.Amount
+
+	Chain *configTypes.Chain
 }
 
 func ParseMsgWithdrawDelegatorReward(data []byte, chain *configTypes.Chain, height int64) (types.Message, error) {
@@ -30,6 +32,7 @@ func ParseMsgWithdrawDelegatorReward(data []byte, chain *configTypes.Chain, heig
 		DelegatorAddress: chain.GetWalletLink(parsedMessage.DelegatorAddress),
 		ValidatorAddress: chain.GetValidatorLink(parsedMessage.ValidatorAddress),
 		Height:           height,
+		Chain:            chain,
 	}, nil
 }
 
@@ -39,6 +42,7 @@ func (m MsgWithdrawDelegatorReward) Type() string {
 
 func (m *MsgWithdrawDelegatorReward) GetAdditionalData(fetcher types.DataFetcher) {
 	rewards, found := fetcher.GetRewardsAtBlock(
+		m.Chain,
 		m.DelegatorAddress.Value,
 		m.ValidatorAddress.Value,
 		m.Height,
@@ -50,14 +54,14 @@ func (m *MsgWithdrawDelegatorReward) GetAdditionalData(fetcher types.DataFetcher
 			m.Amount[index] = amount.AmountFromString(reward.Amount, reward.Denom)
 		}
 
-		fetcher.PopulateAmounts(m.Amount)
+		fetcher.PopulateAmounts(m.Chain, m.Amount)
 	}
 
-	if validator, found := fetcher.GetValidator(m.ValidatorAddress.Value); found {
+	if validator, found := fetcher.GetValidator(m.Chain, m.ValidatorAddress.Value); found {
 		m.ValidatorAddress.Title = validator.Description.Moniker
 	}
 
-	if alias := fetcher.GetAliasManager().Get(fetcher.GetChain().Name, m.DelegatorAddress.Value); alias != "" {
+	if alias := fetcher.GetAliasManager().Get(m.Chain.Name, m.DelegatorAddress.Value); alias != "" {
 		m.DelegatorAddress.Title = alias
 	}
 }

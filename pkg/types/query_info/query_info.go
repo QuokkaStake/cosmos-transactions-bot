@@ -5,11 +5,13 @@ import "time"
 type QueryType string
 
 const (
-	QueryTypeRewards       QueryType = "rewards"
-	QueryTypeCommission    QueryType = "commission"
-	QueryTypeProposal      QueryType = "proposal"
-	QueryTypeStakingParams QueryType = "staking_params"
-	QueryTypeValidator     QueryType = "validator"
+	QueryTypeRewards                  QueryType = "rewards"
+	QueryTypeCommission               QueryType = "commission"
+	QueryTypeProposal                 QueryType = "proposal"
+	QueryTypeStakingParams            QueryType = "staking_params"
+	QueryTypeValidator                QueryType = "validator"
+	QueryTypeIbcChannel               QueryType = "ibc_channel"
+	QueryTypeIbcConnectionClientState QueryType = "ibc_connection_client_state"
 )
 
 func GetQueryTypes() []QueryType {

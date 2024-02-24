@@ -16,6 +16,8 @@ import (
 type MsgTimeout struct {
 	Signer configTypes.Link
 	Packet types.Message
+
+	Chain *configTypes.Chain
 }
 
 func ParseMsgTimeout(data []byte, chain *configTypes.Chain, height int64) (types.Message, error) {
@@ -24,16 +26,17 @@ func ParseMsgTimeout(data []byte, chain *configTypes.Chain, height int64) (types
 		return nil, err
 	}
 
-	packet, err := packet.ParsePacket(parsedMessage.Packet, chain)
+	parsedPacket, err := packet.ParsePacket(parsedMessage.Packet, chain)
 	if err != nil {
 		return nil, err
-	} else if packet == nil {
+	} else if parsedPacket == nil {
 		return nil, nil
 	}
 
 	return &MsgTimeout{
 		Signer: chain.GetWalletLink(parsedMessage.Signer),
-		Packet: packet,
+		Packet: parsedPacket,
+		Chain:  chain,
 	}, nil
 }
 
@@ -42,7 +45,7 @@ func (m MsgTimeout) Type() string {
 }
 
 func (m *MsgTimeout) GetAdditionalData(fetcher types.DataFetcher) {
-	if alias := fetcher.GetAliasManager().Get(fetcher.GetChain().Name, m.Signer.Value); alias != "" {
+	if alias := fetcher.GetAliasManager().Get(m.Chain.Name, m.Signer.Value); alias != "" {
 		m.Signer.Title = alias
 	}
 

@@ -106,6 +106,10 @@ filters = ["message.action = '/cosmos.staking.v1beta1.MsgBeginRedelegate'"]
 [[chains]]
 # Chain codename, required.
 name = "cosmos"
+# Chain ID. Optional, if omitted, multichain denoms matching would not work
+# (like, if you want to filter transactions that are transferring tokens via IBC
+# from one chain to another).
+chain-id = "cosmoshub-4"
 # Chain pretty name, optional. If provided, would be used in reports, if not,
 # codename would be used.
 pretty-name = "Cosmos Hub"
@@ -165,6 +169,7 @@ validator-link-pattern = "https://mintscan.io/cosmos/validators/%s"
 # There can be multiple chains.
 [[chains]]
 name = "sentinel"
+chain-id = "sentinelhub-2"
 pretty-name = "Sentinel"
 tendermint-nodes = ["https://rpc.sentinel.quokkastake.io:443"]
 api-nodes = ["https://api.sentinel.quokkastake.io"]

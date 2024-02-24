@@ -20,6 +20,8 @@ type InterchainAccountsPacket struct {
 	TxMessagesCount int
 	TxRawMessages   []*codecTypes.Any
 	TxMessages      []types.Message
+
+	Chain *configTypes.Chain
 }
 
 func ParseInterchainAccountsPacket(
@@ -28,13 +30,13 @@ func ParseInterchainAccountsPacket(
 ) (types.Message, error) {
 	cdc := codec.NewLegacyAmino()
 	interfaceRegistry := codecTypes.NewInterfaceRegistry()
-	codec := codec.NewProtoCodec(interfaceRegistry)
+	protoCodec := codec.NewProtoCodec(interfaceRegistry)
 
 	std.RegisterLegacyAminoCodec(cdc)
 	std.RegisterInterfaces(interfaceRegistry)
 
 	var cosmosTx icaTypes.CosmosTx
-	if err := codec.Unmarshal(packetData.Data, &cosmosTx); err != nil {
+	if err := protoCodec.Unmarshal(packetData.Data, &cosmosTx); err != nil {
 		return nil, err
 	}
 
@@ -44,6 +46,7 @@ func ParseInterchainAccountsPacket(
 		TxMessagesCount: len(cosmosTx.Messages),
 		TxRawMessages:   cosmosTx.Messages,
 		TxMessages:      make([]types.Message, 0),
+		Chain:           chain,
 	}, nil
 }
 

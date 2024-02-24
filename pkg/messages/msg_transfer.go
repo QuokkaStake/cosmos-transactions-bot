@@ -17,6 +17,8 @@ type MsgTransfer struct {
 	Token    *amount.Amount
 	Sender   configTypes.Link
 	Receiver configTypes.Link
+
+	Chain *configTypes.Chain
 }
 
 func ParseMsgTransfer(data []byte, chain *configTypes.Chain, height int64) (types.Message, error) {
@@ -29,6 +31,7 @@ func ParseMsgTransfer(data []byte, chain *configTypes.Chain, height int64) (type
 		Token:    amount.AmountFrom(parsedMessage.Token),
 		Sender:   chain.GetWalletLink(parsedMessage.Sender),
 		Receiver: configTypes.Link{Value: parsedMessage.Receiver},
+		Chain:    chain,
 	}, nil
 }
 
@@ -37,9 +40,9 @@ func (m MsgTransfer) Type() string {
 }
 
 func (m *MsgTransfer) GetAdditionalData(fetcher types.DataFetcher) {
-	fetcher.PopulateAmount(m.Token)
+	fetcher.PopulateAmount(m.Chain, m.Token)
 
-	if alias := fetcher.GetAliasManager().Get(fetcher.GetChain().Name, m.Sender.Value); alias != "" {
+	if alias := fetcher.GetAliasManager().Get(m.Chain.Name, m.Sender.Value); alias != "" {
 		m.Sender.Title = alias
 	}
 }

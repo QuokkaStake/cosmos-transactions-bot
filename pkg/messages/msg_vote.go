@@ -22,6 +22,8 @@ type MsgVote struct {
 	ProposalID configTypes.Link
 	Proposal   *responses.Proposal
 	Option     cosmosGovTypes.VoteOption
+
+	Chain *configTypes.Chain
 }
 
 func ParseMsgVote(data []byte, chain *configTypes.Chain, height int64) (types.Message, error) {
@@ -34,6 +36,7 @@ func ParseMsgVote(data []byte, chain *configTypes.Chain, height int64) (types.Me
 		Voter:      chain.GetWalletLink(parsedMessage.Voter),
 		ProposalID: chain.GetProposalLink(strconv.FormatUint(parsedMessage.ProposalId, 10)),
 		Option:     parsedMessage.Option,
+		Chain:      chain,
 	}, nil
 }
 
@@ -42,7 +45,7 @@ func (m MsgVote) Type() string {
 }
 
 func (m *MsgVote) GetAdditionalData(fetcher types.DataFetcher) {
-	proposal, found := fetcher.GetProposal(m.ProposalID.Value)
+	proposal, found := fetcher.GetProposal(m.Chain, m.ProposalID.Value)
 	if found {
 		m.Proposal = proposal
 		m.ProposalID.Title = fmt.Sprintf("#%s: %s", m.ProposalID.Value, proposal.Content.Title)
@@ -50,7 +53,7 @@ func (m *MsgVote) GetAdditionalData(fetcher types.DataFetcher) {
 		m.ProposalID.Title = fmt.Sprintf("#%s", m.ProposalID.Value)
 	}
 
-	if alias := fetcher.GetAliasManager().Get(fetcher.GetChain().Name, m.Voter.Value); alias != "" {
+	if alias := fetcher.GetAliasManager().Get(m.Chain.Name, m.Voter.Value); alias != "" {
 		m.Voter.Title = alias
 	}
 }

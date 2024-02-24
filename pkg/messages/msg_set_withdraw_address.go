@@ -15,6 +15,8 @@ import (
 type MsgSetWithdrawAddress struct {
 	DelegatorAddress configTypes.Link
 	WithdrawAddress  configTypes.Link
+
+	Chain *configTypes.Chain
 }
 
 func ParseMsgSetWithdrawAddress(data []byte, chain *configTypes.Chain, height int64) (types.Message, error) {
@@ -26,6 +28,7 @@ func ParseMsgSetWithdrawAddress(data []byte, chain *configTypes.Chain, height in
 	return &MsgSetWithdrawAddress{
 		DelegatorAddress: chain.GetWalletLink(parsedMessage.DelegatorAddress),
 		WithdrawAddress:  chain.GetValidatorLink(parsedMessage.WithdrawAddress),
+		Chain:            chain,
 	}, nil
 }
 
@@ -34,11 +37,11 @@ func (m MsgSetWithdrawAddress) Type() string {
 }
 
 func (m *MsgSetWithdrawAddress) GetAdditionalData(fetcher types.DataFetcher) {
-	if alias := fetcher.GetAliasManager().Get(fetcher.GetChain().Name, m.DelegatorAddress.Value); alias != "" {
+	if alias := fetcher.GetAliasManager().Get(m.Chain.Name, m.DelegatorAddress.Value); alias != "" {
 		m.DelegatorAddress.Title = alias
 	}
 
-	if alias := fetcher.GetAliasManager().Get(fetcher.GetChain().Name, m.WithdrawAddress.Value); alias != "" {
+	if alias := fetcher.GetAliasManager().Get(m.Chain.Name, m.WithdrawAddress.Value); alias != "" {
 		m.WithdrawAddress.Title = alias
 	}
 }
