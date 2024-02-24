@@ -45,7 +45,7 @@ func (c *TomlConfig) Validate() error {
 	}
 
 	for index, subscription := range c.Subscriptions {
-		for chainSubscriptionIndex, chainSubscription := range subscription.ChainSubscription {
+		for chainSubscriptionIndex, chainSubscription := range subscription.ChainSubscriptions {
 			if !c.Chains.HasChainByName(chainSubscription.Chain) {
 				return fmt.Errorf(
 					"error in subscription %d: error in chain %d: no such chain '%s'",
