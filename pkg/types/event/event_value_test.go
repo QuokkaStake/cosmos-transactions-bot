@@ -1,9 +1,10 @@
 package event_test
 
 import (
-	"github.com/stretchr/testify/require"
 	eventPkg "main/pkg/types/event"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestEventValueFrom(t *testing.T) {
