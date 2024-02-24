@@ -1,12 +1,13 @@
 package utils_test
 
 import (
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 	"main/pkg/utils"
 	"math/rand"
 	"strconv"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func StringOfRandomLength(n int) string {
@@ -24,9 +25,7 @@ func TestMap(t *testing.T) {
 
 	source := []int{1, 2, 3}
 
-	destination := utils.Map(source, func(value int) string {
-		return strconv.Itoa(value)
-	})
+	destination := utils.Map(source, strconv.Itoa)
 
 	require.Equal(t, []string{"1", "2", "3"}, destination)
 }
@@ -60,8 +59,8 @@ func TestRemoveStripTrailingDigits(t *testing.T) {
 func TestBoolToFloat64(t *testing.T) {
 	t.Parallel()
 
-	require.Equal(t, float64(1), utils.BoolToFloat64(true))
-	require.Equal(t, float64(0), utils.BoolToFloat64(false))
+	require.InDelta(t, float64(1), utils.BoolToFloat64(true), 0.01)
+	require.InDelta(t, float64(0), utils.BoolToFloat64(false), 0.01)
 }
 
 func TestSplitStringIntoChunksLessThanOneChunk(t *testing.T) {
