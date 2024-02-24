@@ -1,9 +1,10 @@
 package types_test
 
 import (
-	"github.com/stretchr/testify/require"
 	"main/pkg/config/types"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestChainGetPrettyName(t *testing.T) {
