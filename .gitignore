@@ -5,3 +5,4 @@ main
 aliases.toml
 cosmos-transactions-bot
 dist/
+cover.out

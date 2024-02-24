@@ -30,7 +30,7 @@ func AmountFrom(coin cosmosTypes.Coin) *Amount {
 func AmountFromString(amount string, denom string) *Amount {
 	parsedAmount, ok := new(big.Float).SetString(amount)
 	if !ok {
-		logger.GetDefaultLogger().Fatal().Str("value", amount).Msg("Could not parse string as big.Float")
+		logger.GetDefaultLogger().Panic().Str("value", amount).Msg("Could not parse string as big.Float")
 	}
 
 	return &Amount{
