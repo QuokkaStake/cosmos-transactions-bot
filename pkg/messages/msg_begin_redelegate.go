@@ -59,6 +59,7 @@ func (m *MsgBeginRedelegate) GetAdditionalData(fetcher types.DataFetcher) {
 func (m *MsgBeginRedelegate) GetValues() event.EventValues {
 	return []event.EventValue{
 		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, m.Type()),
+		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeySender, m.DelegatorAddress.Value),
 		event.From(cosmosStakingTypes.EventTypeRedelegate, cosmosStakingTypes.AttributeKeySrcValidator, m.ValidatorSrcAddress.Value),
 		event.From(cosmosStakingTypes.EventTypeRedelegate, cosmosStakingTypes.AttributeKeyDstValidator, m.ValidatorDstAddress.Value),
 		event.From(cosmosStakingTypes.EventTypeRedelegate, cosmosStakingTypes.AttributeKeyDelegator, m.DelegatorAddress.Value),

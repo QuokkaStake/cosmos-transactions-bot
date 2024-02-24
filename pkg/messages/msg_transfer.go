@@ -108,6 +108,7 @@ func (m *MsgTransfer) FetchRemoteChainData(fetcher types.DataFetcher) {
 func (m *MsgTransfer) GetValues() event.EventValues {
 	return []event.EventValue{
 		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, m.Type()),
+		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeySender, m.Sender.Value),
 		event.From(ibcTypes.EventTypeTransfer, ibcTypes.AttributeKeyReceiver, m.Receiver.Value),
 		event.From(ibcTypes.EventTypeTransfer, cosmosTypes.AttributeKeySender, m.Sender.Value),
 		event.From(ibcTypes.EventTypeTransfer, cosmosTypes.AttributeKeyAmount, m.Token.String()),

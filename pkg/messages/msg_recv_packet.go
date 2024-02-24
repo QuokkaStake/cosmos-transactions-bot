@@ -55,6 +55,7 @@ func (m *MsgRecvPacket) GetAdditionalData(fetcher types.DataFetcher) {
 func (m *MsgRecvPacket) GetValues() event.EventValues {
 	values := []event.EventValue{
 		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, m.Type()),
+		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeySender, m.Signer.Value),
 	}
 
 	values = append(values, m.Packet.GetValues()...)

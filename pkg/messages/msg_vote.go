@@ -78,6 +78,7 @@ func (m *MsgVote) GetVote() string {
 func (m *MsgVote) GetValues() event.EventValues {
 	return []event.EventValue{
 		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, m.Type()),
+		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeySender, m.Voter.Value),
 		event.From(cosmosGovEvents.EventTypeProposalVote, cosmosGovEvents.AttributeKeyProposalID, m.ProposalID.Value),
 		event.From(cosmosGovEvents.EventTypeProposalVote, cosmosGovEvents.AttributeKeyOption, m.Option.String()),
 	}

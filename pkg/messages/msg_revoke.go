@@ -52,6 +52,7 @@ func (m *MsgRevoke) GetAdditionalData(fetcher types.DataFetcher) {
 func (m *MsgRevoke) GetValues() event.EventValues {
 	return []event.EventValue{
 		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, m.Type()),
+		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeySender, m.Grantee.Value),
 	}
 }
 
