@@ -1,10 +1,12 @@
-package amount
+package amount_test
 
 import (
-	sdkmath "cosmossdk.io/math"
 	"fmt"
-	cosmosTypes "github.com/cosmos/cosmos-sdk/types"
+	amountPkg "main/pkg/types/amount"
 	"testing"
+
+	sdkmath "cosmossdk.io/math"
+	cosmosTypes "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/stretchr/testify/require"
 )
@@ -13,7 +15,7 @@ func TestAmountFrom(t *testing.T) {
 	t.Parallel()
 
 	coin := cosmosTypes.Coin{Denom: "stake", Amount: sdkmath.NewInt(100)}
-	amount := AmountFrom(coin)
+	amount := amountPkg.AmountFrom(coin)
 
 	require.Equal(t, "stake", amount.Denom)
 	require.Equal(t, "stake", amount.BaseDenom)
@@ -29,13 +31,13 @@ func TestAmountFromStringInvalid(t *testing.T) {
 		}
 	}()
 
-	_ = AmountFromString("invalid", "stake")
+	_ = amountPkg.AmountFromString("invalid", "stake")
 }
 
 func TestAmountFromStringValid(t *testing.T) {
 	t.Parallel()
 
-	amount := AmountFromString("100", "stake")
+	amount := amountPkg.AmountFromString("100", "stake")
 
 	require.Equal(t, "stake", amount.Denom)
 	require.Equal(t, "stake", amount.BaseDenom)
@@ -45,7 +47,7 @@ func TestAmountFromStringValid(t *testing.T) {
 func TestAmountConvertDenom(t *testing.T) {
 	t.Parallel()
 
-	amount := AmountFromString("100000000", "ustake")
+	amount := amountPkg.AmountFromString("100000000", "ustake")
 	amount.ConvertDenom("stake", 1000000)
 
 	require.Equal(t, "stake", amount.Denom)
@@ -56,7 +58,7 @@ func TestAmountConvertDenom(t *testing.T) {
 func TestAmountAddUsdPrice(t *testing.T) {
 	t.Parallel()
 
-	amount := AmountFromString("1", "stake")
+	amount := amountPkg.AmountFromString("1", "stake")
 	amount.AddUSDPrice(1.23)
 
 	require.Equal(t, "stake", amount.Denom)
@@ -67,27 +69,27 @@ func TestAmountAddUsdPrice(t *testing.T) {
 func TestAmountToString(t *testing.T) {
 	t.Parallel()
 
-	amount := AmountFromString("123.456", "stake")
+	amount := amountPkg.AmountFromString("123.456", "stake")
 	require.Equal(t, "123stake", amount.String())
 }
 
 func TestAmountIsIbcDenom(t *testing.T) {
 	t.Parallel()
 
-	amount := AmountFromString("123.456", "ibc/xxxxx")
+	amount := amountPkg.AmountFromString("123.456", "ibc/xxxxx")
 	require.True(t, amount.IsIbcToken())
 
-	amount2 := AmountFromString("123.456", "ustake")
+	amount2 := amountPkg.AmountFromString("123.456", "ustake")
 	require.False(t, amount2.IsIbcToken())
 }
 
 func TestAmountsToString(t *testing.T) {
 	t.Parallel()
 
-	amount1 := AmountFromString("123.456", "stake")
-	amount2 := AmountFromString("345.678", "yield")
+	amount1 := amountPkg.AmountFromString("123.456", "stake")
+	amount2 := amountPkg.AmountFromString("345.678", "yield")
 
-	amounts := Amounts{amount1, amount2}
+	amounts := amountPkg.Amounts{amount1, amount2}
 
 	require.Equal(t, "123stake,345yield", amounts.String())
 }
