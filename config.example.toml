@@ -5,6 +5,16 @@ aliases = "cosmos-transactions-bot-aliases.toml"
 # Defaults to "Etc/GMT", so UTC+0
 timezone = "Europe/Moscow"
 
+# Prometheus metrics configuration.
+[metrics]
+# Whether to enable Prometheus metrics. Defaults to true.
+enabled = true
+# Prometheus metrics listen address.
+# If you are running this bot on a same server than your Prometheus instance is,
+# you might want to switch it to "127.0.0.1:<port>" so it won't be accessible from outside.
+# Defaults to ":9580" (so, port 9580 on all interfaces and accessible from outside).
+listen-addr = ":9580"
+
 # Logging configuration
 [log]
 # Log level. Set to "debug" or "trace" to make it more verbose, or to "warn"/"error"
@@ -106,6 +116,10 @@ filters = ["message.action = '/cosmos.staking.v1beta1.MsgBeginRedelegate'"]
 [[chains]]
 # Chain codename, required.
 name = "cosmos"
+# Chain ID. Optional, if omitted, multichain denoms matching would not work
+# (like, if you want to filter transactions that are transferring tokens via IBC
+# from one chain to another).
+chain-id = "cosmoshub-4"
 # Chain pretty name, optional. If provided, would be used in reports, if not,
 # codename would be used.
 pretty-name = "Cosmos Hub"
@@ -165,6 +179,7 @@ validator-link-pattern = "https://mintscan.io/cosmos/validators/%s"
 # There can be multiple chains.
 [[chains]]
 name = "sentinel"
+chain-id = "sentinelhub-2"
 pretty-name = "Sentinel"
 tendermint-nodes = ["https://rpc.sentinel.quokkastake.io:443"]
 api-nodes = ["https://api.sentinel.quokkastake.io"]

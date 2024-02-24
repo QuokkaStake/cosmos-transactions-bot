@@ -17,6 +17,8 @@ type MsgDelegate struct {
 	DelegatorAddress configTypes.Link
 	ValidatorAddress configTypes.Link
 	Amount           *amount.Amount
+
+	Chain *configTypes.Chain
 }
 
 func ParseMsgDelegate(data []byte, chain *configTypes.Chain, height int64) (types.Message, error) {
@@ -29,6 +31,7 @@ func ParseMsgDelegate(data []byte, chain *configTypes.Chain, height int64) (type
 		DelegatorAddress: chain.GetWalletLink(parsedMessage.DelegatorAddress),
 		ValidatorAddress: chain.GetValidatorLink(parsedMessage.ValidatorAddress),
 		Amount:           amount.AmountFrom(parsedMessage.Amount),
+		Chain:            chain,
 	}, nil
 }
 
@@ -37,14 +40,14 @@ func (m MsgDelegate) Type() string {
 }
 
 func (m *MsgDelegate) GetAdditionalData(fetcher types.DataFetcher) {
-	validator, found := fetcher.GetValidator(m.ValidatorAddress.Value)
+	validator, found := fetcher.GetValidator(m.Chain, m.ValidatorAddress.Value)
 	if found {
 		m.ValidatorAddress.Title = validator.Description.Moniker
 	}
 
-	fetcher.PopulateAmount(m.Amount)
+	fetcher.PopulateAmount(m.Chain, m.Amount)
 
-	if alias := fetcher.GetAliasManager().Get(fetcher.GetChain().Name, m.DelegatorAddress.Value); alias != "" {
+	if alias := fetcher.GetAliasManager().Get(m.Chain.Name, m.DelegatorAddress.Value); alias != "" {
 		m.DelegatorAddress.Title = alias
 	}
 }

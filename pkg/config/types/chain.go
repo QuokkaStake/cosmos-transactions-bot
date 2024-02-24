@@ -20,9 +20,20 @@ func (c Chains) FindByName(name string) *Chain {
 	return nil
 }
 
+func (c Chains) FindByChainID(chainID string) *Chain {
+	for _, chain := range c {
+		if chain.ChainID == chainID {
+			return chain
+		}
+	}
+
+	return nil
+}
+
 type Chain struct {
 	Name              string
 	PrettyName        string
+	ChainID           string
 	TendermintNodes   []string
 	APINodes          []string
 	Queries           []query.Query
@@ -98,15 +109,25 @@ func (c Chain) GetBlockLink(height int64) Link {
 
 func (c *Chain) DisplayWarnings(logger *zerolog.Logger) {
 	if len(c.Denoms) == 0 {
-		logger.Warn().Str("chain", c.Name).Msg("No denoms set, prices in USD won't be displayed.")
+		logger.Warn().
+			Str("chain", c.Name).
+			Msg("No denoms set, prices in USD won't be displayed.")
 	} else {
 		for _, denom := range c.Denoms {
 			denom.DisplayWarnings(c, logger)
 		}
 	}
 
+	if c.ChainID == "" {
+		logger.Warn().
+			Str("chain", c.Name).
+			Msg("chain-id is not set, multichain denom matching won't work.")
+	}
+
 	if c.Explorer == nil {
-		logger.Warn().Str("chain", c.Name).Msg("Explorer config not set, links won't be generated.")
+		logger.Warn().
+			Str("chain", c.Name).
+			Msg("Explorer config not set, links won't be generated.")
 	} else {
 		c.Explorer.DisplayWarnings(logger, c)
 	}

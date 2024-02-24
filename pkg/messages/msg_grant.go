@@ -30,6 +30,8 @@ type MsgGrant struct {
 	GrantType     string
 	Expiration    *time.Time
 	Authorization Authorization
+
+	Chain *configTypes.Chain
 }
 
 func ParseStakeAuthorization(authorization *codecTypes.Any, chain *configTypes.Chain) (Authorization, error) {
@@ -88,6 +90,7 @@ func ParseMsgGrant(data []byte, chain *configTypes.Chain, height int64) (types.M
 		GrantType:     parsedMessage.Grant.Authorization.TypeUrl,
 		Expiration:    parsedMessage.Grant.Expiration,
 		Authorization: authorization,
+		Chain:         chain,
 	}, nil
 }
 
@@ -96,11 +99,11 @@ func (m MsgGrant) Type() string {
 }
 
 func (m *MsgGrant) GetAdditionalData(fetcher types.DataFetcher) {
-	if alias := fetcher.GetAliasManager().Get(fetcher.GetChain().Name, m.Grantee.Value); alias != "" {
+	if alias := fetcher.GetAliasManager().Get(m.Chain.Name, m.Grantee.Value); alias != "" {
 		m.Grantee.Title = alias
 	}
 
-	if alias := fetcher.GetAliasManager().Get(fetcher.GetChain().Name, m.Granter.Value); alias != "" {
+	if alias := fetcher.GetAliasManager().Get(m.Chain.Name, m.Granter.Value); alias != "" {
 		m.Granter.Title = alias
 	}
 }

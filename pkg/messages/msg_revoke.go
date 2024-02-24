@@ -17,6 +17,8 @@ type MsgRevoke struct {
 	Grantee       configTypes.Link
 	MsgType       string
 	Authorization Authorization
+
+	Chain *configTypes.Chain
 }
 
 func ParseMsgRevoke(data []byte, chain *configTypes.Chain, height int64) (types.Message, error) {
@@ -29,6 +31,7 @@ func ParseMsgRevoke(data []byte, chain *configTypes.Chain, height int64) (types.
 		Grantee: chain.GetWalletLink(parsedMessage.Grantee),
 		Granter: chain.GetWalletLink(parsedMessage.Granter),
 		MsgType: parsedMessage.MsgTypeUrl,
+		Chain:   chain,
 	}, nil
 }
 
@@ -37,11 +40,11 @@ func (m MsgRevoke) Type() string {
 }
 
 func (m *MsgRevoke) GetAdditionalData(fetcher types.DataFetcher) {
-	if alias := fetcher.GetAliasManager().Get(fetcher.GetChain().Name, m.Grantee.Value); alias != "" {
+	if alias := fetcher.GetAliasManager().Get(m.Chain.Name, m.Grantee.Value); alias != "" {
 		m.Grantee.Title = alias
 	}
 
-	if alias := fetcher.GetAliasManager().Get(fetcher.GetChain().Name, m.Granter.Value); alias != "" {
+	if alias := fetcher.GetAliasManager().Get(m.Chain.Name, m.Granter.Value); alias != "" {
 		m.Granter.Title = alias
 	}
 }

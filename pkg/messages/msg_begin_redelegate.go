@@ -18,6 +18,8 @@ type MsgBeginRedelegate struct {
 	ValidatorSrcAddress configTypes.Link
 	ValidatorDstAddress configTypes.Link
 	Amount              *amount.Amount
+
+	Chain *configTypes.Chain
 }
 
 func ParseMsgBeginRedelegate(data []byte, chain *configTypes.Chain, height int64) (types.Message, error) {
@@ -31,6 +33,7 @@ func ParseMsgBeginRedelegate(data []byte, chain *configTypes.Chain, height int64
 		ValidatorSrcAddress: chain.GetValidatorLink(parsedMessage.ValidatorSrcAddress),
 		ValidatorDstAddress: chain.GetValidatorLink(parsedMessage.ValidatorDstAddress),
 		Amount:              amount.AmountFrom(parsedMessage.Amount),
+		Chain:               chain,
 	}, nil
 }
 
@@ -39,16 +42,16 @@ func (m MsgBeginRedelegate) Type() string {
 }
 
 func (m *MsgBeginRedelegate) GetAdditionalData(fetcher types.DataFetcher) {
-	if validator, found := fetcher.GetValidator(m.ValidatorSrcAddress.Value); found {
+	if validator, found := fetcher.GetValidator(m.Chain, m.ValidatorSrcAddress.Value); found {
 		m.ValidatorSrcAddress.Title = validator.Description.Moniker
 	}
-	if validator, found := fetcher.GetValidator(m.ValidatorDstAddress.Value); found {
+	if validator, found := fetcher.GetValidator(m.Chain, m.ValidatorDstAddress.Value); found {
 		m.ValidatorDstAddress.Title = validator.Description.Moniker
 	}
 
-	fetcher.PopulateAmount(m.Amount)
+	fetcher.PopulateAmount(m.Chain, m.Amount)
 
-	if alias := fetcher.GetAliasManager().Get(fetcher.GetChain().Name, m.DelegatorAddress.Value); alias != "" {
+	if alias := fetcher.GetAliasManager().Get(m.Chain.Name, m.DelegatorAddress.Value); alias != "" {
 		m.DelegatorAddress.Title = alias
 	}
 }

@@ -21,7 +21,7 @@ import (
 
 type TendermintWebsocketClient struct {
 	Logger         zerolog.Logger
-	Chain          configTypes.Chain
+	Chain          *configTypes.Chain
 	MetricsManager *metricsPkg.Manager
 	URL            string
 	Queries        []query.Query
@@ -48,7 +48,7 @@ func NewTendermintClient(
 			Logger(),
 		MetricsManager: metricsManager,
 		URL:            url,
-		Chain:          *chain,
+		Chain:          chain,
 		Queries:        chain.Queries,
 		Active:         false,
 		Channel:        make(chan types.Report),
@@ -146,11 +146,11 @@ func (t *TendermintWebsocketClient) Resubscribe() {
 func (t *TendermintWebsocketClient) SubscribeToUpdates() {
 	t.Logger.Trace().Msg("Subscribing to updates...")
 
-	for _, query := range t.Queries {
-		if err := t.Client.Subscribe(context.Background(), query.String()); err != nil {
-			t.Logger.Error().Err(err).Str("query", query.String()).Msg("Failed to subscribe to query")
+	for _, nodeQuery := range t.Queries {
+		if err := t.Client.Subscribe(context.Background(), nodeQuery.String()); err != nil {
+			t.Logger.Error().Err(err).Str("query", nodeQuery.String()).Msg("Failed to subscribe to query")
 		} else {
-			t.Logger.Info().Str("query", query.String()).Msg("Listening for incoming transactions")
+			t.Logger.Info().Str("query", nodeQuery.String()).Msg("Listening for incoming transactions")
 		}
 	}
 }

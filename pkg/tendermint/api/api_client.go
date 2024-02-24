@@ -8,6 +8,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+
 	configTypes "main/pkg/config/types"
 	"main/pkg/types/responses"
 
@@ -112,6 +114,49 @@ func (c *TendermintApiClient) GetStakingParams() (*responses.StakingParams, erro
 	}
 
 	return &response.Params, nil, queryInfo
+}
+
+func (c *TendermintApiClient) GetIbcChannel(
+	channel string,
+	port string,
+) (*responses.IbcChannel, error, query_info.QueryInfo) {
+	url := fmt.Sprintf("/ibc/core/channel/v1/channels/%s/ports/%s", channel, port)
+
+	var response *responses.IbcChannelResponse
+	err, queryInfo := c.Get(url, &response)
+	if err != nil {
+		return nil, err, queryInfo
+	}
+
+	return &response.Channel, nil, queryInfo
+}
+
+func (c *TendermintApiClient) GetIbcConnectionClientState(
+	connectionID string,
+) (*responses.IbcIdentifiedClientState, error, query_info.QueryInfo) {
+	url := fmt.Sprintf("/ibc/core/connection/v1/connections/%s/client_state", connectionID)
+
+	var response *responses.IbcClientStateResponse
+	err, queryInfo := c.Get(url, &response)
+	if err != nil {
+		return nil, err, queryInfo
+	}
+
+	return &response.IdentifiedClientState, nil, queryInfo
+}
+
+func (c *TendermintApiClient) GetIbcDenomTrace(
+	hash string,
+) (*types.DenomTrace, error, query_info.QueryInfo) {
+	url := fmt.Sprintf("/ibc/apps/transfer/v1/denom_traces/%s", hash)
+
+	var response *responses.IbcDenomTraceResponse
+	err, queryInfo := c.Get(url, &response)
+	if err != nil {
+		return nil, err, queryInfo
+	}
+
+	return &response.DenomTrace, nil, queryInfo
 }
 
 func (c *TendermintApiClient) Get(url string, target interface{}) (error, query_info.QueryInfo) {

@@ -23,7 +23,7 @@ type App struct {
 	Chains         []*configTypes.Chain
 	NodesManager   *nodesManagerPkg.NodesManager
 	Reporters      reportersPkg.Reporters
-	DataFetchers   map[string]*data_fetcher.DataFetcher
+	DataFetcher    *data_fetcher.DataFetcher
 	Filterer       *filtererPkg.Filterer
 	MetricsManager *metricsPkg.Manager
 
@@ -51,10 +51,12 @@ func NewApp(config *config.AppConfig, version string) *App {
 		)
 	}
 
-	dataFetchers := make(map[string]*data_fetcher.DataFetcher, len(config.Chains))
-	for _, chain := range config.Chains {
-		dataFetchers[chain.Name] = data_fetcher.NewDataFetcher(logger, chain, aliasManager, metricsManager)
-	}
+	dataFetcher := data_fetcher.NewDataFetcher(
+		logger,
+		config,
+		aliasManager,
+		metricsManager,
+	)
 
 	filterer := filtererPkg.NewFilterer(logger, config, metricsManager)
 
@@ -63,7 +65,7 @@ func NewApp(config *config.AppConfig, version string) *App {
 		Chains:         config.Chains,
 		Reporters:      reporters,
 		NodesManager:   nodesManager,
-		DataFetchers:   dataFetchers,
+		DataFetcher:    dataFetcher,
 		Filterer:       filterer,
 		MetricsManager: metricsManager,
 		Version:        version,
@@ -92,8 +94,6 @@ func (a *App) Start() {
 	for {
 		select {
 		case rawReport := <-a.NodesManager.Channel:
-			fetcher, _ := a.DataFetchers[rawReport.Chain.Name]
-
 			reportablesForReporters := a.Filterer.GetReportableForReporters(rawReport)
 
 			if len(reportablesForReporters) == 0 {
@@ -113,7 +113,7 @@ func (a *App) Start() {
 					Str("hash", report.Reportable.GetHash()).
 					Msg("Got report")
 
-				rawReport.Reportable.GetAdditionalData(fetcher)
+				rawReport.Reportable.GetAdditionalData(a.DataFetcher)
 
 				reporter := a.Reporters.FindByName(reporterName)
 

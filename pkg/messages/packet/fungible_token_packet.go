@@ -8,6 +8,7 @@ import (
 
 	cosmosTypes "github.com/cosmos/cosmos-sdk/types"
 	cosmosBankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	ibcChannelTypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 
 	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
 	ibcTypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
@@ -17,16 +18,29 @@ type FungibleTokenPacket struct {
 	Token    *amount.Amount
 	Sender   configTypes.Link
 	Receiver configTypes.Link
+
+	SrcPort    string
+	SrcChannel string
+	DstPort    string
+	DstChannel string
+
+	Chain *configTypes.Chain
 }
 
 func ParseFungibleTokenPacket(
 	packetData ibcTypes.FungibleTokenPacketData,
+	packet ibcChannelTypes.Packet,
 	chain *configTypes.Chain,
 ) types.Message {
 	return &FungibleTokenPacket{
-		Token:    amount.AmountFromString(packetData.Amount, packetData.Denom),
-		Sender:   configTypes.Link{Value: packetData.Sender},
-		Receiver: chain.GetWalletLink(packetData.Receiver),
+		Token:      amount.AmountFromString(packetData.Amount, packetData.Denom),
+		Sender:     configTypes.Link{Value: packetData.Sender},
+		Receiver:   chain.GetWalletLink(packetData.Receiver),
+		SrcPort:    packet.SourcePort,
+		SrcChannel: packet.SourceChannel,
+		DstPort:    packet.DestinationPort,
+		DstChannel: packet.DestinationChannel,
+		Chain:      chain,
 	}
 }
 
@@ -35,16 +49,42 @@ func (p FungibleTokenPacket) Type() string {
 }
 
 func (p *FungibleTokenPacket) GetAdditionalData(fetcher types.DataFetcher) {
-	trace := ibcTypes.ParseDenomTrace(p.Token.Denom)
-	p.Token.Denom = trace.BaseDenom
+	p.FetchRemoteChainData(fetcher)
 
-	fetcher.PopulateAmount(p.Token)
-
-	if alias := fetcher.GetAliasManager().Get(fetcher.GetChain().Name, p.Receiver.Value); alias != "" {
+	if alias := fetcher.GetAliasManager().Get(p.Chain.Name, p.Receiver.Value); alias != "" {
 		p.Receiver.Title = alias
 	}
 }
 
+func (p *FungibleTokenPacket) FetchRemoteChainData(fetcher types.DataFetcher) {
+	// p.Sender is always someone from the remote chain, so we need to fetch the data
+	// from cross-chain.
+	// p.Receiver is on native chain, so we can use p.Chain to generate links
+	// and denoms and prices.
+
+	trace := ibcTypes.ParseDenomTrace(p.Token.Denom)
+	p.Token.Denom = trace.BaseDenom
+	p.Token.BaseDenom = trace.BaseDenom
+
+	if !trace.IsNativeDenom() {
+		return
+	}
+
+	originalChainID, fetched := fetcher.GetIbcRemoteChainID(p.Chain, p.DstChannel, p.DstPort)
+
+	if !fetched {
+		return
+	}
+
+	if chain, found := fetcher.FindChainById(originalChainID); found {
+		fetcher.PopulateAmount(chain, p.Token)
+		p.Sender = chain.GetWalletLink(p.Sender.Value)
+
+		if alias := fetcher.GetAliasManager().Get(chain.Name, p.Receiver.Value); alias != "" {
+			p.Sender.Title = alias
+		}
+	}
+}
 func (p *FungibleTokenPacket) GetValues() event.EventValues {
 	return []event.EventValue{
 		event.From(ibcTypes.EventTypePacket, cosmosBankTypes.AttributeKeyReceiver, p.Receiver.Value),

@@ -7,6 +7,8 @@ import (
 	"math/big"
 	"strings"
 
+	transferTypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+
 	cosmosTypes "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -54,6 +56,11 @@ func (a *Amount) AddUSDPrice(usdPrice float64) {
 func (a Amount) String() string {
 	value, _ := a.Value.Int(nil)
 	return fmt.Sprintf("%d%s", value, a.Denom)
+}
+
+func (a Amount) IsIbcToken() bool {
+	denomSplit := strings.Split(a.Denom, "/")
+	return len(denomSplit) == 2 && denomSplit[0] == transferTypes.DenomPrefix
 }
 
 type Amounts []*Amount

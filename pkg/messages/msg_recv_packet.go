@@ -16,6 +16,8 @@ import (
 type MsgRecvPacket struct {
 	Signer configTypes.Link
 	Packet types.Message
+
+	Chain *configTypes.Chain
 }
 
 func ParseMsgRecvPacket(data []byte, chain *configTypes.Chain, height int64) (types.Message, error) {
@@ -34,6 +36,7 @@ func ParseMsgRecvPacket(data []byte, chain *configTypes.Chain, height int64) (ty
 	return &MsgRecvPacket{
 		Signer: chain.GetWalletLink(parsedMessage.Signer),
 		Packet: parsedPacket,
+		Chain:  chain,
 	}, nil
 }
 
@@ -42,7 +45,7 @@ func (m MsgRecvPacket) Type() string {
 }
 
 func (m *MsgRecvPacket) GetAdditionalData(fetcher types.DataFetcher) {
-	if alias := fetcher.GetAliasManager().Get(fetcher.GetChain().Name, m.Signer.Value); alias != "" {
+	if alias := fetcher.GetAliasManager().Get(m.Chain.Name, m.Signer.Value); alias != "" {
 		m.Signer.Title = alias
 	}
 

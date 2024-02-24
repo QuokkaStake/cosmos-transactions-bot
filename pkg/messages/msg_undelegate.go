@@ -20,6 +20,8 @@ type MsgUndelegate struct {
 	ValidatorAddress     configTypes.Link
 	UndelegateFinishTime time.Time
 	Amount               *amount.Amount
+
+	Chain *configTypes.Chain
 }
 
 func ParseMsgUndelegate(data []byte, chain *configTypes.Chain, height int64) (types.Message, error) {
@@ -32,6 +34,7 @@ func ParseMsgUndelegate(data []byte, chain *configTypes.Chain, height int64) (ty
 		DelegatorAddress: chain.GetWalletLink(parsedMessage.DelegatorAddress),
 		ValidatorAddress: chain.GetValidatorLink(parsedMessage.ValidatorAddress),
 		Amount:           amount.AmountFrom(parsedMessage.Amount),
+		Chain:            chain,
 	}, nil
 }
 
@@ -40,17 +43,17 @@ func (m MsgUndelegate) Type() string {
 }
 
 func (m *MsgUndelegate) GetAdditionalData(fetcher types.DataFetcher) {
-	if validator, found := fetcher.GetValidator(m.ValidatorAddress.Value); found {
+	if validator, found := fetcher.GetValidator(m.Chain, m.ValidatorAddress.Value); found {
 		m.ValidatorAddress.Title = validator.Description.Moniker
 	}
 
-	if stakingParams, found := fetcher.GetStakingParams(); found {
+	if stakingParams, found := fetcher.GetStakingParams(m.Chain); found {
 		m.UndelegateFinishTime = time.Now().Add(stakingParams.UnbondingTime.Duration)
 	}
 
-	fetcher.PopulateAmount(m.Amount)
+	fetcher.PopulateAmount(m.Chain, m.Amount)
 
-	if alias := fetcher.GetAliasManager().Get(fetcher.GetChain().Name, m.DelegatorAddress.Value); alias != "" {
+	if alias := fetcher.GetAliasManager().Get(m.Chain.Name, m.DelegatorAddress.Value); alias != "" {
 		m.DelegatorAddress.Title = alias
 	}
 }

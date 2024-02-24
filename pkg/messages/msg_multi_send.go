@@ -22,6 +22,8 @@ type MultiSendEntry struct {
 type MsgMultiSend struct {
 	Inputs  []MultiSendEntry
 	Outputs []MultiSendEntry
+
+	Chain *configTypes.Chain
 }
 
 func ParseMsgMultiSend(data []byte, chain *configTypes.Chain, height int64) (types.Message, error) {
@@ -43,6 +45,7 @@ func ParseMsgMultiSend(data []byte, chain *configTypes.Chain, height int64) (typ
 				Amount:  utils.Map(output.Coins, amount.AmountFrom),
 			}
 		}),
+		Chain: chain,
 	}, nil
 }
 
@@ -52,19 +55,19 @@ func (m MsgMultiSend) Type() string {
 
 func (m *MsgMultiSend) GetAdditionalData(fetcher types.DataFetcher) {
 	for _, input := range m.Inputs {
-		if alias := fetcher.GetAliasManager().Get(fetcher.GetChain().Name, input.Address.Value); alias != "" {
+		if alias := fetcher.GetAliasManager().Get(m.Chain.Name, input.Address.Value); alias != "" {
 			input.Address.Title = alias
 		}
 
-		fetcher.PopulateAmounts(input.Amount)
+		fetcher.PopulateAmounts(m.Chain, input.Amount)
 	}
 
 	for _, output := range m.Outputs {
-		if alias := fetcher.GetAliasManager().Get(fetcher.GetChain().Name, output.Address.Value); alias != "" {
+		if alias := fetcher.GetAliasManager().Get(m.Chain.Name, output.Address.Value); alias != "" {
 			output.Address.Title = alias
 		}
 
-		fetcher.PopulateAmounts(output.Amount)
+		fetcher.PopulateAmounts(m.Chain, output.Amount)
 	}
 }
 
