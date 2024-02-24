@@ -43,7 +43,7 @@ func SplitStringIntoChunks(msg string, maxLineLength int) []string {
 	var sb strings.Builder
 
 	for _, line := range msgsByNewline {
-		if sb.Len()+len(line) >= maxLineLength {
+		if sb.Len()+len(line) > maxLineLength {
 			outMessages = append(outMessages, sb.String())
 			sb.Reset()
 		}
