@@ -41,7 +41,8 @@ type Manager struct {
 	reporterEnabledGauge   *prometheus.GaugeVec
 
 	// Subscriptions metrics
-	eventsMatchedCounter *prometheus.CounterVec
+	subscriptionsInfoCounter *prometheus.GaugeVec
+	eventsMatchedCounter     *prometheus.CounterVec
 
 	// App metrics
 	appVersionGauge *prometheus.GaugeVec
@@ -96,7 +97,7 @@ func NewManager(logger *zerolog.Logger, config configPkg.MetricsConfig) *Manager
 		// Reporter metrics
 		reporterEnabledGauge: promauto.NewGaugeVec(prometheus.GaugeOpts{
 			Name: constants.PrometheusMetricsPrefix + "reporter_enabled",
-			Help: "Whether the reporter is enabled (1 if yes, 0 if no)",
+			Help: "Reporter info, with name and type, always returns 1 as value",
 		}, []string{"name", "type"}),
 		reporterReportsCounter: promauto.NewCounterVec(prometheus.CounterOpts{
 			Name: constants.PrometheusMetricsPrefix + "reporter_reports",
@@ -112,6 +113,10 @@ func NewManager(logger *zerolog.Logger, config configPkg.MetricsConfig) *Manager
 		}, []string{"chain", "reporter", "type", "subscription"}),
 
 		// Subscription metrics
+		subscriptionsInfoCounter: promauto.NewGaugeVec(prometheus.GaugeOpts{
+			Name: constants.PrometheusMetricsPrefix + "subscriptions",
+			Help: "Count of chain subscriptions per subscription",
+		}, []string{"name", "reporter"}),
 		eventsMatchedCounter: promauto.NewCounterVec(prometheus.CounterOpts{
 			Name: constants.PrometheusMetricsPrefix + "events_matched",
 			Help: "WebSocket events matching filters by chain",
@@ -129,13 +134,22 @@ func NewManager(logger *zerolog.Logger, config configPkg.MetricsConfig) *Manager
 	}
 }
 
-func (m *Manager) SetAllDefaultMetrics(chains []*configTypes.Chain) {
+func (m *Manager) SetAllDefaultMetrics(config *configPkg.AppConfig) {
 	m.startTimeGauge.
 		With(prometheus.Labels{}).
 		Set(float64(time.Now().Unix()))
 
-	for _, chain := range chains {
+	for _, chain := range config.Chains {
 		m.SetDefaultMetrics(chain)
+	}
+
+	for _, subscription := range config.Subscriptions {
+		m.subscriptionsInfoCounter.
+			With(prometheus.Labels{
+				"name":     subscription.Name,
+				"reporter": subscription.Reporter,
+			}).
+			Set(float64(len(subscription.ChainSubscriptions)))
 	}
 }
 func (m *Manager) SetDefaultMetrics(chain *configTypes.Chain) {

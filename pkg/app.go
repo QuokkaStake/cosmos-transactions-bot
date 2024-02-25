@@ -20,6 +20,7 @@ import (
 
 type App struct {
 	Logger         zerolog.Logger
+	Config         *config.AppConfig
 	Chains         []*configTypes.Chain
 	NodesManager   *nodesManagerPkg.NodesManager
 	Reporters      reportersPkg.Reporters
@@ -62,6 +63,7 @@ func NewApp(config *config.AppConfig, version string) *App {
 
 	return &App{
 		Logger:         logger.With().Str("component", "app").Logger(),
+		Config:         config,
 		Chains:         config.Chains,
 		Reporters:      reporters,
 		NodesManager:   nodesManager,
@@ -75,7 +77,7 @@ func NewApp(config *config.AppConfig, version string) *App {
 func (a *App) Start() {
 	go a.MetricsManager.Start()
 	a.MetricsManager.LogAppVersion(a.Version)
-	a.MetricsManager.SetAllDefaultMetrics(a.Chains)
+	a.MetricsManager.SetAllDefaultMetrics(a.Config)
 
 	for _, reporter := range a.Reporters {
 		reporter.Init()
