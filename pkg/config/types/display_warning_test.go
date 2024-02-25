@@ -1,6 +1,7 @@
-package types
+package types_test
 
 import (
+	"main/pkg/config/types"
 	"testing"
 
 	"github.com/rs/zerolog"
@@ -9,7 +10,7 @@ import (
 func TestDisplayWarningLog(t *testing.T) {
 	t.Parallel()
 
-	warning := DisplayWarning{
+	warning := types.DisplayWarning{
 		Keys: map[string]string{"chain": "chain"},
 	}
 
