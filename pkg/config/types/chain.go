@@ -5,7 +5,6 @@ import (
 	"strconv"
 
 	"github.com/cometbft/cometbft/libs/pubsub/query"
-	"github.com/rs/zerolog"
 )
 
 type Chains []*Chain
@@ -107,28 +106,35 @@ func (c Chain) GetBlockLink(height int64) Link {
 	}
 }
 
-func (c *Chain) DisplayWarnings(logger *zerolog.Logger) {
+func (c *Chain) DisplayWarnings() []DisplayWarning {
+	var warnings []DisplayWarning
+
 	if len(c.Denoms) == 0 {
-		logger.Warn().
-			Str("chain", c.Name).
-			Msg("No denoms set, prices in USD won't be displayed.")
+		warnings = append(warnings, DisplayWarning{
+			Keys: map[string]string{"chain": c.Name},
+			Text: "No denoms set, prices in USD won't be displayed.",
+		})
 	} else {
 		for _, denom := range c.Denoms {
-			denom.DisplayWarnings(c, logger)
+			warnings = append(warnings, denom.DisplayWarnings(c)...)
 		}
 	}
 
 	if c.ChainID == "" {
-		logger.Warn().
-			Str("chain", c.Name).
-			Msg("chain-id is not set, multichain denom matching won't work.")
+		warnings = append(warnings, DisplayWarning{
+			Keys: map[string]string{"chain": c.Name},
+			Text: "chain-id is not set, multichain denom matching won't work.",
+		})
 	}
 
 	if c.Explorer == nil {
-		logger.Warn().
-			Str("chain", c.Name).
-			Msg("Explorer config not set, links won't be generated.")
+		warnings = append(warnings, DisplayWarning{
+			Keys: map[string]string{"chain": c.Name},
+			Text: "Explorer config not set, links won't be generated.",
+		})
 	} else {
-		c.Explorer.DisplayWarnings(logger, c)
+		warnings = append(warnings, c.Explorer.DisplayWarnings(c)...)
 	}
+
+	return warnings
 }

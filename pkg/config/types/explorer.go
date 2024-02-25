@@ -2,8 +2,6 @@ package types
 
 import (
 	"fmt"
-
-	"github.com/rs/zerolog"
 )
 
 type Explorer struct {
@@ -14,26 +12,55 @@ type Explorer struct {
 	BlockLinkPattern       string `toml:"block-link-pattern"`
 }
 
-func (e *Explorer) DisplayWarnings(logger *zerolog.Logger, c *Chain) {
+func (e *Explorer) DisplayWarnings(c *Chain) []DisplayWarning {
+	var warnings []DisplayWarning
+
 	if e.ProposalLinkPattern == "" {
-		logger.Warn().Str("chain", c.Name).Msg("Proposal link pattern not set, proposals links won't be generated.")
+		warnings = append(warnings, DisplayWarning{
+			Keys: map[string]string{
+				"chain": c.Name,
+			},
+			Text: "Proposal link pattern not set, proposals links won't be generated.",
+		})
 	}
 
 	if e.WalletLinkPattern == "" {
-		logger.Warn().Str("chain", c.Name).Msg("Wallet link pattern not set, wallets links won't be generated.")
+		warnings = append(warnings, DisplayWarning{
+			Keys: map[string]string{
+				"chain": c.Name,
+			},
+			Text: "Wallet link pattern not set, wallets links won't be generated.",
+		})
 	}
 
 	if e.ValidatorLinkPattern == "" {
-		logger.Warn().Str("chain", c.Name).Msg("Validator link pattern not set, validators links won't be generated.")
+		warnings = append(warnings, DisplayWarning{
+			Keys: map[string]string{
+				"chain": c.Name,
+			},
+			Text: "Validator link pattern not set, validators links won't be generated.",
+		})
 	}
 
 	if e.TransactionLinkPattern == "" {
-		logger.Warn().Str("chain", c.Name).Msg("Transaction link pattern not set, transactions links won't be generated.")
+		warnings = append(warnings, DisplayWarning{
+			Keys: map[string]string{
+				"chain": c.Name,
+			},
+			Text: "Transaction link pattern not set, transactions links won't be generated.",
+		})
 	}
 
 	if e.BlockLinkPattern == "" {
-		logger.Warn().Str("chain", c.Name).Msg("Block link pattern not set, blocks links won't be generated.")
+		warnings = append(warnings, DisplayWarning{
+			Keys: map[string]string{
+				"chain": c.Name,
+			},
+			Text: "Block link pattern not set, blocks links won't be generated.",
+		})
 	}
+
+	return warnings
 }
 
 type SupportedExplorer interface {
@@ -49,7 +76,7 @@ func (e *MintscanExplorer) ToExplorer() *Explorer {
 		ProposalLinkPattern:    fmt.Sprintf("https://mintscan.io/%s/proposals/%%s", e.Prefix),
 		WalletLinkPattern:      fmt.Sprintf("https://mintscan.io/%s/account/%%s", e.Prefix),
 		ValidatorLinkPattern:   fmt.Sprintf("https://mintscan.io/%s/validators/%%s", e.Prefix),
-		TransactionLinkPattern: fmt.Sprintf("https://mintscan.io/%s/txs/%%s", e.Prefix),
+		TransactionLinkPattern: fmt.Sprintf("https://mintscan.io/%s/tx/%%s", e.Prefix),
 		BlockLinkPattern:       fmt.Sprintf("https://mintscan.io/%s/blocks/%%s", e.Prefix),
 	}
 }

@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/cometbft/cometbft/libs/pubsub/query"
-	cosmosTypes "github.com/cosmos/cosmos-sdk/types"
 )
 
 type Filters []query.Query
@@ -34,12 +33,4 @@ func (f Filters) Matches(values event.EventValues) (bool, error) {
 	}
 
 	return false, nil
-}
-
-func (f Filters) MatchesType(msgType string) (bool, error) {
-	values := []event.EventValue{
-		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, msgType),
-	}
-
-	return f.Matches(values)
 }

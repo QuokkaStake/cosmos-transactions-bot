@@ -11,9 +11,9 @@ import (
 type Subscriptions []*Subscription
 
 type Subscription struct {
-	Name              string             `toml:"name"`
-	Reporter          string             `toml:"reporter"`
-	ChainSubscription ChainSubscriptions `toml:"chains"`
+	Name               string             `toml:"name"`
+	Reporter           string             `toml:"reporter"`
+	ChainSubscriptions ChainSubscriptions `toml:"chains"`
 }
 
 type ChainSubscriptions []*ChainSubscription
@@ -58,7 +58,7 @@ func (s *Subscription) Validate() error {
 		return fmt.Errorf("empty reporter name")
 	}
 
-	for index, subscription := range s.ChainSubscription {
+	for index, subscription := range s.ChainSubscriptions {
 		if err := subscription.Validate(); err != nil {
 			return fmt.Errorf("error in subscription %d: %s", index, err)
 		}
@@ -99,8 +99,8 @@ func (s *ChainSubscription) ToAppConfigChainSubscription() *types.ChainSubscript
 }
 
 func (s *Subscription) ToAppConfigSubscription() *types.Subscription {
-	chainSubscriptions := make(types.ChainSubscriptions, len(s.ChainSubscription))
-	for index, chainSubscription := range s.ChainSubscription {
+	chainSubscriptions := make(types.ChainSubscriptions, len(s.ChainSubscriptions))
+	for index, chainSubscription := range s.ChainSubscriptions {
 		chainSubscriptions[index] = chainSubscription.ToAppConfigChainSubscription()
 	}
 
@@ -131,13 +131,13 @@ func FromAppConfigChainSubscription(s *types.ChainSubscription) *ChainSubscripti
 
 func FromAppConfigSubscription(s *types.Subscription) *Subscription {
 	subscription := &Subscription{
-		Name:              s.Name,
-		Reporter:          s.Reporter,
-		ChainSubscription: make(ChainSubscriptions, len(s.ChainSubscriptions)),
+		Name:               s.Name,
+		Reporter:           s.Reporter,
+		ChainSubscriptions: make(ChainSubscriptions, len(s.ChainSubscriptions)),
 	}
 
 	for index, chainSubscription := range s.ChainSubscriptions {
-		subscription.ChainSubscription[index] = FromAppConfigChainSubscription(chainSubscription)
+		subscription.ChainSubscriptions[index] = FromAppConfigChainSubscription(chainSubscription)
 	}
 
 	return subscription
