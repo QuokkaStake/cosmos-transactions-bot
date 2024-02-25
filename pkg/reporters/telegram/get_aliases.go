@@ -2,6 +2,7 @@ package telegram
 
 import (
 	"fmt"
+	"main/pkg/constants"
 
 	tele "gopkg.in/telebot.v3"
 )
@@ -11,6 +12,8 @@ func (reporter *Reporter) HandleGetAliases(c tele.Context) error {
 		Str("sender", c.Sender().Username).
 		Str("text", c.Text()).
 		Msg("Got get aliases query")
+
+	reporter.MetricsManager.LogReporterQuery(reporter.Name(), constants.ReporterQueryGetAliases)
 
 	if !reporter.AliasManager.Enabled() {
 		return reporter.BotReply(c, "Aliases manager not enabled")

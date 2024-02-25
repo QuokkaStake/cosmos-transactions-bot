@@ -2,6 +2,8 @@ package constants
 
 type EventFilterReason string
 
+type ReporterQuery string
+
 const (
 	PrometheusMetricsPrefix string = "cosmos_transactions_bot_"
 
@@ -12,6 +14,12 @@ const (
 	EventFilterReasonUnsupportedMsgTypeNotLogged EventFilterReason = "unsupported_msg_type_not_logged"
 	EventFilterReasonFailedTxNotLogged           EventFilterReason = "failed_tx_not_logged"
 	EventFilterReasonEmptyTxNotLogged            EventFilterReason = "empty_tx_not_logged"
+
+	ReporterQueryHelp        ReporterQuery = "help"
+	ReporterQueryGetAliases  ReporterQuery = "get_aliases"
+	ReporterQuerySetAlias    ReporterQuery = "set_alias"
+	ReporterQueryGetConfig   ReporterQuery = "get_config"
+	ReporterQueryNodesStatus ReporterQuery = "nodes_status"
 )
 
 func GetReporterTypes() []string {

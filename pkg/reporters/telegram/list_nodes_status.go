@@ -1,6 +1,7 @@
 package telegram
 
 import (
+	"main/pkg/constants"
 	"main/pkg/types"
 
 	tele "gopkg.in/telebot.v3"
@@ -11,6 +12,8 @@ func (reporter *Reporter) HandleListNodesStatus(c tele.Context) error {
 		Str("sender", c.Sender().Username).
 		Str("text", c.Text()).
 		Msg("Got status query")
+
+	reporter.MetricsManager.LogReporterQuery(reporter.Name(), constants.ReporterQueryNodesStatus)
 
 	statuses := map[string]map[string]types.TendermintRPCStatus{}
 
