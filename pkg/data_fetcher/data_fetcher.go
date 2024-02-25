@@ -115,7 +115,16 @@ func (f *DataFetcher) PopulateAmounts(chain *configTypes.Chain, amounts amountPk
 	for _, amount := range amounts {
 		denomInfo := chain.Denoms.Find(amount.BaseDenom)
 		if denomInfo == nil {
-			continue
+			if !amount.IsIbcToken() {
+				continue
+			}
+
+			// For IBC denoms, try fetching the multichain denom (as in, from local chains).
+			if externalDenom, found := f.MaybeFetchMultichainDenom(chain, amount.BaseDenom); found {
+				denomInfo = externalDenom
+			} else {
+				continue
+			}
 		}
 
 		amount.ConvertDenom(denomInfo.DisplayDenom, denomInfo.DenomCoefficient)
@@ -182,6 +191,45 @@ func (f *DataFetcher) PopulateAmounts(chain *configTypes.Chain, amounts amountPk
 
 		amount.AddUSDPrice(uncachedPrice)
 	}
+}
+
+func (f *DataFetcher) MaybeFetchMultichainDenom(
+	chain *configTypes.Chain,
+	denom string,
+) (*configTypes.DenomInfo, bool) {
+	// Fetching multichain denoms (as in, denoms from chains declared locally).
+
+	// 1. Fetching remote DenomTrace from chain this transaction/message belongs to.
+	trace, found := f.GetDenomTrace(chain, denom)
+	if !found {
+		return nil, false
+	}
+
+	// 2. Split port and channel. Multi-hop transfers are not supported.
+	pathParsed := strings.Split(trace.Path, "/")
+	if len(pathParsed) != 2 {
+		return nil, false
+	}
+
+	// 3. Getting the chain-id of the denom on the chain it was minted.
+	originalChainId, found := f.GetIbcRemoteChainID(chain, pathParsed[1], pathParsed[0])
+	if !found {
+		return nil, false
+	}
+
+	// 4. Trying to find this chain by chain-id in our local config.
+	remoteChain, found := f.FindChainById(originalChainId)
+	if !found {
+		return nil, false
+	}
+
+	// 5. Trying to find the denom in our local chain config.
+	remoteDenom := remoteChain.Denoms.Find(trace.BaseDenom)
+	if !found {
+		return nil, false
+	}
+
+	return remoteDenom, true
 }
 
 func (f *DataFetcher) GetValidator(chain *configTypes.Chain, address string) (*responses.Validator, bool) {

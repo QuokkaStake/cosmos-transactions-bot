@@ -69,6 +69,11 @@ func (f *Filterer) GetReportableForReporters(
 					Subscription:      subscription,
 					ChainSubscription: chainSubscription,
 				}
+				f.MetricsManager.LogMatchedEvent(
+					chainSubscription.Chain,
+					reportableFiltered.Type(),
+					subscription.Name,
+				)
 			}
 		}
 	}
@@ -94,7 +99,6 @@ func (f *Filterer) FilterForChainAndSubscription(
 			return nil
 		}
 
-		f.MetricsManager.LogMatchedEvent(chainSubscription.Chain, reportable.Type(), subscription.Name)
 		return reportable
 	}
 
@@ -109,7 +113,6 @@ func (f *Filterer) FilterForChainAndSubscription(
 			return nil
 		}
 
-		f.MetricsManager.LogMatchedEvent(chainSubscription.Chain, reportable.Type(), subscription.Name)
 		return reportable
 	}
 
@@ -178,7 +181,6 @@ func (f *Filterer) FilterForChainAndSubscription(
 	}
 
 	tx.Messages = messages
-	f.MetricsManager.LogMatchedEvent(chainSubscription.Chain, reportable.Type(), subscription.Name)
 	return tx
 }
 

@@ -47,8 +47,6 @@ func (m MsgTransfer) Type() string {
 func (m *MsgTransfer) GetAdditionalData(fetcher types.DataFetcher) {
 	m.FetchRemoteChainData(fetcher)
 
-	fetcher.PopulateAmount(m.Chain, m.Token)
-
 	if alias := fetcher.GetAliasManager().Get(m.Chain.Name, m.Sender.Value); alias != "" {
 		m.Sender.Title = alias
 	}
