@@ -1,10 +1,11 @@
 package logger_test
 
 import (
-	"github.com/stretchr/testify/require"
 	configPkg "main/pkg/config"
 	loggerPkg "main/pkg/logger"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestGetDefaultLogger(t *testing.T) {
