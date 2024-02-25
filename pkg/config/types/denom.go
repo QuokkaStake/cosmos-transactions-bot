@@ -1,7 +1,5 @@
 package types
 
-import "github.com/rs/zerolog"
-
 type DenomInfo struct {
 	Denom             string
 	DenomCoefficient  int64
@@ -9,13 +7,19 @@ type DenomInfo struct {
 	CoingeckoCurrency string
 }
 
-func (d *DenomInfo) DisplayWarnings(chain *Chain, logger *zerolog.Logger) {
+func (d *DenomInfo) DisplayWarnings(chain *Chain) []DisplayWarning {
+	var warnings []DisplayWarning
+
 	if d.CoingeckoCurrency == "" {
-		logger.Warn().
-			Str("chain", chain.Name).
-			Str("denom", d.Denom).
-			Msg("Coingecko currency not set, denoms won't be displayed correctly.")
+		warnings = append(warnings, DisplayWarning{
+			Keys: map[string]string{
+				"chain": chain.Name,
+			},
+			Text: "No denoms set, prices in USD won't be displayed.",
+		})
 	}
+
+	return warnings
 }
 
 type DenomInfos []*DenomInfo

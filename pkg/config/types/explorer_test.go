@@ -32,3 +32,94 @@ func TestPingExplorerToExplorer(t *testing.T) {
 	require.Equal(t, "https://example.com/chain/account/%s", appExplorer.WalletLinkPattern)
 	require.Equal(t, "https://example.com/chain/gov/%s", appExplorer.ProposalLinkPattern)
 }
+
+func TestExplorerDisplayWarningsNoTransactionLink(t *testing.T) {
+	t.Parallel()
+
+	explorer := &types.Explorer{
+		BlockLinkPattern:     "test/%s",
+		WalletLinkPattern:    "test/%s",
+		ValidatorLinkPattern: "test/%s",
+		ProposalLinkPattern:  "test/%s",
+	}
+
+	warnings := explorer.DisplayWarnings(&types.Chain{Name: "chain"})
+
+	require.Len(t, warnings, 1)
+}
+
+func TestExplorerDisplayWarningsNoBlocksLink(t *testing.T) {
+	t.Parallel()
+
+	explorer := &types.Explorer{
+		TransactionLinkPattern: "test/%s",
+		WalletLinkPattern:      "test/%s",
+		ValidatorLinkPattern:   "test/%s",
+		ProposalLinkPattern:    "test/%s",
+	}
+
+	warnings := explorer.DisplayWarnings(&types.Chain{Name: "chain"})
+
+	require.Len(t, warnings, 1)
+}
+
+func TestExplorerDisplayWarningsNoValidatorsLink(t *testing.T) {
+	t.Parallel()
+
+	explorer := &types.Explorer{
+		TransactionLinkPattern: "test/%s",
+		WalletLinkPattern:      "test/%s",
+		BlockLinkPattern:       "test/%s",
+		ProposalLinkPattern:    "test/%s",
+	}
+
+	warnings := explorer.DisplayWarnings(&types.Chain{Name: "chain"})
+
+	require.Len(t, warnings, 1)
+}
+
+func TestExplorerDisplayWarningsNoWalletLink(t *testing.T) {
+	t.Parallel()
+
+	explorer := &types.Explorer{
+		TransactionLinkPattern: "test/%s",
+		ValidatorLinkPattern:   "test/%s",
+		BlockLinkPattern:       "test/%s",
+		ProposalLinkPattern:    "test/%s",
+	}
+
+	warnings := explorer.DisplayWarnings(&types.Chain{Name: "chain"})
+
+	require.Len(t, warnings, 1)
+}
+
+func TestExplorerDisplayWarningsNoProposalLink(t *testing.T) {
+	t.Parallel()
+
+	explorer := &types.Explorer{
+		TransactionLinkPattern: "test/%s",
+		ValidatorLinkPattern:   "test/%s",
+		BlockLinkPattern:       "test/%s",
+		WalletLinkPattern:      "test/%s",
+	}
+
+	warnings := explorer.DisplayWarnings(&types.Chain{Name: "chain"})
+
+	require.Len(t, warnings, 1)
+}
+
+func TestExplorerDisplayWarningsValid(t *testing.T) {
+	t.Parallel()
+
+	explorer := &types.Explorer{
+		TransactionLinkPattern: "test/%s",
+		BlockLinkPattern:       "test/%s",
+		WalletLinkPattern:      "test/%s",
+		ValidatorLinkPattern:   "test/%s",
+		ProposalLinkPattern:    "test/%s",
+	}
+
+	warnings := explorer.DisplayWarnings(&types.Chain{Name: "chain"})
+
+	require.Empty(t, warnings)
+}

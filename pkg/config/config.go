@@ -13,7 +13,6 @@ import (
 
 	"github.com/BurntSushi/toml"
 	"github.com/creasty/defaults"
-	"github.com/rs/zerolog"
 )
 
 type AppConfig struct {
@@ -106,10 +105,14 @@ func (c *AppConfig) ToTomlConfig() *tomlConfig.TomlConfig {
 	}
 }
 
-func (c *AppConfig) DisplayWarnings(log *zerolog.Logger) {
+func (c *AppConfig) DisplayWarnings() []types.DisplayWarning {
+	var warnings []types.DisplayWarning
+
 	for _, chain := range c.Chains {
-		chain.DisplayWarnings(log)
+		warnings = append(warnings, chain.DisplayWarnings()...)
 	}
+
+	return warnings
 }
 
 func (c *AppConfig) Save() error {

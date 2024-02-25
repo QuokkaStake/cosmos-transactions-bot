@@ -155,3 +155,107 @@ func TestChainGetBlockLink(t *testing.T) {
 	require.Equal(t, "test/1337", link2.Href)
 	require.Empty(t, link2.Title)
 }
+
+func TestChainDisplayWarningsNoDenoms(t *testing.T) {
+	t.Parallel()
+
+	chain := types.Chain{
+		Name:    "name",
+		ChainID: "chain-id",
+		Explorer: &types.Explorer{
+			TransactionLinkPattern: "test/%s",
+			BlockLinkPattern:       "test/%s",
+			WalletLinkPattern:      "test/%s",
+			ValidatorLinkPattern:   "test/%s",
+			ProposalLinkPattern:    "test/%s",
+		},
+	}
+
+	warnings := chain.DisplayWarnings()
+
+	require.Len(t, warnings, 1)
+}
+
+func TestChainDisplayWarningsInvalidDenom(t *testing.T) {
+	t.Parallel()
+
+	chain := types.Chain{
+		Name:    "name",
+		ChainID: "chain-id",
+		Explorer: &types.Explorer{
+			TransactionLinkPattern: "test/%s",
+			BlockLinkPattern:       "test/%s",
+			WalletLinkPattern:      "test/%s",
+			ValidatorLinkPattern:   "test/%s",
+			ProposalLinkPattern:    "test/%s",
+		},
+		Denoms: types.DenomInfos{
+			{Denom: "test", DenomCoefficient: 1, DisplayDenom: "test"},
+		},
+	}
+
+	warnings := chain.DisplayWarnings()
+
+	require.Len(t, warnings, 1)
+}
+
+func TestChainDisplayWarningsEmptyChainID(t *testing.T) {
+	t.Parallel()
+
+	chain := types.Chain{
+		Name: "name",
+		Explorer: &types.Explorer{
+			TransactionLinkPattern: "test/%s",
+			BlockLinkPattern:       "test/%s",
+			WalletLinkPattern:      "test/%s",
+			ValidatorLinkPattern:   "test/%s",
+			ProposalLinkPattern:    "test/%s",
+		},
+		Denoms: types.DenomInfos{
+			{Denom: "test", DenomCoefficient: 1, DisplayDenom: "test", CoingeckoCurrency: "test"},
+		},
+	}
+
+	warnings := chain.DisplayWarnings()
+
+	require.Len(t, warnings, 1)
+}
+
+func TestChainDisplayWarningsNoExplorer(t *testing.T) {
+	t.Parallel()
+
+	chain := types.Chain{
+		Name:    "name",
+		ChainID: "chain-id",
+		Denoms: types.DenomInfos{
+			{Denom: "test", DenomCoefficient: 1, DisplayDenom: "test", CoingeckoCurrency: "test"},
+		},
+	}
+
+	warnings := chain.DisplayWarnings()
+
+	require.Len(t, warnings, 1)
+}
+
+func TestChainDisplayWarningsEmpty(t *testing.T) {
+	t.Parallel()
+
+	chain := types.Chain{
+		Name:    "name",
+		ChainID: "chain-id",
+		Explorer: &types.Explorer{
+			TransactionLinkPattern: "test/%s",
+			BlockLinkPattern:       "test/%s",
+			WalletLinkPattern:      "test/%s",
+			ValidatorLinkPattern:   "test/%s",
+			ProposalLinkPattern:    "test/%s",
+		},
+		Denoms: types.DenomInfos{
+			{Denom: "test", DenomCoefficient: 1, DisplayDenom: "test", CoingeckoCurrency: "test"},
+		},
+	}
+
+	warnings := chain.DisplayWarnings()
+
+	require.Empty(t, warnings)
+}

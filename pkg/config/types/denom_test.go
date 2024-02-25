@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestDenomsFindB(t *testing.T) {
+func TestDenomsFind(t *testing.T) {
 	t.Parallel()
 
 	denoms := types.DenomInfos{

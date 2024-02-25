@@ -17,7 +17,11 @@ func Execute(configPath string) {
 	if err != nil {
 		loggerPkg.GetDefaultLogger().Fatal().Err(err).Msg("Could not load config")
 	}
-	config.DisplayWarnings(loggerPkg.GetLogger(config.LogConfig))
+	warnings := config.DisplayWarnings()
+
+	for _, warning := range warnings {
+		warning.Log(loggerPkg.GetDefaultLogger())
+	}
 
 	app := pkg.NewApp(config, version)
 	app.Start()
