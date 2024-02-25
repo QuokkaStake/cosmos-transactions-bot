@@ -1,9 +1,11 @@
 package main
 
 import (
+	"io/fs"
 	"main/pkg"
 	configPkg "main/pkg/config"
 	loggerPkg "main/pkg/logger"
+	"os"
 
 	"github.com/spf13/cobra"
 )
@@ -13,7 +15,8 @@ var (
 )
 
 func Execute(configPath string) {
-	config, err := configPkg.GetConfig(configPath)
+	filesystem, _ := os.DirFS(".").(fs.ReadFileFS)
+	config, err := configPkg.GetConfig(configPath, filesystem)
 	if err != nil {
 		loggerPkg.GetDefaultLogger().Fatal().Err(err).Msg("Could not load config")
 	}
