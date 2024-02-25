@@ -2,6 +2,7 @@
 
 ![Latest release](https://img.shields.io/github/v/release/QuokkaStake/cosmos-transactions-bot)
 [![Actions Status](https://github.com/QuokkaStake/cosmos-transactions-bot/workflows/test/badge.svg)](https://github.com/QuokkaStake/cosmos-transactions-bot/actions)
+[![codecov](https://codecov.io/gh/QuokkaStake/cosmos-transactions-bot/graph/badge.svg?token=NDKDV02PC1)](https://codecov.io/gh/QuokkaStake/cosmos-transactions-bot)
 
 cosmos-transactions-bot is a tool that listens to transactions with a specific filter on multiple chains
 and reports them to a Telegram channel.
