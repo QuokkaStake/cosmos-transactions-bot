@@ -2,7 +2,6 @@ package config
 
 import (
 	"bytes"
-	"os"
 	"time"
 
 	"gopkg.in/guregu/null.v4"
@@ -16,7 +15,6 @@ import (
 )
 
 type AppConfig struct {
-	Path          string
 	AliasesPath   string
 	LogConfig     LogConfig
 	Chains        types.Chains
@@ -36,8 +34,12 @@ type MetricsConfig struct {
 	ListenAddr string
 }
 
-func GetConfig(path string) (*AppConfig, error) {
-	configBytes, err := os.ReadFile(path)
+type ReadFileFs interface {
+	ReadFile(name string) ([]byte, error)
+}
+
+func GetConfig(path string, filesystem ReadFileFs) (*AppConfig, error) {
+	configBytes, err := filesystem.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
@@ -49,22 +51,19 @@ func GetConfig(path string) (*AppConfig, error) {
 		return nil, err
 	}
 
-	if err = defaults.Set(configStruct); err != nil {
-		return nil, err
-	}
+	defaults.MustSet(configStruct)
 
 	if err := configStruct.Validate(); err != nil {
 		return nil, err
 	}
 
-	return FromTomlConfig(configStruct, path), nil
+	return FromTomlConfig(configStruct), nil
 }
 
-func FromTomlConfig(c *tomlConfig.TomlConfig, path string) *AppConfig {
+func FromTomlConfig(c *tomlConfig.TomlConfig) *AppConfig {
 	timezone, _ := time.LoadLocation(c.Timezone)
 
 	return &AppConfig{
-		Path:        path,
 		AliasesPath: c.AliasesPath,
 		LogConfig: LogConfig{
 			LogLevel:   c.LogConfig.LogLevel,
@@ -115,27 +114,9 @@ func (c *AppConfig) DisplayWarnings() []types.DisplayWarning {
 	return warnings
 }
 
-func (c *AppConfig) Save() error {
+func (c *AppConfig) GetConfigAsString() string {
 	configStruct := c.ToTomlConfig()
-
-	f, err := os.Create(c.Path)
-	if err != nil {
-		return err
-	}
-	if err := toml.NewEncoder(f).Encode(configStruct); err != nil {
-		return err
-	}
-	return f.Close()
-}
-
-func (c *AppConfig) GetConfigAsString() (string, error) {
-	configStruct := c.ToTomlConfig()
-
 	buffer := new(bytes.Buffer)
-
-	if err := toml.NewEncoder(buffer).Encode(configStruct); err != nil {
-		return "", err
-	}
-
-	return buffer.String(), nil
+	_ = toml.NewEncoder(buffer).Encode(configStruct)
+	return buffer.String()
 }
