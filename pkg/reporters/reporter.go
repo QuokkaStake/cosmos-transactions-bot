@@ -5,6 +5,7 @@ import (
 	"main/pkg/config"
 	configTypes "main/pkg/config/types"
 	"main/pkg/constants"
+	"main/pkg/metrics"
 	nodesManager "main/pkg/nodes_manager"
 	"main/pkg/reporters/telegram"
 	"main/pkg/types"
@@ -37,6 +38,7 @@ func GetReporter(
 	logger *zerolog.Logger,
 	nodesManager *nodesManager.NodesManager,
 	aliasManager *alias_manager.AliasManager,
+	metricsManager *metrics.Manager,
 	version string,
 ) Reporter {
 	if reporterConfig.Type == constants.ReporterTypeTelegram {
@@ -46,6 +48,7 @@ func GetReporter(
 			logger,
 			nodesManager,
 			aliasManager,
+			metricsManager,
 			version,
 		)
 	}

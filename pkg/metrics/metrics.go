@@ -39,6 +39,7 @@ type Manager struct {
 	reporterErrorsCounter  *prometheus.CounterVec
 	reportEntriesCounter   *prometheus.CounterVec
 	reporterEnabledGauge   *prometheus.GaugeVec
+	reporterQueriesCounter *prometheus.CounterVec
 
 	// Subscriptions metrics
 	subscriptionsInfoCounter *prometheus.GaugeVec
@@ -111,6 +112,10 @@ func NewManager(logger *zerolog.Logger, config configPkg.MetricsConfig) *Manager
 			Name: constants.PrometheusMetricsPrefix + "report_entries_total",
 			Help: "Counter of messages types per each successfully sent report",
 		}, []string{"chain", "reporter", "type", "subscription"}),
+		reporterQueriesCounter: promauto.NewCounterVec(prometheus.CounterOpts{
+			Name: constants.PrometheusMetricsPrefix + "queries",
+			Help: "Counter of reporters' queries (like chain status, aliases etc.)",
+		}, []string{"reporter", "type"}),
 
 		// Subscription metrics
 		subscriptionsInfoCounter: promauto.NewGaugeVec(prometheus.GaugeOpts{
@@ -302,6 +307,15 @@ func (m *Manager) LogMatchedEvent(chain string, eventType string, subscription s
 			"chain":        chain,
 			"type":         eventType,
 			"subscription": subscription,
+		}).
+		Inc()
+}
+
+func (m *Manager) LogReporterQuery(reporterName string, query constants.ReporterQuery) {
+	m.reporterQueriesCounter.
+		With(prometheus.Labels{
+			"reporter": reporterName,
+			"type":     string(query),
 		}).
 		Inc()
 }

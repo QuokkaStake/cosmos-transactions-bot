@@ -48,6 +48,7 @@ func NewApp(config *config.AppConfig, version string) *App {
 			logger,
 			nodesManager,
 			aliasManager,
+			metricsManager,
 			version,
 		)
 	}

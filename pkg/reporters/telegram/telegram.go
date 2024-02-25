@@ -6,6 +6,7 @@ import (
 	"html"
 	"html/template"
 	"main/pkg/constants"
+	"main/pkg/metrics"
 	"main/pkg/types"
 	"main/pkg/types/amount"
 	"time"
@@ -31,13 +32,15 @@ type Reporter struct {
 	Chat   int64
 	Admins []int64
 
-	TelegramBot  *tele.Bot
-	Logger       zerolog.Logger
-	Templates    map[string]*template.Template
-	NodesManager *nodesManager.NodesManager
-	Config       *config.AppConfig
-	AliasManager *alias_manager.AliasManager
-	Version      string
+	TelegramBot    *tele.Bot
+	Logger         zerolog.Logger
+	Templates      map[string]*template.Template
+	NodesManager   *nodesManager.NodesManager
+	Config         *config.AppConfig
+	AliasManager   *alias_manager.AliasManager
+	MetricsManager *metrics.Manager
+
+	Version string
 }
 
 const (
@@ -50,19 +53,21 @@ func NewReporter(
 	logger *zerolog.Logger,
 	nodesManager *nodesManager.NodesManager,
 	aliasManager *alias_manager.AliasManager,
+	metricsManager *metrics.Manager,
 	version string,
 ) *Reporter {
 	return &Reporter{
-		ReporterName: reporterConfig.Name,
-		Token:        reporterConfig.TelegramConfig.Token,
-		Chat:         reporterConfig.TelegramConfig.Chat,
-		Admins:       reporterConfig.TelegramConfig.Admins,
-		Config:       config,
-		Logger:       logger.With().Str("component", "telegram_reporter").Logger(),
-		Templates:    make(map[string]*template.Template, 0),
-		NodesManager: nodesManager,
-		AliasManager: aliasManager,
-		Version:      version,
+		ReporterName:   reporterConfig.Name,
+		Token:          reporterConfig.TelegramConfig.Token,
+		Chat:           reporterConfig.TelegramConfig.Chat,
+		Admins:         reporterConfig.TelegramConfig.Admins,
+		Config:         config,
+		Logger:         logger.With().Str("component", "telegram_reporter").Logger(),
+		Templates:      make(map[string]*template.Template, 0),
+		NodesManager:   nodesManager,
+		AliasManager:   aliasManager,
+		MetricsManager: metricsManager,
+		Version:        version,
 	}
 }
 
