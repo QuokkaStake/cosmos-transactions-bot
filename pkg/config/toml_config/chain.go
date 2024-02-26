@@ -26,6 +26,10 @@ func (c *Chain) Validate() error {
 		return fmt.Errorf("empty chain name")
 	}
 
+	if c.ChainID == "" {
+		return fmt.Errorf("empty chain ID")
+	}
+
 	if len(c.TendermintNodes) == 0 {
 		return fmt.Errorf("no Tendermint nodes provided")
 	}

@@ -15,12 +15,21 @@ func TestChainEmptyName(t *testing.T) {
 	chain := tomlConfig.Chain{}
 	require.Error(t, chain.Validate())
 }
+func TestChainEmptyID(t *testing.T) {
+	t.Parallel()
+
+	chain := tomlConfig.Chain{
+		Name: "chain",
+	}
+	require.Error(t, chain.Validate())
+}
 
 func TestChainEmptyTendermintNodes(t *testing.T) {
 	t.Parallel()
 
 	chain := tomlConfig.Chain{
-		Name: "chain",
+		Name:    "chain",
+		ChainID: "chain-id",
 	}
 	require.Error(t, chain.Validate())
 }
@@ -30,6 +39,7 @@ func TestChainEmptyApiNodes(t *testing.T) {
 
 	chain := tomlConfig.Chain{
 		Name:            "chain",
+		ChainID:         "chain-id",
 		TendermintNodes: []string{"node"},
 	}
 	require.Error(t, chain.Validate())
@@ -40,6 +50,7 @@ func TestChainEmptyQueries(t *testing.T) {
 
 	chain := tomlConfig.Chain{
 		Name:            "chain",
+		ChainID:         "chain-id",
 		TendermintNodes: []string{"node"},
 		APINodes:        []string{"node"},
 	}
@@ -51,6 +62,7 @@ func TestChainInvalidQuery(t *testing.T) {
 
 	chain := tomlConfig.Chain{
 		Name:            "chain",
+		ChainID:         "chain-id",
 		TendermintNodes: []string{"node"},
 		APINodes:        []string{"node"},
 		Queries:         []string{"query"},
@@ -63,6 +75,7 @@ func TestChainInvalidDenom(t *testing.T) {
 
 	chain := tomlConfig.Chain{
 		Name:            "chain",
+		ChainID:         "chain-id",
 		TendermintNodes: []string{"node"},
 		APINodes:        []string{"node"},
 		Queries:         []string{"event.key = 'value'"},
@@ -78,6 +91,7 @@ func TestChainValid(t *testing.T) {
 
 	chain := tomlConfig.Chain{
 		Name:            "chain",
+		ChainID:         "chain-id",
 		TendermintNodes: []string{"node"},
 		APINodes:        []string{"node"},
 		Queries:         []string{"event.key = 'value'"},
@@ -268,12 +282,14 @@ func TestChainsDuplicateName(t *testing.T) {
 
 	chain1 := &tomlConfig.Chain{
 		Name:            "chain",
+		ChainID:         "chain-id",
 		TendermintNodes: []string{"node"},
 		APINodes:        []string{"node"},
 		Queries:         []string{"event.key = 'value'"},
 	}
 	chain2 := &tomlConfig.Chain{
 		Name:            "chain",
+		ChainID:         "chain-id",
 		TendermintNodes: []string{"node"},
 		APINodes:        []string{"node"},
 		Queries:         []string{"event.key = 'value'"},
@@ -288,12 +304,14 @@ func TestChainsValid(t *testing.T) {
 
 	chain1 := &tomlConfig.Chain{
 		Name:            "chain1",
+		ChainID:         "chain-id",
 		TendermintNodes: []string{"node"},
 		APINodes:        []string{"node"},
 		Queries:         []string{"event.key = 'value'"},
 	}
 	chain2 := &tomlConfig.Chain{
 		Name:            "chain2",
+		ChainID:         "chain-id",
 		TendermintNodes: []string{"node"},
 		APINodes:        []string{"node"},
 		Queries:         []string{"event.key = 'value'"},
