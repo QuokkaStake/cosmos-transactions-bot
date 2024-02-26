@@ -2,7 +2,6 @@ package data_fetcher
 
 import (
 	configTypes "main/pkg/config/types"
-	QueryInfo "main/pkg/types/query_info"
 	"main/pkg/types/responses"
 )
 
@@ -19,8 +18,7 @@ func (f *DataFetcher) GetStakingParams(chain *configTypes.Chain) (*responses.Sta
 	}
 
 	for _, node := range f.TendermintApiClients[chain.Name] {
-		notCachedEntry, err, queryInfo := node.GetStakingParams()
-		f.MetricsManager.LogTendermintQuery(chain.Name, queryInfo, QueryInfo.QueryTypeStakingParams)
+		notCachedEntry, err := node.GetStakingParams()
 
 		if err != nil {
 			f.Logger.Error().Err(err).Msg("Error fetching staking params")

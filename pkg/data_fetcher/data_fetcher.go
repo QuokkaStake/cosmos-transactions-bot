@@ -13,7 +13,6 @@ import (
 	configTypes "main/pkg/config/types"
 	priceFetchers "main/pkg/price_fetchers"
 	"main/pkg/tendermint/api"
-	QueryInfo "main/pkg/types/query_info"
 	"main/pkg/types/responses"
 
 	"github.com/rs/zerolog"
@@ -41,7 +40,12 @@ func NewDataFetcher(
 	for _, chain := range config.Chains {
 		tendermintApiClients[chain.Name] = make([]*api.TendermintApiClient, len(chain.APINodes))
 		for index, node := range chain.APINodes {
-			tendermintApiClients[chain.Name][index] = api.NewTendermintApiClient(logger, node, chain)
+			tendermintApiClients[chain.Name][index] = api.NewTendermintApiClient(
+				logger,
+				node,
+				chain,
+				metricsManager,
+			)
 		}
 	}
 
@@ -55,7 +59,7 @@ func NewDataFetcher(
 		TendermintApiClients:  tendermintApiClients,
 		AliasManager:          aliasManager,
 		MetricsManager:        metricsManager,
-		CosmosDirectoryClient: cosmosDirectoryPkg.NewClient(logger),
+		CosmosDirectoryClient: cosmosDirectoryPkg.NewClient(logger, metricsManager),
 	}
 }
 
@@ -212,8 +216,7 @@ func (f *DataFetcher) GetCosmosDirectoryChains() (responses.CosmosDirectoryChain
 		return nil, false
 	}
 
-	notCachedChainsList, err, queryInfo := f.CosmosDirectoryClient.GetAllChains()
-	f.MetricsManager.LogTendermintQuery("cosmos.directory", queryInfo, QueryInfo.QueryTypeChainsList)
+	notCachedChainsList, err := f.CosmosDirectoryClient.GetAllChains()
 	if err != nil {
 		f.Logger.Error().Msg("Error fetching chains list")
 		return nil, false

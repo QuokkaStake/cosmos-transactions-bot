@@ -2,7 +2,6 @@ package data_fetcher
 
 import (
 	configTypes "main/pkg/config/types"
-	QueryInfo "main/pkg/types/query_info"
 	"main/pkg/types/responses"
 )
 
@@ -28,8 +27,7 @@ func (f *DataFetcher) GetIbcRemoteChainID(
 	)
 
 	for _, node := range f.TendermintApiClients[chain.Name] {
-		ibcChannelResponse, err, queryInfo := node.GetIbcChannel(channel, port)
-		f.MetricsManager.LogTendermintQuery(chain.Name, queryInfo, QueryInfo.QueryTypeIbcChannel)
+		ibcChannelResponse, err := node.GetIbcChannel(channel, port)
 		if err != nil {
 			f.Logger.Error().Err(err).Msg("Error fetching IBC channel")
 			continue
@@ -52,8 +50,7 @@ func (f *DataFetcher) GetIbcRemoteChainID(
 	}
 
 	for _, node := range f.TendermintApiClients[chain.Name] {
-		ibcChannelClientStateResponse, err, queryInfo := node.GetIbcConnectionClientState(ibcChannel.ConnectionHops[0])
-		f.MetricsManager.LogTendermintQuery(chain.Name, queryInfo, QueryInfo.QueryTypeIbcConnectionClientState)
+		ibcChannelClientStateResponse, err := node.GetIbcConnectionClientState(ibcChannel.ConnectionHops[0])
 		if err != nil {
 			f.Logger.Error().Err(err).Msg("Error fetching IBC client state")
 			continue

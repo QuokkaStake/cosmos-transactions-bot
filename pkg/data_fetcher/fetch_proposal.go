@@ -2,7 +2,6 @@ package data_fetcher
 
 import (
 	configTypes "main/pkg/config/types"
-	QueryInfo "main/pkg/types/query_info"
 	"main/pkg/types/responses"
 )
 
@@ -19,8 +18,7 @@ func (f *DataFetcher) GetProposal(chain *configTypes.Chain, id string) (*respons
 	}
 
 	for _, node := range f.TendermintApiClients[chain.Name] {
-		notCachedEntry, err, queryInfo := node.GetProposal(id)
-		f.MetricsManager.LogTendermintQuery(chain.Name, queryInfo, QueryInfo.QueryTypeProposal)
+		notCachedEntry, err := node.GetProposal(id)
 		if err != nil {
 			f.Logger.Error().Err(err).Msg("Error fetching proposal")
 			continue

@@ -2,7 +2,6 @@ package data_fetcher
 
 import (
 	configTypes "main/pkg/config/types"
-	QueryInfo "main/pkg/types/query_info"
 	"main/pkg/types/responses"
 	"strconv"
 )
@@ -24,8 +23,7 @@ func (f *DataFetcher) GetCommissionAtBlock(
 	}
 
 	for _, node := range f.TendermintApiClients[chain.Name] {
-		notCachedEntry, err, queryInfo := node.GetValidatorCommissionAtBlock(validator, block-1)
-		f.MetricsManager.LogTendermintQuery(chain.Name, queryInfo, QueryInfo.QueryTypeCommission)
+		notCachedEntry, err := node.GetValidatorCommissionAtBlock(validator, block-1)
 		if err != nil {
 			f.Logger.Error().Err(err).Msg("Error fetching commission")
 			continue

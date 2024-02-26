@@ -2,7 +2,6 @@ package data_fetcher
 
 import (
 	configTypes "main/pkg/config/types"
-	QueryInfo "main/pkg/types/query_info"
 	"main/pkg/types/responses"
 )
 
@@ -19,8 +18,7 @@ func (f *DataFetcher) GetValidator(chain *configTypes.Chain, address string) (*r
 	}
 
 	for _, node := range f.TendermintApiClients[chain.Name] {
-		notCachedValidator, err, queryInfo := node.GetValidator(address)
-		f.MetricsManager.LogTendermintQuery(chain.Name, queryInfo, QueryInfo.QueryTypeValidator)
+		notCachedValidator, err := node.GetValidator(address)
 		if err != nil {
 			f.Logger.Error().Msg("Error fetching validator")
 			continue

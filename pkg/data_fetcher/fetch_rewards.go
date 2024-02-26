@@ -2,7 +2,6 @@ package data_fetcher
 
 import (
 	configTypes "main/pkg/config/types"
-	QueryInfo "main/pkg/types/query_info"
 	"main/pkg/types/responses"
 	"strconv"
 )
@@ -25,8 +24,7 @@ func (f *DataFetcher) GetRewardsAtBlock(
 	}
 
 	for _, node := range f.TendermintApiClients[chain.Name] {
-		notCachedValidator, err, queryInfo := node.GetDelegatorsRewardsAtBlock(delegator, validator, block-1)
-		f.MetricsManager.LogTendermintQuery(chain.Name, queryInfo, QueryInfo.QueryTypeRewards)
+		notCachedValidator, err := node.GetDelegatorsRewardsAtBlock(delegator, validator, block-1)
 		if err != nil {
 			f.Logger.Error().Err(err).Msg("Error fetching rewards")
 			continue

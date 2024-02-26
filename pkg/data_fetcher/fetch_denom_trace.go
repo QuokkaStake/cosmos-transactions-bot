@@ -2,7 +2,6 @@ package data_fetcher
 
 import (
 	configTypes "main/pkg/config/types"
-	QueryInfo "main/pkg/types/query_info"
 	"strings"
 
 	transferTypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
@@ -32,8 +31,7 @@ func (f *DataFetcher) GetDenomTrace(
 	}
 
 	for _, node := range f.TendermintApiClients[chain.Name] {
-		notCachedEntry, err, queryInfo := node.GetIbcDenomTrace(denomHash)
-		f.MetricsManager.LogTendermintQuery(chain.Name, queryInfo, QueryInfo.QueryTypeIbcDenomTrace)
+		notCachedEntry, err := node.GetIbcDenomTrace(denomHash)
 
 		if err != nil {
 			f.Logger.Error().Err(err).Msg("Error fetching IBC denom trace")
