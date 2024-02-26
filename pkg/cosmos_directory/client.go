@@ -1,10 +1,11 @@
 package cosmos_directory
 
 import (
-	"github.com/rs/zerolog"
 	"main/pkg/http"
 	"main/pkg/types/query_info"
 	"main/pkg/types/responses"
+
+	"github.com/rs/zerolog"
 )
 
 type Client struct {
