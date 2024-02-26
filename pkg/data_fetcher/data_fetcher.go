@@ -122,14 +122,14 @@ func (f *DataFetcher) PopulateAmounts(chain *configTypes.Chain, amounts amountPk
 		if !found {
 			f.Logger.Warn().
 				Str("chain", chain.Name).
-				Str("denom", amount.Denom).
+				Str("denom", amount.Denom.String()).
 				Msg("Could not fetch denom info")
 			continue
 		}
 
 		f.Logger.Debug().
 			Str("chain", chain.Name).
-			Str("denom", amount.Denom).
+			Str("denom", amount.Denom.String()).
 			Str("display_denom", denomInfo.DisplayDenom).
 			Int64("coefficient", denomInfo.DenomCoefficient).
 			Msg("Fetched denom for chain")
@@ -193,7 +193,7 @@ func (f *DataFetcher) PopulateAmounts(chain *configTypes.Chain, amounts amountPk
 
 	// 4. Converting USD amounts for newly fetched prices.
 	for _, amount := range amounts {
-		uncachedPrice, ok := uncachedPrices[amount.BaseDenom]
+		uncachedPrice, ok := uncachedPrices[amount.BaseDenom.String()]
 		if !ok {
 			continue
 		}
@@ -260,7 +260,7 @@ func (f *DataFetcher) GetChainDenom(
 	// Getting the denom for that chain and denom.
 
 	// 1. Trying to find it in local chain config.
-	denomInfo := chain.Denoms.Find(amount.BaseDenom)
+	denomInfo := chain.Denoms.Find(amount.BaseDenom.String())
 	if denomInfo != nil {
 		return denomInfo, true
 	}
@@ -269,13 +269,13 @@ func (f *DataFetcher) GetChainDenom(
 	// (as in, query the remote chain, take chain-id from it, and then
 	// take denom from cosmos.directory or local config).
 
-	if amount.IsIbcToken() {
-		return f.MaybeFetchMultichainDenom(chain, amount.BaseDenom)
+	if amount.Denom.IsIbcToken() {
+		return f.MaybeFetchMultichainDenom(chain, amount.BaseDenom.String())
 	}
 
 	// 3. Okay, it's not an IBC denom, we couldn't find it in the local config,
 	// then we fetch the denom info from cosmos.directory.
-	return f.GetCosmosDirectoryDenom(chain.ChainID, amount.BaseDenom)
+	return f.GetCosmosDirectoryDenom(chain.ChainID, amount.BaseDenom.String())
 }
 
 func (f *DataFetcher) MaybeFetchMultichainDenom(

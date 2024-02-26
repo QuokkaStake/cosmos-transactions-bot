@@ -64,18 +64,18 @@ func (m *MsgTransfer) FetchRemoteChainData(fetcher types.DataFetcher) {
 	// If it's a native token - just take the denom from the current chain, but also fetch
 	// the remote chain for links generation.
 	var trace ibcTypes.DenomTrace
-	if m.Token.IsIbcToken() {
-		externalTrace, found := fetcher.GetDenomTrace(m.Chain, m.Token.Denom)
+	if m.Token.Denom.IsIbcToken() {
+		externalTrace, found := fetcher.GetDenomTrace(m.Chain, m.Token.Denom.String())
 		if !found {
 			return
 		}
 		trace = *externalTrace
 	} else {
-		trace = ibcTypes.ParseDenomTrace(m.Token.Denom)
+		trace = ibcTypes.ParseDenomTrace(m.Token.Denom.String())
 	}
 
-	m.Token.Denom = trace.BaseDenom
-	m.Token.BaseDenom = trace.BaseDenom
+	m.Token.Denom = amount.Denom(trace.BaseDenom)
+	m.Token.BaseDenom = amount.Denom(trace.BaseDenom)
 
 	// If it's native - populate denom as it is, taking current chain as the source chain.
 	if trace.IsNativeDenom() {

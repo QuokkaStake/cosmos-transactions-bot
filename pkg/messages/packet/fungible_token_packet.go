@@ -62,9 +62,9 @@ func (p *FungibleTokenPacket) FetchRemoteChainData(fetcher types.DataFetcher) {
 	// p.Receiver is on native chain, so we can use p.Chain to generate links
 	// and denoms and prices.
 
-	trace := ibcTypes.ParseDenomTrace(p.Token.Denom)
-	p.Token.Denom = trace.BaseDenom
-	p.Token.BaseDenom = trace.BaseDenom
+	trace := ibcTypes.ParseDenomTrace(p.Token.Denom.String())
+	p.Token.Denom = amount.Denom(trace.BaseDenom)
+	p.Token.BaseDenom = amount.Denom(trace.BaseDenom)
 
 	if !trace.IsNativeDenom() {
 		fetcher.PopulateAmount(p.Chain, p.Token)

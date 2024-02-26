@@ -17,8 +17,8 @@ func TestAmountFrom(t *testing.T) {
 	coin := cosmosTypes.Coin{Denom: "stake", Amount: sdkmath.NewInt(100)}
 	amount := amountPkg.AmountFrom(coin)
 
-	require.Equal(t, "stake", amount.Denom)
-	require.Equal(t, "stake", amount.BaseDenom)
+	require.Equal(t, "stake", amount.Denom.String())
+	require.Equal(t, "stake", amount.BaseDenom.String())
 	require.Equal(t, "100.000000", fmt.Sprintf("%.6f", amount.Value))
 }
 
@@ -39,8 +39,8 @@ func TestAmountFromStringValid(t *testing.T) {
 
 	amount := amountPkg.AmountFromString("100", "stake")
 
-	require.Equal(t, "stake", amount.Denom)
-	require.Equal(t, "stake", amount.BaseDenom)
+	require.Equal(t, "stake", amount.Denom.String())
+	require.Equal(t, "stake", amount.BaseDenom.String())
 	require.Equal(t, "100.000000", fmt.Sprintf("%.6f", amount.Value))
 }
 
@@ -50,8 +50,8 @@ func TestAmountConvertDenom(t *testing.T) {
 	amount := amountPkg.AmountFromString("100000000", "ustake")
 	amount.ConvertDenom("stake", 1000000)
 
-	require.Equal(t, "stake", amount.Denom)
-	require.Equal(t, "ustake", amount.BaseDenom)
+	require.Equal(t, "stake", amount.Denom.String())
+	require.Equal(t, "ustake", amount.BaseDenom.String())
 	require.Equal(t, "100.000000", fmt.Sprintf("%.6f", amount.Value))
 }
 
@@ -61,7 +61,7 @@ func TestAmountAddUsdPrice(t *testing.T) {
 	amount := amountPkg.AmountFromString("1", "stake")
 	amount.AddUSDPrice(1.23)
 
-	require.Equal(t, "stake", amount.Denom)
+	require.Equal(t, "stake", amount.Denom.String())
 	require.Equal(t, "1.000000", fmt.Sprintf("%.6f", amount.Value))
 	require.Equal(t, "1.230000", fmt.Sprintf("%.6f", amount.PriceUSD))
 }
@@ -73,14 +73,11 @@ func TestAmountToString(t *testing.T) {
 	require.Equal(t, "123stake", amount.String())
 }
 
-func TestAmountIsIbcDenom(t *testing.T) {
+func TestDenomIsIbcDenom(t *testing.T) {
 	t.Parallel()
 
-	amount := amountPkg.AmountFromString("123.456", "ibc/xxxxx")
-	require.True(t, amount.IsIbcToken())
-
-	amount2 := amountPkg.AmountFromString("123.456", "ustake")
-	require.False(t, amount2.IsIbcToken())
+	require.True(t, amountPkg.Denom("ibc/xxxxx").IsIbcToken())
+	require.False(t, amountPkg.Denom("ustake").IsIbcToken())
 }
 
 func TestAmountsToString(t *testing.T) {
