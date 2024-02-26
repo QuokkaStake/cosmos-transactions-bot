@@ -15,7 +15,7 @@ import (
 )
 
 type MultiSendEntry struct {
-	Address configTypes.Link
+	Address *configTypes.Link
 	Amount  amount.Amounts
 }
 

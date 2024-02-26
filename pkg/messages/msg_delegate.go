@@ -14,7 +14,7 @@ import (
 )
 
 type MsgDelegate struct {
-	DelegatorAddress configTypes.Link
+	DelegatorAddress *configTypes.Link
 	ValidatorAddress configTypes.Link
 	Amount           *amount.Amount
 

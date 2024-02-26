@@ -16,7 +16,7 @@ import (
 )
 
 type MsgUndelegate struct {
-	DelegatorAddress     configTypes.Link
+	DelegatorAddress     *configTypes.Link
 	ValidatorAddress     configTypes.Link
 	UndelegateFinishTime time.Time
 	Amount               *amount.Amount

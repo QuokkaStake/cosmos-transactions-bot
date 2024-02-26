@@ -15,8 +15,8 @@ import (
 
 type MsgTransfer struct {
 	Token    *amount.Amount
-	Sender   configTypes.Link
-	Receiver configTypes.Link
+	Sender   *configTypes.Link
+	Receiver *configTypes.Link
 
 	SrcChannel string
 	SrcPort    string
@@ -33,7 +33,7 @@ func ParseMsgTransfer(data []byte, chain *configTypes.Chain, height int64) (type
 	return &MsgTransfer{
 		Token:      amount.AmountFrom(parsedMessage.Token),
 		Sender:     chain.GetWalletLink(parsedMessage.Sender),
-		Receiver:   configTypes.Link{Value: parsedMessage.Receiver},
+		Receiver:   &configTypes.Link{Value: parsedMessage.Receiver},
 		SrcChannel: parsedMessage.SourceChannel,
 		SrcPort:    parsedMessage.SourcePort,
 		Chain:      chain,

@@ -13,7 +13,7 @@ import (
 )
 
 type MsgSetWithdrawAddress struct {
-	DelegatorAddress configTypes.Link
+	DelegatorAddress *configTypes.Link
 	WithdrawAddress  configTypes.Link
 
 	Chain *configTypes.Chain

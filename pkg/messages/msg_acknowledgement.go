@@ -16,9 +16,9 @@ import (
 
 type MsgAcknowledgement struct {
 	Token    *amount.Amount
-	Sender   configTypes.Link
-	Receiver configTypes.Link
-	Signer   configTypes.Link
+	Sender   *configTypes.Link
+	Receiver *configTypes.Link
+	Signer   *configTypes.Link
 
 	Chain *configTypes.Chain
 }
@@ -37,7 +37,7 @@ func ParseMsgAcknowledgement(data []byte, chain *configTypes.Chain, height int64
 	return &MsgAcknowledgement{
 		Token:    amount.AmountFromString(packetData.Amount, packetData.Denom),
 		Sender:   chain.GetWalletLink(packetData.Sender),
-		Receiver: configTypes.Link{Value: packetData.Receiver},
+		Receiver: &configTypes.Link{Value: packetData.Receiver},
 		Signer:   chain.GetWalletLink(parsedMessage.Signer),
 		Chain:    chain,
 	}, nil

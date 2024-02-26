@@ -49,12 +49,12 @@ func (c Chain) GetName() string {
 	return c.Name
 }
 
-func (c Chain) GetWalletLink(address string) Link {
+func (c Chain) GetWalletLink(address string) *Link {
 	if c.Explorer == nil {
-		return Link{Value: address}
+		return &Link{Value: address}
 	}
 
-	return Link{
+	return &Link{
 		Href:  fmt.Sprintf(c.Explorer.WalletLinkPattern, address),
 		Value: address,
 	}

@@ -15,8 +15,8 @@ import (
 )
 
 type MsgSend struct {
-	From   configTypes.Link
-	To     configTypes.Link
+	From   *configTypes.Link
+	To     *configTypes.Link
 	Amount amount.Amounts
 
 	Chain *configTypes.Chain

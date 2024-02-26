@@ -230,7 +230,7 @@ func (reporter *Reporter) BotReply(c tele.Context, msg string) error {
 	return nil
 }
 
-func (reporter *Reporter) SerializeLink(link configTypes.Link) template.HTML {
+func (reporter *Reporter) SerializeLink(link *configTypes.Link) template.HTML {
 	value := link.Title
 	if value == "" {
 		value = link.Value

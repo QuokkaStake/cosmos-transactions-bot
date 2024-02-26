@@ -14,7 +14,7 @@ import (
 )
 
 type MsgBeginRedelegate struct {
-	DelegatorAddress    configTypes.Link
+	DelegatorAddress    *configTypes.Link
 	ValidatorSrcAddress configTypes.Link
 	ValidatorDstAddress configTypes.Link
 	Amount              *amount.Amount

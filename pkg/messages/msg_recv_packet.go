@@ -14,7 +14,7 @@ import (
 )
 
 type MsgRecvPacket struct {
-	Signer configTypes.Link
+	Signer *configTypes.Link
 	Packet types.Message
 
 	Chain *configTypes.Chain

@@ -16,8 +16,8 @@ import (
 
 type FungibleTokenPacket struct {
 	Token    *amount.Amount
-	Sender   configTypes.Link
-	Receiver configTypes.Link
+	Sender   *configTypes.Link
+	Receiver *configTypes.Link
 
 	SrcPort    string
 	SrcChannel string
@@ -34,7 +34,7 @@ func ParseFungibleTokenPacket(
 ) types.Message {
 	return &FungibleTokenPacket{
 		Token:      amount.AmountFromString(packetData.Amount, packetData.Denom),
-		Sender:     configTypes.Link{Value: packetData.Sender},
+		Sender:     &configTypes.Link{Value: packetData.Sender},
 		Receiver:   chain.GetWalletLink(packetData.Receiver),
 		SrcPort:    packet.SourcePort,
 		SrcChannel: packet.SourceChannel,
