@@ -45,7 +45,6 @@ func (m MsgTransfer) Type() string {
 }
 
 func (m *MsgTransfer) GetAdditionalData(fetcher types.DataFetcher) {
-	fetcher.PopulateAmount(m.Chain, m.Token)
 	m.FetchRemoteChainData(fetcher)
 
 	if alias := fetcher.GetAliasManager().Get(m.Chain.Name, m.Sender.Value); alias != "" {
@@ -64,10 +63,38 @@ func (m *MsgTransfer) FetchRemoteChainData(fetcher types.DataFetcher) {
 	// generation.
 	// If it's a native token - just take the denom from the current chain, but also fetch
 	// the remote chain for links generation.
-	originalChainID, fetched := fetcher.GetIbcRemoteChainID(m.Chain, m.SrcChannel, m.SrcPort)
+	var trace ibcTypes.DenomTrace
+	if m.Token.IsIbcToken() {
+		externalTrace, found := fetcher.GetDenomTrace(m.Chain, m.Token.Denom)
+		if !found {
+			return
+		}
+		trace = *externalTrace
+	} else {
+		trace = ibcTypes.ParseDenomTrace(m.Token.Denom)
+	}
 
+	m.Token.Denom = trace.BaseDenom
+	m.Token.BaseDenom = trace.BaseDenom
+
+	// If it's native - populate denom as it is, taking current chain as the source chain.
+	if trace.IsNativeDenom() {
+		fetcher.PopulateAmount(m.Chain, m.Token)
+	}
+
+	// If it's not native - we need the remote chain ID to get the original denoms from,
+	// if we can't fetch it - we can't fetch prices, or generate links (if chain is in local
+	// config.)
+	originalChainID, fetched := fetcher.GetIbcRemoteChainID(m.Chain, m.SrcChannel, m.SrcPort)
 	if !fetched {
 		return
+	}
+
+	if !trace.IsNativeDenom() {
+		fetcher.PopulateAmount(&configTypes.Chain{
+			Denoms:  make(configTypes.DenomInfos, 0),
+			ChainID: originalChainID,
+		}, m.Token)
 	}
 
 	chain, found := fetcher.FindChainById(originalChainID)
