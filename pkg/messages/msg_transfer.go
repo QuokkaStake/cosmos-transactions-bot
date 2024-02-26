@@ -46,6 +46,7 @@ func (m MsgTransfer) Type() string {
 
 func (m *MsgTransfer) GetAdditionalData(fetcher types.DataFetcher) {
 	m.FetchRemoteChainData(fetcher)
+	fetcher.PopulateMultichainWallet(m.Chain, m.SrcChannel, m.SrcPort, m.Receiver)
 
 	if alias := fetcher.GetAliasManager().Get(m.Chain.Name, m.Sender.Value); alias != "" {
 		m.Sender.Title = alias
@@ -90,23 +91,10 @@ func (m *MsgTransfer) FetchRemoteChainData(fetcher types.DataFetcher) {
 		return
 	}
 
-	if !trace.IsNativeDenom() {
-		fetcher.PopulateAmount(&configTypes.Chain{
-			Denoms:  make(configTypes.DenomInfos, 0),
-			ChainID: originalChainID,
-		}, m.Token)
-	}
-
-	chain, found := fetcher.FindChainById(originalChainID)
-	if !found {
-		return
-	}
-
-	m.Receiver = chain.GetWalletLink(m.Receiver.Value)
-
-	if alias := fetcher.GetAliasManager().Get(chain.Name, m.Receiver.Value); alias != "" {
-		m.Receiver.Title = alias
-	}
+	fetcher.PopulateAmount(&configTypes.Chain{
+		Denoms:  make(configTypes.DenomInfos, 0),
+		ChainID: originalChainID,
+	}, m.Token)
 }
 
 func (m *MsgTransfer) GetValues() event.EventValues {

@@ -50,6 +50,7 @@ func (p FungibleTokenPacket) Type() string {
 
 func (p *FungibleTokenPacket) GetAdditionalData(fetcher types.DataFetcher) {
 	p.FetchRemoteChainData(fetcher)
+	fetcher.PopulateMultichainWallet(p.Chain, p.DstChannel, p.DstPort, p.Sender)
 
 	if alias := fetcher.GetAliasManager().Get(p.Chain.Name, p.Receiver.Value); alias != "" {
 		p.Receiver.Title = alias
@@ -79,11 +80,6 @@ func (p *FungibleTokenPacket) FetchRemoteChainData(fetcher types.DataFetcher) {
 
 	if chain, found := fetcher.FindChainById(originalChainID); found {
 		fetcher.PopulateAmount(chain, p.Token)
-		p.Sender = chain.GetWalletLink(p.Sender.Value)
-
-		if alias := fetcher.GetAliasManager().Get(chain.Name, p.Receiver.Value); alias != "" {
-			p.Sender.Title = alias
-		}
 	} else {
 		fetcher.PopulateAmount(&configTypes.Chain{
 			Denoms:  make(configTypes.DenomInfos, 0),

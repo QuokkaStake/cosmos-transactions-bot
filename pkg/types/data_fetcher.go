@@ -39,4 +39,11 @@ type DataFetcher interface {
 		chain *configTypes.Chain,
 		denom string,
 	) (*transferTypes.DenomTrace, bool)
+	PopulateWallet(chain *configTypes.Chain, walletLink *configTypes.Link)
+	PopulateMultichainWallet(
+		chain *configTypes.Chain,
+		channel string,
+		port string,
+		walletLink *configTypes.Link,
+	)
 }
