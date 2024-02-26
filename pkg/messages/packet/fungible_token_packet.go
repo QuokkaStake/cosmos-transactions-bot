@@ -67,6 +67,7 @@ func (p *FungibleTokenPacket) FetchRemoteChainData(fetcher types.DataFetcher) {
 	p.Token.BaseDenom = trace.BaseDenom
 
 	if !trace.IsNativeDenom() {
+		fetcher.PopulateAmount(p.Chain, p.Token)
 		return
 	}
 
@@ -83,6 +84,11 @@ func (p *FungibleTokenPacket) FetchRemoteChainData(fetcher types.DataFetcher) {
 		if alias := fetcher.GetAliasManager().Get(chain.Name, p.Receiver.Value); alias != "" {
 			p.Sender.Title = alias
 		}
+	} else {
+		fetcher.PopulateAmount(&configTypes.Chain{
+			Denoms:  make(configTypes.DenomInfos, 0),
+			ChainID: originalChainID,
+		}, p.Token)
 	}
 }
 func (p *FungibleTokenPacket) GetValues() event.EventValues {

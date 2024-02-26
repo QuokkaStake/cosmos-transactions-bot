@@ -3,6 +3,7 @@ package data_fetcher
 import (
 	"fmt"
 	configPkg "main/pkg/config"
+	cosmosDirectoryPkg "main/pkg/cosmos_directory"
 	"main/pkg/metrics"
 	amountPkg "main/pkg/types/amount"
 	"strconv"
@@ -22,12 +23,14 @@ import (
 )
 
 type DataFetcher struct {
-	Logger               zerolog.Logger
-	Cache                *cache.Cache
-	Config               *configPkg.AppConfig
-	PriceFetchers        map[string]priceFetchers.PriceFetcher
-	AliasManager         *alias_manager.AliasManager
-	MetricsManager       *metrics.Manager
+	Logger                zerolog.Logger
+	Cache                 *cache.Cache
+	Config                *configPkg.AppConfig
+	PriceFetchers         map[string]priceFetchers.PriceFetcher
+	AliasManager          *alias_manager.AliasManager
+	MetricsManager        *metrics.Manager
+	CosmosDirectoryClient *cosmosDirectoryPkg.Client
+
 	TendermintApiClients map[string][]*api.TendermintApiClient
 }
 
@@ -49,12 +52,13 @@ func NewDataFetcher(
 		Logger: logger.With().
 			Str("component", "data_fetcher").
 			Logger(),
-		Cache:                cache.NewCache(logger),
-		PriceFetchers:        map[string]priceFetchers.PriceFetcher{},
-		Config:               config,
-		TendermintApiClients: tendermintApiClients,
-		AliasManager:         aliasManager,
-		MetricsManager:       metricsManager,
+		Cache:                 cache.NewCache(logger),
+		PriceFetchers:         map[string]priceFetchers.PriceFetcher{},
+		Config:                config,
+		TendermintApiClients:  tendermintApiClients,
+		AliasManager:          aliasManager,
+		MetricsManager:        metricsManager,
+		CosmosDirectoryClient: cosmosDirectoryPkg.NewClient(logger),
 	}
 }
 
@@ -113,25 +117,29 @@ func (f *DataFetcher) PopulateAmounts(chain *configTypes.Chain, amounts amountPk
 
 	// 1. Getting cached prices.
 	for _, amount := range amounts {
-		denomInfo := chain.Denoms.Find(amount.BaseDenom)
-		if denomInfo == nil {
-			if !amount.IsIbcToken() {
-				continue
-			}
-
-			// For IBC denoms, try fetching the multichain denom (as in, from local chains).
-			if externalDenom, found := f.MaybeFetchMultichainDenom(chain, amount.BaseDenom); found {
-				denomInfo = externalDenom
-			} else {
-				continue
-			}
+		denomInfo, found := f.GetChainDenom(chain, amount)
+		if !found {
+			f.Logger.Warn().
+				Str("chain", chain.Name).
+				Str("denom", amount.Denom).
+				Msg("Could not fetch denom info")
+			continue
 		}
+
+		f.Logger.Debug().
+			Str("chain", chain.Name).
+			Str("denom", amount.Denom).
+			Str("display_denom", denomInfo.DisplayDenom).
+			Int64("coefficient", denomInfo.DenomCoefficient).
+			Msg("Fetched denom for chain")
 
 		amount.ConvertDenom(denomInfo.DisplayDenom, denomInfo.DenomCoefficient)
 
 		// If we've found cached price, then using it.
 		if price, cached := f.MaybeGetCachedPrice(chain, denomInfo); cached {
-			amount.AddUSDPrice(price)
+			if price != 0 {
+				amount.AddUSDPrice(price)
+			}
 			continue
 		}
 
@@ -189,8 +197,85 @@ func (f *DataFetcher) PopulateAmounts(chain *configTypes.Chain, amounts amountPk
 			continue
 		}
 
-		amount.AddUSDPrice(uncachedPrice)
+		if uncachedPrice != 0 {
+			amount.AddUSDPrice(uncachedPrice)
+		}
 	}
+}
+
+func (f *DataFetcher) GetCosmosDirectoryChains() (responses.CosmosDirectoryChains, bool) {
+	keyName := "cosmos_directory_chains"
+
+	if cachedChains, cachedChainsPresent := f.Cache.Get(keyName); cachedChainsPresent {
+		if cachedChainsParsed, ok := cachedChains.(responses.CosmosDirectoryChains); ok {
+			return cachedChainsParsed, true
+		}
+
+		f.Logger.Error().Msg("Could not convert cached chains to responses.CosmosDirectoryChains")
+		return nil, false
+	}
+
+	notCachedChainsList, err, queryInfo := f.CosmosDirectoryClient.GetAllChains()
+	f.MetricsManager.LogTendermintQuery("cosmos.directory", queryInfo, QueryInfo.QueryTypeChainsList)
+	if err != nil {
+		f.Logger.Error().Msg("Error fetching chains list")
+		return nil, false
+	}
+
+	f.Cache.Set(keyName, notCachedChainsList)
+	return notCachedChainsList, true
+}
+
+func (f *DataFetcher) GetCosmosDirectoryDenom(chainID string, denom string) (*configTypes.DenomInfo, bool) {
+	// 1. Fetching the cosmos.directory chains list
+	cosmosDirectoryChains, found := f.GetCosmosDirectoryChains()
+	if !found {
+		return nil, false
+	}
+
+	// 2. Finding the chain by chain-id from their response.
+	remoteChain, found := cosmosDirectoryChains.FindByChainID(chainID)
+	if !found {
+		return nil, false
+	}
+
+	// 3. Finding the denom from their response
+	remoteDenomInfo, err := remoteChain.GetDenomInfo(denom)
+	if err != nil {
+		f.Logger.Error().
+			Err(err).
+			Str("chain", chainID).
+			Str("denom", denom).
+			Msg("Error parsing the remote denom from cosmos.directory")
+		return nil, false
+	}
+
+	return remoteDenomInfo, true
+}
+
+func (f *DataFetcher) GetChainDenom(
+	chain *configTypes.Chain,
+	amount *amountPkg.Amount,
+) (*configTypes.DenomInfo, bool) {
+	// Getting the denom for that chain and denom.
+
+	// 1. Trying to find it in local chain config.
+	denomInfo := chain.Denoms.Find(amount.BaseDenom)
+	if denomInfo != nil {
+		return denomInfo, true
+	}
+
+	// 2. If it's the IBC token: trying to fetch its info from remote chain
+	// (as in, query the remote chain, take chain-id from it, and then
+	// take denom from cosmos.directory or local config).
+
+	if amount.IsIbcToken() {
+		return f.MaybeFetchMultichainDenom(chain, amount.BaseDenom)
+	}
+
+	// 3. Okay, it's not an IBC denom, we couldn't find it in the local config,
+	// then we fetch the denom info from cosmos.directory.
+	return f.GetCosmosDirectoryDenom(chain.ChainID, amount.BaseDenom)
 }
 
 func (f *DataFetcher) MaybeFetchMultichainDenom(
@@ -208,6 +293,10 @@ func (f *DataFetcher) MaybeFetchMultichainDenom(
 	// 2. Split port and channel. Multi-hop transfers are not supported.
 	pathParsed := strings.Split(trace.Path, "/")
 	if len(pathParsed) != 2 {
+		f.Logger.Warn().
+			Str("chain", chain.Name).
+			Str("path", trace.Path).
+			Msg("Multi-hop transfers are not yet supported.")
 		return nil, false
 	}
 
@@ -218,18 +307,14 @@ func (f *DataFetcher) MaybeFetchMultichainDenom(
 	}
 
 	// 4. Trying to find this chain by chain-id in our local config.
-	remoteChain, found := f.FindChainById(originalChainId)
-	if !found {
-		return nil, false
+	if remoteChain, remoteChainFound := f.FindChainById(originalChainId); remoteChainFound {
+		if remoteDenom := remoteChain.Denoms.Find(trace.BaseDenom); remoteDenom != nil {
+			return remoteDenom, true
+		}
 	}
 
-	// 5. Trying to find the denom in our local chain config.
-	remoteDenom := remoteChain.Denoms.Find(trace.BaseDenom)
-	if !found {
-		return nil, false
-	}
-
-	return remoteDenom, true
+	// 5. Everything failed, trying to fetch the denom from cosmos.directory
+	return f.GetCosmosDirectoryDenom(originalChainId, trace.BaseDenom)
 }
 
 func (f *DataFetcher) GetValidator(chain *configTypes.Chain, address string) (*responses.Validator, bool) {
