@@ -80,7 +80,7 @@ func (m *MsgTransfer) FetchRemoteChainData(fetcher types.DataFetcher) {
 
 	// If it's native - populate denom as it is, taking current chain as the source chain.
 	if trace.IsNativeDenom() {
-		fetcher.PopulateAmount(m.Chain, m.Token)
+		fetcher.PopulateAmount(m.Chain.ChainID, m.Token)
 		return
 	}
 
@@ -92,7 +92,7 @@ func (m *MsgTransfer) FetchRemoteChainData(fetcher types.DataFetcher) {
 		return
 	}
 
-	fetcher.PopulateAmountByChainID(originalChainID, m.Token)
+	fetcher.PopulateAmount(originalChainID, m.Token)
 }
 
 func (m *MsgTransfer) GetValues() event.EventValues {

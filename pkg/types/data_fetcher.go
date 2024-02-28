@@ -15,9 +15,8 @@ import (
 
 type DataFetcher interface {
 	GetPriceFetcher(info *configTypes.DenomInfo) priceFetchers.PriceFetcher
-	PopulateAmountByChainID(chainID string, amount *amount.Amount)
-	PopulateAmount(chain *configTypes.Chain, amount *amount.Amount)
-	PopulateAmounts(chain *configTypes.Chain, amount amount.Amounts)
+	PopulateAmount(chainID string, amount *amount.Amount)
+	PopulateAmounts(chainID string, amount amount.Amounts)
 
 	GetValidator(chain *configTypes.Chain, address string) (*responses.Validator, bool)
 	GetRewardsAtBlock(

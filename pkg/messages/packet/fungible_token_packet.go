@@ -68,7 +68,7 @@ func (p *FungibleTokenPacket) FetchRemoteChainData(fetcher types.DataFetcher) {
 	p.Token.BaseDenom = amount.Denom(trace.BaseDenom)
 
 	if !trace.IsNativeDenom() {
-		fetcher.PopulateAmount(p.Chain, p.Token)
+		fetcher.PopulateAmount(p.Chain.ChainID, p.Token)
 		return
 	}
 
@@ -79,9 +79,9 @@ func (p *FungibleTokenPacket) FetchRemoteChainData(fetcher types.DataFetcher) {
 	}
 
 	if chain, found := fetcher.FindChainById(originalChainID); found {
-		fetcher.PopulateAmount(chain, p.Token)
+		fetcher.PopulateAmount(chain.ChainID, p.Token)
 	} else {
-		fetcher.PopulateAmountByChainID(originalChainID, p.Token)
+		fetcher.PopulateAmount(originalChainID, p.Token)
 	}
 }
 func (p *FungibleTokenPacket) GetValues() event.EventValues {

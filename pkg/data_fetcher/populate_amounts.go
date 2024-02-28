@@ -21,16 +21,16 @@ func (f *DataFetcher) GetPriceFetcher(info *configTypes.DenomInfo) priceFetchers
 }
 
 func (f *DataFetcher) GetDenomPriceKey(
-	chain *configTypes.Chain,
+	chainID string,
 	denomInfo *configTypes.DenomInfo,
 ) string {
-	return fmt.Sprintf("%s_price_%s", chain.Name, denomInfo.Denom)
+	return fmt.Sprintf("%s_price_%s", chainID, denomInfo.Denom)
 }
 func (f *DataFetcher) MaybeGetCachedPrice(
-	chain *configTypes.Chain,
+	chainID string,
 	denomInfo *configTypes.DenomInfo,
 ) (float64, bool) {
-	cacheKey := f.GetDenomPriceKey(chain, denomInfo)
+	cacheKey := f.GetDenomPriceKey(chainID, denomInfo)
 
 	if cachedPrice, cachedPricePresent := f.Cache.Get(cacheKey); cachedPricePresent {
 		if cachedPriceFloat, ok := cachedPrice.(float64); ok {
@@ -45,47 +45,34 @@ func (f *DataFetcher) MaybeGetCachedPrice(
 }
 
 func (f *DataFetcher) SetCachedPrice(
-	chain *configTypes.Chain,
+	chainID string,
 	denomInfo *configTypes.DenomInfo,
 	notCachedPrice float64,
 ) {
-	cacheKey := f.GetDenomPriceKey(chain, denomInfo)
+	cacheKey := f.GetDenomPriceKey(chainID, denomInfo)
 	f.Cache.Set(cacheKey, notCachedPrice)
 }
 
-func (f *DataFetcher) PopulateAmountByChainID(chainID string, amount *amountPkg.Amount) {
-	chain, chainFound := f.FindChainById(chainID)
-	if chainFound {
-		f.Logger.Warn().
-			Str("chain", chainID).
-			Str("denom", amount.Denom.String()).
-			Msg("Could not find remote chain to populate amount from")
-		return
-	}
-
-	f.PopulateAmount(chain, amount)
+func (f *DataFetcher) PopulateAmount(chainID string, amount *amountPkg.Amount) {
+	f.PopulateAmounts(chainID, amountPkg.Amounts{amount})
 }
 
-func (f *DataFetcher) PopulateAmount(chain *configTypes.Chain, amount *amountPkg.Amount) {
-	f.PopulateAmounts(chain, amountPkg.Amounts{amount})
-}
-
-func (f *DataFetcher) PopulateAmounts(chain *configTypes.Chain, amounts amountPkg.Amounts) {
+func (f *DataFetcher) PopulateAmounts(chainID string, amounts amountPkg.Amounts) {
 	denomsToQueryByPriceFetcher := make(map[string]configTypes.DenomInfos)
 
 	// 1. Getting cached prices.
 	for _, amount := range amounts {
-		denomInfo, found := f.PopulateMultichainDenomInfo(chain.ChainID, amount.BaseDenom)
+		denomInfo, found := f.PopulateMultichainDenomInfo(chainID, amount.BaseDenom)
 		if !found {
 			f.Logger.Warn().
-				Str("chain", chain.Name).
+				Str("chain", chainID).
 				Str("denom", amount.Denom.String()).
 				Msg("Could not fetch denom info")
 			continue
 		}
 
 		f.Logger.Debug().
-			Str("chain", chain.Name).
+			Str("chain", chainID).
 			Str("denom", amount.Denom.String()).
 			Str("display_denom", denomInfo.DisplayDenom).
 			Int64("coefficient", denomInfo.DenomCoefficient).
@@ -94,7 +81,7 @@ func (f *DataFetcher) PopulateAmounts(chain *configTypes.Chain, amounts amountPk
 		amount.ConvertDenom(denomInfo.DisplayDenom, denomInfo.DenomCoefficient)
 
 		// If we've found cached price, then using it.
-		if price, cached := f.MaybeGetCachedPrice(chain, denomInfo); cached {
+		if price, cached := f.MaybeGetCachedPrice(chainID, denomInfo); cached {
 			if price != 0 {
 				amount.AddUSDPrice(price)
 			}
@@ -142,7 +129,7 @@ func (f *DataFetcher) PopulateAmounts(chain *configTypes.Chain, amounts amountPk
 
 		// Saving it to cache
 		for denomInfo, price := range prices {
-			f.SetCachedPrice(chain, denomInfo, price)
+			f.SetCachedPrice(chainID, denomInfo, price)
 
 			uncachedPrices[denomInfo.Denom] = price
 		}

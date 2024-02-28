@@ -59,7 +59,7 @@ func (m *MsgMultiSend) GetAdditionalData(fetcher types.DataFetcher) {
 			input.Address.Title = alias
 		}
 
-		fetcher.PopulateAmounts(m.Chain, input.Amount)
+		fetcher.PopulateAmounts(m.Chain.ChainID, input.Amount)
 	}
 
 	for _, output := range m.Outputs {
@@ -67,7 +67,7 @@ func (m *MsgMultiSend) GetAdditionalData(fetcher types.DataFetcher) {
 			output.Address.Title = alias
 		}
 
-		fetcher.PopulateAmounts(m.Chain, output.Amount)
+		fetcher.PopulateAmounts(m.Chain.ChainID, output.Amount)
 	}
 }
 
