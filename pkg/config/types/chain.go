@@ -55,7 +55,7 @@ func (c Chain) GetWalletLink(address string) *Link {
 	}
 
 	return &Link{
-		Href:  fmt.Sprintf(c.Explorer.WalletLinkPattern, address),
+		Href:  c.Explorer.GetWalletLink(address),
 		Value: address,
 	}
 }
