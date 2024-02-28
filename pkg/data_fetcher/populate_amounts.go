@@ -4,16 +4,20 @@ import (
 	"fmt"
 	configTypes "main/pkg/config/types"
 	priceFetchers "main/pkg/price_fetchers"
+	"main/pkg/types"
 	amountPkg "main/pkg/types/amount"
 )
 
-func (f *DataFetcher) GetPriceFetcher(info *configTypes.DenomInfo) priceFetchers.PriceFetcher {
+func (f *DataFetcher) GetPriceFetcher(info *configTypes.DenomInfo) types.PriceFetcher {
 	if info.CoingeckoCurrency != "" {
 		if fetcher, ok := f.PriceFetchers[priceFetchers.CoingeckoPriceFetcherName]; ok {
 			return fetcher
 		}
 
-		f.PriceFetchers[priceFetchers.CoingeckoPriceFetcherName] = priceFetchers.NewCoingeckoPriceFetcher(f.Logger)
+		f.PriceFetchers[priceFetchers.CoingeckoPriceFetcherName] = priceFetchers.NewCoingeckoPriceFetcher(
+			f.Logger,
+			f.MetricsManager,
+		)
 		return f.PriceFetchers[priceFetchers.CoingeckoPriceFetcherName]
 	}
 

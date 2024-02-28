@@ -14,6 +14,7 @@ const (
 	QueryTypeIbcConnectionClientState QueryType = "ibc_connection_client_state"
 	QueryTypeIbcDenomTrace            QueryType = "ibc_denom_trace"
 	QueryTypeChainsList               QueryType = "chains_list"
+	QueryTypePrices                   QueryType = "prices"
 )
 
 type QueryInfo struct {

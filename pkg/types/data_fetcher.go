@@ -3,7 +3,6 @@ package types
 import (
 	"main/pkg/alias_manager"
 	configTypes "main/pkg/config/types"
-	priceFetchers "main/pkg/price_fetchers"
 	"main/pkg/types/amount"
 	"main/pkg/types/responses"
 
@@ -14,7 +13,7 @@ import (
 // DataFetcher -> MetricsManager -> types -> DataFetcher.
 
 type DataFetcher interface {
-	GetPriceFetcher(info *configTypes.DenomInfo) priceFetchers.PriceFetcher
+	GetPriceFetcher(info *configTypes.DenomInfo) PriceFetcher
 	PopulateAmount(chainID string, amount *amount.Amount)
 	PopulateAmounts(chainID string, amount amount.Amounts)
 
