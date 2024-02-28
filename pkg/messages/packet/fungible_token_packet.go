@@ -72,7 +72,7 @@ func (p *FungibleTokenPacket) FetchRemoteChainData(fetcher types.DataFetcher) {
 		return
 	}
 
-	originalChainID, fetched := fetcher.GetIbcRemoteChainID(p.Chain, p.DstChannel, p.DstPort)
+	originalChainID, fetched := fetcher.GetIbcRemoteChainID(p.Chain.ChainID, p.DstChannel, p.DstPort)
 
 	if !fetched {
 		return
@@ -81,10 +81,7 @@ func (p *FungibleTokenPacket) FetchRemoteChainData(fetcher types.DataFetcher) {
 	if chain, found := fetcher.FindChainById(originalChainID); found {
 		fetcher.PopulateAmount(chain, p.Token)
 	} else {
-		fetcher.PopulateAmount(&configTypes.Chain{
-			Denoms:  make(configTypes.DenomInfos, 0),
-			ChainID: originalChainID,
-		}, p.Token)
+		fetcher.PopulateAmountByChainID(originalChainID, p.Token)
 	}
 }
 func (p *FungibleTokenPacket) GetValues() event.EventValues {

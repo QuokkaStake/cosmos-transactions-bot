@@ -1,15 +1,19 @@
 package data_fetcher
 
 import (
-	configTypes "main/pkg/config/types"
 	"main/pkg/types/responses"
 )
 
 func (f *DataFetcher) GetIbcRemoteChainID(
-	chain *configTypes.Chain,
+	chainID string,
 	channel string,
 	port string,
 ) (string, bool) {
+	chain, found := f.FindChainById(chainID)
+	if !found {
+		return "", false
+	}
+
 	keyName := chain.Name + "_channel_" + channel + "_port_" + port
 
 	if cachedEntry, cachedEntryPresent := f.Cache.Get(keyName); cachedEntryPresent {

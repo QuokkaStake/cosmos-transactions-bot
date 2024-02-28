@@ -81,20 +81,18 @@ func (m *MsgTransfer) FetchRemoteChainData(fetcher types.DataFetcher) {
 	// If it's native - populate denom as it is, taking current chain as the source chain.
 	if trace.IsNativeDenom() {
 		fetcher.PopulateAmount(m.Chain, m.Token)
+		return
 	}
 
 	// If it's not native - we need the remote chain ID to get the original denoms from,
 	// if we can't fetch it - we can't fetch prices, or generate links (if chain is in local
 	// config.)
-	originalChainID, fetched := fetcher.GetIbcRemoteChainID(m.Chain, m.SrcChannel, m.SrcPort)
+	originalChainID, fetched := fetcher.GetIbcRemoteChainID(m.Chain.ChainID, m.SrcChannel, m.SrcPort)
 	if !fetched {
 		return
 	}
 
-	fetcher.PopulateAmount(&configTypes.Chain{
-		Denoms:  make(configTypes.DenomInfos, 0),
-		ChainID: originalChainID,
-	}, m.Token)
+	fetcher.PopulateAmountByChainID(originalChainID, m.Token)
 }
 
 func (m *MsgTransfer) GetValues() event.EventValues {

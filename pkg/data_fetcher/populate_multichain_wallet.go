@@ -28,7 +28,7 @@ func (f *DataFetcher) PopulateMultichainWallet(
 	}
 
 	// Wallet is from another chain. Resolving its chain-id it by traversing the IBC path.
-	remoteChainId, fetched := f.GetIbcRemoteChainID(chain, channel, port)
+	remoteChainId, fetched := f.GetIbcRemoteChainID(chain.ChainID, channel, port)
 	if !fetched {
 		return
 	}

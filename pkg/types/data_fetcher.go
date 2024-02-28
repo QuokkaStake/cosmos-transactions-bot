@@ -15,6 +15,7 @@ import (
 
 type DataFetcher interface {
 	GetPriceFetcher(info *configTypes.DenomInfo) priceFetchers.PriceFetcher
+	PopulateAmountByChainID(chainID string, amount *amount.Amount)
 	PopulateAmount(chain *configTypes.Chain, amount *amount.Amount)
 	PopulateAmounts(chain *configTypes.Chain, amount amount.Amounts)
 
@@ -33,7 +34,7 @@ type DataFetcher interface {
 	GetProposal(chain *configTypes.Chain, id string) (*responses.Proposal, bool)
 	GetStakingParams(chain *configTypes.Chain) (*responses.StakingParams, bool)
 	GetAliasManager() *alias_manager.AliasManager
-	GetIbcRemoteChainID(chain *configTypes.Chain, channel, port string) (string, bool)
+	GetIbcRemoteChainID(chainID string, channel, port string) (string, bool)
 	FindChainById(chainID string) (*configTypes.Chain, bool)
 	GetDenomTrace(
 		chain *configTypes.Chain,
