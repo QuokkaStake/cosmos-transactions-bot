@@ -65,10 +65,5 @@ func (f *DataFetcher) GetAliasManager() *alias_manager.AliasManager {
 func (f *DataFetcher) FindChainById(
 	chainID string,
 ) (*configTypes.Chain, bool) {
-	chain := f.Config.Chains.FindByChainID(chainID)
-	if chain == nil {
-		return nil, false
-	}
-
-	return chain, true
+	return f.Config.Chains.FindByChainID(chainID)
 }

@@ -32,8 +32,13 @@ func TestChainsFindByChainID(t *testing.T) {
 		{Name: "name", ChainID: "chain-id"},
 	}
 
-	require.NotNil(t, chains.FindByChainID("chain-id"))
-	require.Nil(t, chains.FindByChainID("chain-id-2"))
+	first, firstFound := chains.FindByChainID("chain-id")
+	require.NotNil(t, first)
+	require.True(t, firstFound)
+
+	second, secondFound := chains.FindByChainID("chain-id-2")
+	require.Nil(t, second)
+	require.False(t, secondFound)
 }
 
 func TestChainGetWalletLink(t *testing.T) {

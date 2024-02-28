@@ -19,14 +19,14 @@ func (c Chains) FindByName(name string) *Chain {
 	return nil
 }
 
-func (c Chains) FindByChainID(chainID string) *Chain {
+func (c Chains) FindByChainID(chainID string) (*Chain, bool) {
 	for _, chain := range c {
 		if chain.ChainID == chainID {
-			return chain
+			return chain, true
 		}
 	}
 
-	return nil
+	return nil, false
 }
 
 type Chain struct {
