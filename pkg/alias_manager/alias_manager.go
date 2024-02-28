@@ -37,14 +37,14 @@ func (a AllChainAliases) ToTomlAliases() TomlAliases {
 
 type ChainAliasesLinks struct {
 	Chain *configTypes.Chain
-	Links map[string]configTypes.Link
+	Links map[string]*configTypes.Link
 }
 
 func (a AllChainAliases) ToAliasesLinks() []ChainAliasesLinks {
 	aliasesLinks := make([]ChainAliasesLinks, 0)
 
 	for _, chainAliases := range a {
-		links := make(map[string]configTypes.Link)
+		links := make(map[string]*configTypes.Link)
 
 		if chainAliases.Aliases == nil {
 			continue

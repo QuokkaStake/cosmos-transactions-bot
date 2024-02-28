@@ -14,7 +14,7 @@ import (
 )
 
 type MsgExec struct {
-	Grantee     configTypes.Link
+	Grantee     *configTypes.Link
 	RawMessages []*codecTypes.Any
 	Messages    []types.Message
 

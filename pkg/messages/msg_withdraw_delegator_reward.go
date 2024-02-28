@@ -14,7 +14,7 @@ import (
 )
 
 type MsgWithdrawDelegatorReward struct {
-	DelegatorAddress configTypes.Link
+	DelegatorAddress *configTypes.Link
 	ValidatorAddress configTypes.Link
 	Height           int64
 	Amount           []*amount.Amount
@@ -54,7 +54,7 @@ func (m *MsgWithdrawDelegatorReward) GetAdditionalData(fetcher types.DataFetcher
 			m.Amount[index] = amount.AmountFromString(reward.Amount, reward.Denom)
 		}
 
-		fetcher.PopulateAmounts(m.Chain, m.Amount)
+		fetcher.PopulateAmounts(m.Chain.ChainID, m.Amount)
 	}
 
 	if validator, found := fetcher.GetValidator(m.Chain, m.ValidatorAddress.Value); found {

@@ -19,14 +19,14 @@ func (c Chains) FindByName(name string) *Chain {
 	return nil
 }
 
-func (c Chains) FindByChainID(chainID string) *Chain {
+func (c Chains) FindByChainID(chainID string) (*Chain, bool) {
 	for _, chain := range c {
 		if chain.ChainID == chainID {
-			return chain
+			return chain, true
 		}
 	}
 
-	return nil
+	return nil, false
 }
 
 type Chain struct {
@@ -49,13 +49,13 @@ func (c Chain) GetName() string {
 	return c.Name
 }
 
-func (c Chain) GetWalletLink(address string) Link {
+func (c Chain) GetWalletLink(address string) *Link {
 	if c.Explorer == nil {
-		return Link{Value: address}
+		return &Link{Value: address}
 	}
 
-	return Link{
-		Href:  fmt.Sprintf(c.Explorer.WalletLinkPattern, address),
+	return &Link{
+		Href:  c.Explorer.GetWalletLink(address),
 		Value: address,
 	}
 }

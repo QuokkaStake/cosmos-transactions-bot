@@ -25,8 +25,8 @@ type StakeAuthorization struct {
 }
 
 type MsgGrant struct {
-	Granter       configTypes.Link
-	Grantee       configTypes.Link
+	Granter       *configTypes.Link
+	Grantee       *configTypes.Link
 	GrantType     string
 	Expiration    *time.Time
 	Authorization Authorization

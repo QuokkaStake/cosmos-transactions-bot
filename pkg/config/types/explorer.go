@@ -12,6 +12,10 @@ type Explorer struct {
 	BlockLinkPattern       string `toml:"block-link-pattern"`
 }
 
+func (e *Explorer) GetWalletLink(address string) string {
+	return fmt.Sprintf(e.WalletLinkPattern, address)
+}
+
 func (e *Explorer) DisplayWarnings(c *Chain) []DisplayWarning {
 	var warnings []DisplayWarning
 

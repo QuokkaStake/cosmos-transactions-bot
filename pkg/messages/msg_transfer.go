@@ -15,8 +15,8 @@ import (
 
 type MsgTransfer struct {
 	Token    *amount.Amount
-	Sender   configTypes.Link
-	Receiver configTypes.Link
+	Sender   *configTypes.Link
+	Receiver *configTypes.Link
 
 	SrcChannel string
 	SrcPort    string
@@ -33,7 +33,7 @@ func ParseMsgTransfer(data []byte, chain *configTypes.Chain, height int64) (type
 	return &MsgTransfer{
 		Token:      amount.AmountFrom(parsedMessage.Token),
 		Sender:     chain.GetWalletLink(parsedMessage.Sender),
-		Receiver:   configTypes.Link{Value: parsedMessage.Receiver},
+		Receiver:   &configTypes.Link{Value: parsedMessage.Receiver},
 		SrcChannel: parsedMessage.SourceChannel,
 		SrcPort:    parsedMessage.SourcePort,
 		Chain:      chain,
@@ -46,6 +46,7 @@ func (m MsgTransfer) Type() string {
 
 func (m *MsgTransfer) GetAdditionalData(fetcher types.DataFetcher) {
 	m.FetchRemoteChainData(fetcher)
+	fetcher.PopulateMultichainWallet(m.Chain, m.SrcChannel, m.SrcPort, m.Receiver)
 
 	if alias := fetcher.GetAliasManager().Get(m.Chain.Name, m.Sender.Value); alias != "" {
 		m.Sender.Title = alias
@@ -64,43 +65,34 @@ func (m *MsgTransfer) FetchRemoteChainData(fetcher types.DataFetcher) {
 	// If it's a native token - just take the denom from the current chain, but also fetch
 	// the remote chain for links generation.
 	var trace ibcTypes.DenomTrace
-	if m.Token.IsIbcToken() {
-		externalTrace, found := fetcher.GetDenomTrace(m.Chain, m.Token.Denom)
+	if m.Token.Denom.IsIbcToken() {
+		externalTrace, found := fetcher.GetDenomTrace(m.Chain, m.Token.Denom.String())
 		if !found {
 			return
 		}
 		trace = *externalTrace
 	} else {
-		trace = ibcTypes.ParseDenomTrace(m.Token.Denom)
+		trace = ibcTypes.ParseDenomTrace(m.Token.Denom.String())
 	}
 
-	m.Token.Denom = trace.BaseDenom
-	m.Token.BaseDenom = trace.BaseDenom
+	m.Token.Denom = amount.Denom(trace.BaseDenom)
+	m.Token.BaseDenom = amount.Denom(trace.BaseDenom)
 
+	// If it's native - populate denom as it is, taking current chain as the source chain.
 	if trace.IsNativeDenom() {
-		fetcher.PopulateAmount(m.Chain, m.Token)
+		fetcher.PopulateAmount(m.Chain.ChainID, m.Token)
+		return
 	}
 
-	originalChainID, fetched := fetcher.GetIbcRemoteChainID(m.Chain, m.SrcChannel, m.SrcPort)
-
+	// If it's not native - we need the remote chain ID to get the original denoms from,
+	// if we can't fetch it - we can't fetch prices, or generate links (if chain is in local
+	// config.)
+	originalChainID, fetched := fetcher.GetIbcRemoteChainID(m.Chain.ChainID, m.SrcChannel, m.SrcPort)
 	if !fetched {
 		return
 	}
 
-	chain, found := fetcher.FindChainById(originalChainID)
-	if !found {
-		return
-	}
-
-	if !trace.IsNativeDenom() {
-		fetcher.PopulateAmount(chain, m.Token)
-	}
-
-	m.Receiver = chain.GetWalletLink(m.Receiver.Value)
-
-	if alias := fetcher.GetAliasManager().Get(chain.Name, m.Receiver.Value); alias != "" {
-		m.Receiver.Title = alias
-	}
+	fetcher.PopulateAmount(originalChainID, m.Token)
 }
 
 func (m *MsgTransfer) GetValues() event.EventValues {

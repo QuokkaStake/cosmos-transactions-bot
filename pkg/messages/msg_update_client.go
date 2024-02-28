@@ -14,7 +14,7 @@ import (
 
 type MsgUpdateClient struct {
 	ClientID string
-	Signer   configTypes.Link
+	Signer   *configTypes.Link
 
 	Chain *configTypes.Chain
 }

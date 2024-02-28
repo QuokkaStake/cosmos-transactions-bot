@@ -16,9 +16,9 @@ import (
 
 type MsgAcknowledgement struct {
 	Token    *amount.Amount
-	Sender   configTypes.Link
-	Receiver configTypes.Link
-	Signer   configTypes.Link
+	Sender   *configTypes.Link
+	Receiver *configTypes.Link
+	Signer   *configTypes.Link
 
 	Chain *configTypes.Chain
 }
@@ -37,7 +37,7 @@ func ParseMsgAcknowledgement(data []byte, chain *configTypes.Chain, height int64
 	return &MsgAcknowledgement{
 		Token:    amount.AmountFromString(packetData.Amount, packetData.Denom),
 		Sender:   chain.GetWalletLink(packetData.Sender),
-		Receiver: configTypes.Link{Value: packetData.Receiver},
+		Receiver: &configTypes.Link{Value: packetData.Receiver},
 		Signer:   chain.GetWalletLink(parsedMessage.Signer),
 		Chain:    chain,
 	}, nil
@@ -48,7 +48,7 @@ func (m MsgAcknowledgement) Type() string {
 }
 
 func (m *MsgAcknowledgement) GetAdditionalData(fetcher types.DataFetcher) {
-	fetcher.PopulateAmount(m.Chain, m.Token)
+	fetcher.PopulateAmount(m.Chain.ChainID, m.Token)
 	if alias := fetcher.GetAliasManager().Get(m.Chain.Name, m.Sender.Value); alias != "" {
 		m.Sender.Title = alias
 	}

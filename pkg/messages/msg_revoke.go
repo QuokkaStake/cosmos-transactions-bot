@@ -13,8 +13,8 @@ import (
 )
 
 type MsgRevoke struct {
-	Granter       configTypes.Link
-	Grantee       configTypes.Link
+	Granter       *configTypes.Link
+	Grantee       *configTypes.Link
 	MsgType       string
 	Authorization Authorization
 

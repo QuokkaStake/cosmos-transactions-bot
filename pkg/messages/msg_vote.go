@@ -18,7 +18,7 @@ import (
 )
 
 type MsgVote struct {
-	Voter      configTypes.Link
+	Voter      *configTypes.Link
 	ProposalID configTypes.Link
 	Proposal   *responses.Proposal
 	Option     cosmosGovTypes.VoteOption

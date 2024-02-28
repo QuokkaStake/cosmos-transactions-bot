@@ -45,6 +45,7 @@ func TestTomlConfigInvalidReporter(t *testing.T) {
 		Chains: tomlConfig.Chains{
 			{
 				Name:            "chain",
+				ChainID:         "chain-id",
 				TendermintNodes: []string{"node"},
 				APINodes:        []string{"node"},
 				Queries:         []string{"event.key = 'value'"},
@@ -65,6 +66,7 @@ func TestTomlConfigInvalidSubscription(t *testing.T) {
 		Chains: tomlConfig.Chains{
 			{
 				Name:            "chain",
+				ChainID:         "chain-id",
 				TendermintNodes: []string{"node"},
 				APINodes:        []string{"node"},
 				Queries:         []string{"event.key = 'value'"},
@@ -96,6 +98,7 @@ func TestTomlConfigChainSubscriptionChainNotFound(t *testing.T) {
 		Chains: tomlConfig.Chains{
 			{
 				Name:            "chain",
+				ChainID:         "chain-id",
 				TendermintNodes: []string{"node"},
 				APINodes:        []string{"node"},
 				Queries:         []string{"event.key = 'value'"},
@@ -133,6 +136,7 @@ func TestTomlConfigSubscriptionReporterNotFound(t *testing.T) {
 		Chains: tomlConfig.Chains{
 			{
 				Name:            "chain",
+				ChainID:         "chain-id",
 				TendermintNodes: []string{"node"},
 				APINodes:        []string{"node"},
 				Queries:         []string{"event.key = 'value'"},
@@ -170,6 +174,7 @@ func TestTomlConfigValid(t *testing.T) {
 		Chains: tomlConfig.Chains{
 			{
 				Name:            "chain",
+				ChainID:         "chain-id",
 				TendermintNodes: []string{"node"},
 				APINodes:        []string{"node"},
 				Queries:         []string{"event.key = 'value'"},

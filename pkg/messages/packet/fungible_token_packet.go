@@ -16,8 +16,8 @@ import (
 
 type FungibleTokenPacket struct {
 	Token    *amount.Amount
-	Sender   configTypes.Link
-	Receiver configTypes.Link
+	Sender   *configTypes.Link
+	Receiver *configTypes.Link
 
 	SrcPort    string
 	SrcChannel string
@@ -34,7 +34,7 @@ func ParseFungibleTokenPacket(
 ) types.Message {
 	return &FungibleTokenPacket{
 		Token:      amount.AmountFromString(packetData.Amount, packetData.Denom),
-		Sender:     configTypes.Link{Value: packetData.Sender},
+		Sender:     &configTypes.Link{Value: packetData.Sender},
 		Receiver:   chain.GetWalletLink(packetData.Receiver),
 		SrcPort:    packet.SourcePort,
 		SrcChannel: packet.SourceChannel,
@@ -50,6 +50,7 @@ func (p FungibleTokenPacket) Type() string {
 
 func (p *FungibleTokenPacket) GetAdditionalData(fetcher types.DataFetcher) {
 	p.FetchRemoteChainData(fetcher)
+	fetcher.PopulateMultichainWallet(p.Chain, p.DstChannel, p.DstPort, p.Sender)
 
 	if alias := fetcher.GetAliasManager().Get(p.Chain.Name, p.Receiver.Value); alias != "" {
 		p.Receiver.Title = alias
@@ -62,27 +63,25 @@ func (p *FungibleTokenPacket) FetchRemoteChainData(fetcher types.DataFetcher) {
 	// p.Receiver is on native chain, so we can use p.Chain to generate links
 	// and denoms and prices.
 
-	trace := ibcTypes.ParseDenomTrace(p.Token.Denom)
-	p.Token.Denom = trace.BaseDenom
-	p.Token.BaseDenom = trace.BaseDenom
+	trace := ibcTypes.ParseDenomTrace(p.Token.Denom.String())
+	p.Token.Denom = amount.Denom(trace.BaseDenom)
+	p.Token.BaseDenom = amount.Denom(trace.BaseDenom)
 
 	if !trace.IsNativeDenom() {
+		fetcher.PopulateAmount(p.Chain.ChainID, p.Token)
 		return
 	}
 
-	originalChainID, fetched := fetcher.GetIbcRemoteChainID(p.Chain, p.DstChannel, p.DstPort)
+	originalChainID, fetched := fetcher.GetIbcRemoteChainID(p.Chain.ChainID, p.DstChannel, p.DstPort)
 
 	if !fetched {
 		return
 	}
 
 	if chain, found := fetcher.FindChainById(originalChainID); found {
-		fetcher.PopulateAmount(chain, p.Token)
-		p.Sender = chain.GetWalletLink(p.Sender.Value)
-
-		if alias := fetcher.GetAliasManager().Get(chain.Name, p.Receiver.Value); alias != "" {
-			p.Sender.Title = alias
-		}
+		fetcher.PopulateAmount(chain.ChainID, p.Token)
+	} else {
+		fetcher.PopulateAmount(originalChainID, p.Token)
 	}
 }
 func (p *FungibleTokenPacket) GetValues() event.EventValues {

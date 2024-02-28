@@ -12,18 +12,29 @@ import (
 	cosmosTypes "github.com/cosmos/cosmos-sdk/types"
 )
 
+type Denom string
+
+func (d Denom) IsIbcToken() bool {
+	denomSplit := strings.Split(string(d), "/")
+	return len(denomSplit) == 2 && denomSplit[0] == transferTypes.DenomPrefix
+}
+
+func (d Denom) String() string {
+	return string(d)
+}
+
 type Amount struct {
 	Value     *big.Float
-	Denom     string
-	BaseDenom string
+	Denom     Denom
+	BaseDenom Denom
 	PriceUSD  *big.Float
 }
 
 func AmountFrom(coin cosmosTypes.Coin) *Amount {
 	return &Amount{
 		Value:     new(big.Float).SetInt(coin.Amount.BigInt()),
-		Denom:     coin.Denom,
-		BaseDenom: coin.Denom,
+		Denom:     Denom(coin.Denom),
+		BaseDenom: Denom(coin.Denom),
 	}
 }
 
@@ -35,8 +46,8 @@ func AmountFromString(amount string, denom string) *Amount {
 
 	return &Amount{
 		Value:     parsedAmount,
-		Denom:     denom,
-		BaseDenom: denom,
+		Denom:     Denom(denom),
+		BaseDenom: Denom(denom),
 	}
 }
 
@@ -44,7 +55,7 @@ func (a *Amount) ConvertDenom(displayDenom string, denomCoefficient int64) {
 	denomCoefficientBigFloat := new(big.Float).SetInt64(denomCoefficient)
 	a.Value = new(big.Float).Quo(a.Value, denomCoefficientBigFloat)
 	a.BaseDenom = a.Denom
-	a.Denom = displayDenom
+	a.Denom = Denom(displayDenom)
 }
 
 func (a *Amount) AddUSDPrice(usdPrice float64) {
@@ -56,11 +67,6 @@ func (a *Amount) AddUSDPrice(usdPrice float64) {
 func (a Amount) String() string {
 	value, _ := a.Value.Int(nil)
 	return fmt.Sprintf("%d%s", value, a.Denom)
-}
-
-func (a Amount) IsIbcToken() bool {
-	denomSplit := strings.Split(a.Denom, "/")
-	return len(denomSplit) == 2 && denomSplit[0] == transferTypes.DenomPrefix
 }
 
 type Amounts []*Amount

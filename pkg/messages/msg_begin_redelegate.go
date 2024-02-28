@@ -14,7 +14,7 @@ import (
 )
 
 type MsgBeginRedelegate struct {
-	DelegatorAddress    configTypes.Link
+	DelegatorAddress    *configTypes.Link
 	ValidatorSrcAddress configTypes.Link
 	ValidatorDstAddress configTypes.Link
 	Amount              *amount.Amount
@@ -49,7 +49,7 @@ func (m *MsgBeginRedelegate) GetAdditionalData(fetcher types.DataFetcher) {
 		m.ValidatorDstAddress.Title = validator.Description.Moniker
 	}
 
-	fetcher.PopulateAmount(m.Chain, m.Amount)
+	fetcher.PopulateAmount(m.Chain.ChainID, m.Amount)
 
 	if alias := fetcher.GetAliasManager().Get(m.Chain.Name, m.DelegatorAddress.Value); alias != "" {
 		m.DelegatorAddress.Title = alias
