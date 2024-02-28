@@ -1,4 +1,4 @@
-package price_fetchers
+package types
 
 import configTypes "main/pkg/config/types"
 

@@ -7,8 +7,8 @@ import (
 	configTypes "main/pkg/config/types"
 	cosmosDirectoryPkg "main/pkg/cosmos_directory"
 	"main/pkg/metrics"
-	priceFetchers "main/pkg/price_fetchers"
 	"main/pkg/tendermint/api"
+	priceFetchers "main/pkg/types"
 
 	"github.com/rs/zerolog"
 )
