@@ -218,6 +218,63 @@ in `<fullnode folder>/config/config.toml`:
 max_subscriptions_per_client = 5
 ```
 
+### Denoms fetching
+
+The app fetches denoms and their prices in the following order:
+1. Local chain denoms
+2. If it's IBC denom (`ibc/xxxxx`):
+- it traverses IBC path,
+- it fetches all intermediate chains, if we have them in local config
+- when getting a final chain, it tries to get its local config denom
+- if there's no local config, or denom in it, it takes data from https://cosmos.directory by chain-id
+and denom from there, if found
+3. If it's not an IBC denom:
+- it fetches the https://cosmos.directory chain by chain-id
+- it takes the denom from there, if found.
+
+Consider this config:
+```
+[chain]
+name = "osmosis"
+chain-id = "osmosis-1"
+denoms = [
+    { denom = "uosmo", display-denom = "osmo", coingecko-currency = "osmosis" },
+    { denom = "ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2", display-denom = "atom", coingecko-currency = "cosmos" }
+]
+
+[chain]
+name = "cosmoshub"
+chain-id = "cosmoshub-4"
+denoms = [
+    { denom = "uatom", display-denom = "atom", coingecko-currency = "cosmos" },
+]
+
+[chain]
+name = "akash"
+chain-id = "akashnet-2"
+denoms = []
+```
+
+and the following transactions:
+1. IBC transfer from Osmosis (chain-id `osmosis-1`) to Cosmos Hub (chain-id `cosmoshub-4`) of `100uosmo` - it 
+will take the denom from local config of `osmosis-1` (as `uosmo` denom is declared there).
+2. IBC transfer from Osmosis (chain-id `osmosis-1`) to Cosmos Hub (chain-id `cosmoshub-4`)
+of `100ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2` (`uatom` on osmosis-1 chain) - it will take
+the denom from local config of `osmosis-1` (`ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2`).
+3. IBC transfer from Cosmos Hub (chain-id `cosmoshub-4`) to Akash (chain-id `akashnet-2`) of
+`100ibc/1480B8FD20AD5FCAE81EA87584D269547DD4D436843C1D20F15E00EB64743EF4` (`uakt` transferred from Akash to Osmosis)
+- it will take the denom from cosmos.directory (as there's no `uakt` denom declared in local config of `akashnet-2`,
+or `ibc/1480B8FD20AD5FCAE81EA87584D269547DD4D436843C1D20F15E00EB64743EF4` denom declared on `osmosis-1` chain).
+4. Withdraw delegator rewards on Cosmos Hub (chain-id `cosmoshub-4`) in `uatom` - it will take data from local config,
+as `uatom` is declared as denom there.
+5. Withdraw delegator rewards on Akash (chain-id `akashnet-2`) in `uakt` - it will take data from cosmos.directory,
+as `uakt` is not declared as denom in `akashnet-2` config.
+
+Generally, the rule is the following:
+- if you want to override how some tokens are displayed - override them in your local config.
+- if you do not want to deal with it - just omit specifying them, it should do the job for you.
+
+
 ## Notifications channels
 
 Go to [@BotFather](https://t.me/BotFather) in Telegram and create a bot. After that, there are two options:

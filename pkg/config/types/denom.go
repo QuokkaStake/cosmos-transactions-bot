@@ -2,7 +2,7 @@ package types
 
 type DenomInfo struct {
 	Denom             string
-	DenomCoefficient  int64
+	DenomExponent     int
 	DisplayDenom      string
 	CoingeckoCurrency string
 }
