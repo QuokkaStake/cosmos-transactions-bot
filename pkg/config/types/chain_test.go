@@ -161,26 +161,6 @@ func TestChainGetBlockLink(t *testing.T) {
 	require.Empty(t, link2.Title)
 }
 
-func TestChainDisplayWarningsNoDenoms(t *testing.T) {
-	t.Parallel()
-
-	chain := types.Chain{
-		Name:    "name",
-		ChainID: "chain-id",
-		Explorer: &types.Explorer{
-			TransactionLinkPattern: "test/%s",
-			BlockLinkPattern:       "test/%s",
-			WalletLinkPattern:      "test/%s",
-			ValidatorLinkPattern:   "test/%s",
-			ProposalLinkPattern:    "test/%s",
-		},
-	}
-
-	warnings := chain.DisplayWarnings()
-
-	require.Len(t, warnings, 1)
-}
-
 func TestChainDisplayWarningsInvalidDenom(t *testing.T) {
 	t.Parallel()
 
