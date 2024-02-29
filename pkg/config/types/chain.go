@@ -109,15 +109,8 @@ func (c Chain) GetBlockLink(height int64) Link {
 func (c *Chain) DisplayWarnings() []DisplayWarning {
 	var warnings []DisplayWarning
 
-	if len(c.Denoms) == 0 {
-		warnings = append(warnings, DisplayWarning{
-			Keys: map[string]string{"chain": c.Name},
-			Text: "No denoms set, prices in USD won't be displayed.",
-		})
-	} else {
-		for _, denom := range c.Denoms {
-			warnings = append(warnings, denom.DisplayWarnings(c)...)
-		}
+	for _, denom := range c.Denoms {
+		warnings = append(warnings, denom.DisplayWarnings(c)...)
 	}
 
 	if c.ChainID == "" {
