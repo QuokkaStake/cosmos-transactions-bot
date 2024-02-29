@@ -116,9 +116,7 @@ filters = ["message.action = '/cosmos.staking.v1beta1.MsgBeginRedelegate'"]
 [[chains]]
 # Chain codename, required.
 name = "cosmos"
-# Chain ID. Optional, if omitted, multichain denoms matching would not work
-# (like, if you want to filter transactions that are transferring tokens via IBC
-# from one chain to another).
+# Chain ID, required.
 chain-id = "cosmoshub-4"
 # Chain pretty name, optional. If provided, would be used in reports, if not,
 # codename would be used.
@@ -140,11 +138,12 @@ queries = [
 # Denoms list.
 denoms = [
     # Each denom inside must have "denom" and "display-denom" fields and additionaly
-    # denom-coefficient (set to 1000000 by default) and coingecko-currency.
+    # denom-exponent (set to 6 by default) and coingecko-currency.
     # Example: if there's a transfer transaction for 10,000,000 uatom,
     # and the coingecko price for $ATOM is 10$ and if all fields are set,
     # instead of displaying amount as `10000000.000000uatom` it would be displayed
-    # as `10.000000atom ($100.00)`.
+    # as `10.000000atom ($100.00)`: the amount would be converted from 10,000,100 uatom
+    # to 10.0 atom (by dividing it by 10^6), and then multiplying it by $10 per 1 ATOM.
     # If coingecko-currency is omitted, no price would be displayed.
     { denom = "uatom", display-denom = "atom", denom-coefficient = 1000000, coingecko-currency = "cosmos" }
 ]

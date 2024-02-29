@@ -40,7 +40,7 @@ func TestDenomsToAppConfigDenoms(t *testing.T) {
 	denom := &tomlConfig.DenomInfo{
 		Denom:             "udenom",
 		DisplayDenom:      "denom",
-		DenomCoefficient:  500,
+		DenomExponent:     10,
 		CoingeckoCurrency: "coingecko",
 	}
 	denoms := tomlConfig.DenomInfos{denom}
@@ -49,7 +49,7 @@ func TestDenomsToAppConfigDenoms(t *testing.T) {
 	require.Len(t, appConfigDenoms, 1)
 	require.Equal(t, "udenom", appConfigDenoms[0].Denom)
 	require.Equal(t, "denom", appConfigDenoms[0].DisplayDenom)
-	require.Equal(t, int64(500), appConfigDenoms[0].DenomCoefficient)
+	require.Equal(t, 10, appConfigDenoms[0].DenomExponent)
 	require.Equal(t, "coingecko", appConfigDenoms[0].CoingeckoCurrency)
 }
 
@@ -59,7 +59,7 @@ func TestDenomsToTomlConfigDenoms(t *testing.T) {
 	denom := &types.DenomInfo{
 		Denom:             "udenom",
 		DisplayDenom:      "denom",
-		DenomCoefficient:  500,
+		DenomExponent:     10,
 		CoingeckoCurrency: "coingecko",
 	}
 	denoms := types.DenomInfos{denom}
@@ -68,6 +68,6 @@ func TestDenomsToTomlConfigDenoms(t *testing.T) {
 	require.Len(t, tomlConfigDenoms, 1)
 	require.Equal(t, "udenom", tomlConfigDenoms[0].Denom)
 	require.Equal(t, "denom", tomlConfigDenoms[0].DisplayDenom)
-	require.Equal(t, int64(500), tomlConfigDenoms[0].DenomCoefficient)
+	require.Equal(t, 10, tomlConfigDenoms[0].DenomExponent)
 	require.Equal(t, "coingecko", tomlConfigDenoms[0].CoingeckoCurrency)
 }

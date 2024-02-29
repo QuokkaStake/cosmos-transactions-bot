@@ -48,7 +48,7 @@ func TestAmountConvertDenom(t *testing.T) {
 	t.Parallel()
 
 	amount := amountPkg.AmountFromString("100000000", "ustake")
-	amount.ConvertDenom("stake", 1000000)
+	amount.ConvertDenom("stake", 6)
 
 	require.Equal(t, "stake", amount.Denom.String())
 	require.Equal(t, "ustake", amount.BaseDenom.String())

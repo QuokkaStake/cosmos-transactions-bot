@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"main/pkg/logger"
 	"main/pkg/utils"
+	"math"
 	"math/big"
 	"strings"
 
@@ -51,7 +52,9 @@ func AmountFromString(amount string, denom string) *Amount {
 	}
 }
 
-func (a *Amount) ConvertDenom(displayDenom string, denomCoefficient int64) {
+func (a *Amount) ConvertDenom(displayDenom string, denomExponent int) {
+	denomCoefficient := int64(math.Pow10(denomExponent))
+
 	denomCoefficientBigFloat := new(big.Float).SetInt64(denomCoefficient)
 	a.Value = new(big.Float).Quo(a.Value, denomCoefficientBigFloat)
 	a.BaseDenom = a.Denom

@@ -3,7 +3,6 @@ package responses
 import (
 	"fmt"
 	"main/pkg/config/types"
-	"math"
 )
 
 type CosmosDirectoryChainsResponse struct {
@@ -46,7 +45,7 @@ func (chain CosmosDirectoryChain) GetDenomInfo(baseDenom string) (*types.DenomIn
 			Denom:             asset.Base.Denom,
 			DisplayDenom:      asset.Display.Denom,
 			CoingeckoCurrency: asset.CoingeckoID,
-			DenomCoefficient:  int64(math.Pow10(asset.Display.Exponent - asset.Base.Exponent)),
+			DenomExponent:     asset.Display.Exponent - asset.Base.Exponent,
 		}, nil
 	}
 

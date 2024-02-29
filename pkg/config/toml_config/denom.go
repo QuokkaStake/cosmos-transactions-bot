@@ -8,7 +8,7 @@ import (
 type DenomInfo struct {
 	Denom             string `toml:"denom"`
 	DisplayDenom      string `default:""                toml:"display-denom"`
-	DenomCoefficient  int64  `default:"1000000"         toml:"denom-coefficient"`
+	DenomExponent     int    `default:"6"               toml:"denom-exponent"`
 	CoingeckoCurrency string `toml:"coingecko-currency"`
 }
 
@@ -32,7 +32,7 @@ func (d DenomInfos) ToAppConfigDenomInfos() types.DenomInfos {
 		denomInfos[index] = &types.DenomInfo{
 			Denom:             info.Denom,
 			DisplayDenom:      info.DisplayDenom,
-			DenomCoefficient:  info.DenomCoefficient,
+			DenomExponent:     info.DenomExponent,
 			CoingeckoCurrency: info.CoingeckoCurrency,
 		}
 	}
@@ -46,7 +46,7 @@ func TomlConfigDenomsFrom(d types.DenomInfos) DenomInfos {
 		denomInfos[index] = &DenomInfo{
 			Denom:             info.Denom,
 			DisplayDenom:      info.DisplayDenom,
-			DenomCoefficient:  info.DenomCoefficient,
+			DenomExponent:     info.DenomExponent,
 			CoingeckoCurrency: info.CoingeckoCurrency,
 		}
 	}

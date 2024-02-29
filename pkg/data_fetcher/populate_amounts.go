@@ -79,10 +79,10 @@ func (f *DataFetcher) PopulateAmounts(chainID string, amounts amountPkg.Amounts)
 			Str("chain", chainID).
 			Str("denom", amount.Denom.String()).
 			Str("display_denom", denomInfo.DisplayDenom).
-			Int64("coefficient", denomInfo.DenomCoefficient).
+			Int("exponent", denomInfo.DenomExponent).
 			Msg("Fetched denom for chain")
 
-		amount.ConvertDenom(denomInfo.DisplayDenom, denomInfo.DenomCoefficient)
+		amount.ConvertDenom(denomInfo.DisplayDenom, denomInfo.DenomExponent)
 
 		// If we've found cached price, then using it.
 		if price, cached := f.MaybeGetCachedPrice(chainID, denomInfo); cached {
