@@ -8,7 +8,7 @@ import (
 type DenomInfo struct {
 	Denom             string `toml:"denom"`
 	DisplayDenom      string `default:""                toml:"display-denom"`
-	DenomExponent     int    `default:"6"         toml:"denom-exponent"`
+	DenomExponent     int    `default:"6"               toml:"denom-exponent"`
 	CoingeckoCurrency string `toml:"coingecko-currency"`
 }
 
