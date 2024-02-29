@@ -195,7 +195,7 @@ func TestChainDisplayWarningsInvalidDenom(t *testing.T) {
 			ProposalLinkPattern:    "test/%s",
 		},
 		Denoms: types.DenomInfos{
-			{Denom: "test", DenomCoefficient: 1, DisplayDenom: "test"},
+			{Denom: "test", DenomExponent: 0, DisplayDenom: "test"},
 		},
 	}
 
@@ -217,7 +217,7 @@ func TestChainDisplayWarningsEmptyChainID(t *testing.T) {
 			ProposalLinkPattern:    "test/%s",
 		},
 		Denoms: types.DenomInfos{
-			{Denom: "test", DenomCoefficient: 1, DisplayDenom: "test", CoingeckoCurrency: "test"},
+			{Denom: "test", DenomExponent: 0, DisplayDenom: "test", CoingeckoCurrency: "test"},
 		},
 	}
 
@@ -233,7 +233,7 @@ func TestChainDisplayWarningsNoExplorer(t *testing.T) {
 		Name:    "name",
 		ChainID: "chain-id",
 		Denoms: types.DenomInfos{
-			{Denom: "test", DenomCoefficient: 1, DisplayDenom: "test", CoingeckoCurrency: "test"},
+			{Denom: "test", DenomExponent: 0, DisplayDenom: "test", CoingeckoCurrency: "test"},
 		},
 	}
 
@@ -256,7 +256,7 @@ func TestChainDisplayWarningsEmpty(t *testing.T) {
 			ProposalLinkPattern:    "test/%s",
 		},
 		Denoms: types.DenomInfos{
-			{Denom: "test", DenomCoefficient: 1, DisplayDenom: "test", CoingeckoCurrency: "test"},
+			{Denom: "test", DenomExponent: 0, DisplayDenom: "test", CoingeckoCurrency: "test"},
 		},
 	}
 
