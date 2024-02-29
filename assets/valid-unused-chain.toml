@@ -1,0 +1,33 @@
+timezone = "Etc/UTC"
+
+[[reporters]]
+name = "reporter"
+type = "telegram"
+telegram-config = { token = "xxx:yyy", chat = 12345, admins = [67890] }
+
+[[subscriptions]]
+reporter = "reporter"
+name = "subscription"
+[[subscriptions.chains]]
+name = "cosmos"
+filters = ["message.action = '/cosmos.gov.v1beta1.MsgVote'", ]
+
+[[chains]]
+name = "cosmos"
+chain-id = "cosmoshub-4"
+tendermint-nodes = ["https://rpc.cosmos.quokkastake.io:443", ]
+api-nodes = ["https://api.cosmos.quokkastake.io"]
+mintscan-prefix = "cosmos"
+denoms = [
+	{ denom = "uatom", display-denom = "atom", coingecko-currency = "cosmos" }
+]
+
+[[chains]]
+name = "sentinel"
+chain-id = "sentinelhub-2"
+tendermint-nodes = ["https://rpc.sentine;.quokkastake.io:443", ]
+api-nodes = ["https://api.sentine;.quokkastake.io"]
+mintscan-prefix = "sent"
+denoms = [
+	{ denom = "udvpn", display-denom = "dvpn", coingecko-currency = "sentinel" }
+]

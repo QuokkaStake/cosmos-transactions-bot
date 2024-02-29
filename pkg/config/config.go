@@ -111,6 +111,35 @@ func (c *AppConfig) DisplayWarnings() []types.DisplayWarning {
 		warnings = append(warnings, chain.DisplayWarnings()...)
 	}
 
+	reportersUsed := map[string]bool{}
+	chainsUsed := map[string]bool{}
+
+	for _, subscription := range c.Subscriptions {
+		reportersUsed[subscription.Reporter] = true
+
+		for _, chainSubscription := range subscription.ChainSubscriptions {
+			chainsUsed[chainSubscription.Chain] = true
+		}
+	}
+
+	for _, chain := range c.Chains {
+		if _, ok := chainsUsed[chain.Name]; !ok {
+			warnings = append(warnings, types.DisplayWarning{
+				Keys: map[string]string{"chain": chain.Name},
+				Text: "Chain is not used in any subscriptions",
+			})
+		}
+	}
+
+	for _, reporter := range c.Reporters {
+		if _, ok := reportersUsed[reporter.Name]; !ok {
+			warnings = append(warnings, types.DisplayWarning{
+				Keys: map[string]string{"reporter": reporter.Name},
+				Text: "Reporter is not used in any subscriptions",
+			})
+		}
+	}
+
 	return warnings
 }
 

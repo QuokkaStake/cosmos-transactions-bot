@@ -152,3 +152,27 @@ func TestGetConfigAsString(t *testing.T) {
 	configString := config.GetConfigAsString()
 	require.NotEmpty(t, configString)
 }
+
+func TestConfigDisplayWarningsWithUnusedReporter(t *testing.T) {
+	t.Parallel()
+
+	config, err := configPkg.GetConfig("valid-unused-reporter.toml", assets.AssetsFS)
+
+	require.NoError(t, err)
+	require.NotNil(t, config)
+
+	warnings := config.DisplayWarnings()
+	require.Len(t, warnings, 1)
+}
+
+func TestConfigDisplayWarningsWithUnusedChain(t *testing.T) {
+	t.Parallel()
+
+	config, err := configPkg.GetConfig("valid-unused-chain.toml", assets.AssetsFS)
+
+	require.NoError(t, err)
+	require.NotNil(t, config)
+
+	warnings := config.DisplayWarnings()
+	require.Len(t, warnings, 1)
+}
