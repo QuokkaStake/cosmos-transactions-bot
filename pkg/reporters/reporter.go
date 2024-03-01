@@ -5,6 +5,7 @@ import (
 	"main/pkg/config"
 	configTypes "main/pkg/config/types"
 	"main/pkg/constants"
+	"main/pkg/data_fetcher"
 	"main/pkg/metrics"
 	nodesManager "main/pkg/nodes_manager"
 	"main/pkg/reporters/telegram"
@@ -39,6 +40,7 @@ func GetReporter(
 	nodesManager *nodesManager.NodesManager,
 	aliasManager *alias_manager.AliasManager,
 	metricsManager *metrics.Manager,
+	dataFetcher *data_fetcher.DataFetcher,
 	version string,
 ) Reporter {
 	if reporterConfig.Type == constants.ReporterTypeTelegram {
@@ -49,6 +51,7 @@ func GetReporter(
 			nodesManager,
 			aliasManager,
 			metricsManager,
+			dataFetcher,
 			version,
 		)
 	}

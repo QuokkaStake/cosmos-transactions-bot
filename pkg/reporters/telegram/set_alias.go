@@ -35,7 +35,12 @@ func (reporter *Reporter) HandleSetAlias(c tele.Context) error {
 		return reporter.BotReply(c, fmt.Sprintf("Chain %s is not found in config!", chain))
 	}
 
-	if err := reporter.AliasManager.Set(chain, address, alias); err != nil {
+	subscription, found := reporter.DataFetcher.FindSubscriptionByReporter(reporter.Name())
+	if !found {
+		return reporter.BotReply(c, "This reporter is not linked to any subscription!")
+	}
+
+	if err := reporter.AliasManager.Set(subscription.Name, chain, address, alias); err != nil {
 		return reporter.BotReply(c, fmt.Sprintf("Error saving alias: %s", err))
 	}
 

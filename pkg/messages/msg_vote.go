@@ -44,7 +44,7 @@ func (m MsgVote) Type() string {
 	return "/cosmos.gov.v1beta1.MsgVote"
 }
 
-func (m *MsgVote) GetAdditionalData(fetcher types.DataFetcher) {
+func (m *MsgVote) GetAdditionalData(fetcher types.DataFetcher, subscriptionName string) {
 	proposal, found := fetcher.GetProposal(m.Chain, m.ProposalID.Value)
 	if found {
 		m.Proposal = proposal
@@ -53,9 +53,7 @@ func (m *MsgVote) GetAdditionalData(fetcher types.DataFetcher) {
 		m.ProposalID.Title = fmt.Sprintf("#%s", m.ProposalID.Value)
 	}
 
-	if alias := fetcher.GetAliasManager().Get(m.Chain.Name, m.Voter.Value); alias != "" {
-		m.Voter.Title = alias
-	}
+	fetcher.PopulateWalletAlias(m.Chain, m.Voter, subscriptionName)
 }
 
 func (m *MsgVote) GetVote() string {

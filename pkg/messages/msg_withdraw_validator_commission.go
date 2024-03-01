@@ -14,7 +14,7 @@ import (
 )
 
 type MsgWithdrawValidatorCommission struct {
-	ValidatorAddress configTypes.Link
+	ValidatorAddress *configTypes.Link
 	Height           int64
 	Amount           []*amount.Amount
 
@@ -38,7 +38,7 @@ func (m MsgWithdrawValidatorCommission) Type() string {
 	return "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission"
 }
 
-func (m *MsgWithdrawValidatorCommission) GetAdditionalData(fetcher types.DataFetcher) {
+func (m *MsgWithdrawValidatorCommission) GetAdditionalData(fetcher types.DataFetcher, subscriptionName string) {
 	rewards, found := fetcher.GetCommissionAtBlock(
 		m.Chain,
 		m.ValidatorAddress.Value,

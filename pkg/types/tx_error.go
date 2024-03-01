@@ -20,5 +20,5 @@ func (txError TxError) GetHash() string {
 	return uuid.NewString()
 }
 
-func (txError *TxError) GetAdditionalData(fetcher DataFetcher) {
+func (txError *TxError) GetAdditionalData(fetcher DataFetcher, subscriptionName string) {
 }

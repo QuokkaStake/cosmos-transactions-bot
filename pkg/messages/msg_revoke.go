@@ -39,14 +39,9 @@ func (m MsgRevoke) Type() string {
 	return "/cosmos.authz.v1beta1.MsgRevoke"
 }
 
-func (m *MsgRevoke) GetAdditionalData(fetcher types.DataFetcher) {
-	if alias := fetcher.GetAliasManager().Get(m.Chain.Name, m.Grantee.Value); alias != "" {
-		m.Grantee.Title = alias
-	}
-
-	if alias := fetcher.GetAliasManager().Get(m.Chain.Name, m.Granter.Value); alias != "" {
-		m.Granter.Title = alias
-	}
+func (m *MsgRevoke) GetAdditionalData(fetcher types.DataFetcher, subscriptionName string) {
+	fetcher.PopulateWalletAlias(m.Chain, m.Grantee, subscriptionName)
+	fetcher.PopulateWalletAlias(m.Chain, m.Granter, subscriptionName)
 }
 
 func (m *MsgRevoke) GetValues() event.EventValues {

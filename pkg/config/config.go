@@ -2,6 +2,7 @@ package config
 
 import (
 	"bytes"
+	"main/pkg/fs"
 	"time"
 
 	"gopkg.in/guregu/null.v4"
@@ -38,7 +39,7 @@ type ReadFileFs interface {
 	ReadFile(name string) ([]byte, error)
 }
 
-func GetConfig(path string, filesystem ReadFileFs) (*AppConfig, error) {
+func GetConfig(path string, filesystem fs.FS) (*AppConfig, error) {
 	configBytes, err := filesystem.ReadFile(path)
 	if err != nil {
 		return nil, err

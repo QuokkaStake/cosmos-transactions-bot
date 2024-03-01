@@ -1,7 +1,6 @@
 package types
 
 import (
-	"main/pkg/alias_manager"
 	configTypes "main/pkg/config/types"
 	"main/pkg/types/amount"
 	"main/pkg/types/responses"
@@ -31,18 +30,23 @@ type DataFetcher interface {
 	) ([]responses.Commission, bool)
 	GetProposal(chain *configTypes.Chain, id string) (*responses.Proposal, bool)
 	GetStakingParams(chain *configTypes.Chain) (*responses.StakingParams, bool)
-	GetAliasManager() *alias_manager.AliasManager
 	GetIbcRemoteChainID(chainID string, channel, port string) (string, bool)
 	FindChainById(chainID string) (*configTypes.Chain, bool)
 	GetDenomTrace(
 		chain *configTypes.Chain,
 		denom string,
 	) (*transferTypes.DenomTrace, bool)
-	PopulateWallet(chain *configTypes.Chain, walletLink *configTypes.Link)
+	PopulateWallet(chain *configTypes.Chain, walletLink *configTypes.Link, subscriptionName string)
 	PopulateMultichainWallet(
 		chain *configTypes.Chain,
 		channel string,
 		port string,
 		walletLink *configTypes.Link,
+		subscriptionName string,
+	)
+	PopulateWalletAlias(
+		chain *configTypes.Chain,
+		link *configTypes.Link,
+		subscriptionName string,
 	)
 }

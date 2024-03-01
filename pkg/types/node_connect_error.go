@@ -22,5 +22,5 @@ func (e NodeConnectError) GetHash() string {
 	return uuid.NewString()
 }
 
-func (e *NodeConnectError) GetAdditionalData(fetcher DataFetcher) {
+func (e *NodeConnectError) GetAdditionalData(fetcher DataFetcher, subscriptionName string) {
 }

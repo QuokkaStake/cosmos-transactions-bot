@@ -54,9 +54,9 @@ func (p InterchainAccountsPacket) Type() string {
 	return "InterchainAccountsPacket"
 }
 
-func (p *InterchainAccountsPacket) GetAdditionalData(fetcher types.DataFetcher) {
+func (p *InterchainAccountsPacket) GetAdditionalData(fetcher types.DataFetcher, subscriptionName string) {
 	for _, message := range p.TxMessages {
-		message.GetAdditionalData(fetcher)
+		message.GetAdditionalData(fetcher, subscriptionName)
 	}
 }
 

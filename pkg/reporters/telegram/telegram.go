@@ -6,6 +6,7 @@ import (
 	"html"
 	"html/template"
 	"main/pkg/constants"
+	"main/pkg/data_fetcher"
 	"main/pkg/metrics"
 	"main/pkg/types"
 	"main/pkg/types/amount"
@@ -39,6 +40,7 @@ type Reporter struct {
 	Config         *config.AppConfig
 	AliasManager   *alias_manager.AliasManager
 	MetricsManager *metrics.Manager
+	DataFetcher    *data_fetcher.DataFetcher
 
 	Version string
 }
@@ -54,6 +56,7 @@ func NewReporter(
 	nodesManager *nodesManager.NodesManager,
 	aliasManager *alias_manager.AliasManager,
 	metricsManager *metrics.Manager,
+	dataFetcher *data_fetcher.DataFetcher,
 	version string,
 ) *Reporter {
 	return &Reporter{
@@ -63,10 +66,11 @@ func NewReporter(
 		Admins:         reporterConfig.TelegramConfig.Admins,
 		Config:         config,
 		Logger:         logger.With().Str("component", "telegram_reporter").Logger(),
-		Templates:      make(map[string]*template.Template, 0),
+		Templates:      make(map[string]*template.Template),
 		NodesManager:   nodesManager,
 		AliasManager:   aliasManager,
 		MetricsManager: metricsManager,
+		DataFetcher:    dataFetcher,
 		Version:        version,
 	}
 }

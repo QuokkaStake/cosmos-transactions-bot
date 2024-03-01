@@ -16,10 +16,15 @@ func (reporter *Reporter) HandleGetAliases(c tele.Context) error {
 	reporter.MetricsManager.LogReporterQuery(reporter.Name(), constants.ReporterQueryGetAliases)
 
 	if !reporter.AliasManager.Enabled() {
-		return reporter.BotReply(c, "Aliases manager not enabled")
+		return reporter.BotReply(c, "Aliases manager not enabled!")
 	}
 
-	aliases := reporter.AliasManager.GetAliasesLinks()
+	subscription, found := reporter.DataFetcher.FindSubscriptionByReporter(reporter.Name())
+	if !found {
+		return reporter.BotReply(c, "This reporter is not linked to any subscription!")
+	}
+
+	aliases := reporter.AliasManager.GetAliasesLinks(subscription.Name)
 	template, err := reporter.Render("Aliases", aliases)
 	if err != nil {
 		return reporter.BotReply(c, fmt.Sprintf("Error displaying aliases: %s", err))

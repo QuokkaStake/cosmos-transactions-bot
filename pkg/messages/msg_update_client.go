@@ -36,10 +36,8 @@ func (m MsgUpdateClient) Type() string {
 	return "/ibc.core.client.v1.MsgUpdateClient"
 }
 
-func (m *MsgUpdateClient) GetAdditionalData(fetcher types.DataFetcher) {
-	if alias := fetcher.GetAliasManager().Get(m.Chain.Name, m.Signer.Value); alias != "" {
-		m.Signer.Title = alias
-	}
+func (m *MsgUpdateClient) GetAdditionalData(fetcher types.DataFetcher, subscriptionName string) {
+	fetcher.PopulateWalletAlias(m.Chain, m.Signer, subscriptionName)
 }
 
 func (m *MsgUpdateClient) GetValues() event.EventValues {

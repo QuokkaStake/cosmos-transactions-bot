@@ -40,16 +40,11 @@ func (m MsgSend) Type() string {
 	return "/cosmos.bank.v1beta1.MsgSend"
 }
 
-func (m *MsgSend) GetAdditionalData(fetcher types.DataFetcher) {
+func (m *MsgSend) GetAdditionalData(fetcher types.DataFetcher, subscriptionName string) {
 	fetcher.PopulateAmounts(m.Chain.ChainID, m.Amount)
 
-	if alias := fetcher.GetAliasManager().Get(m.Chain.Name, m.From.Value); alias != "" {
-		m.From.Title = alias
-	}
-
-	if alias := fetcher.GetAliasManager().Get(m.Chain.Name, m.To.Value); alias != "" {
-		m.To.Title = alias
-	}
+	fetcher.PopulateWalletAlias(m.Chain, m.From, subscriptionName)
+	fetcher.PopulateWalletAlias(m.Chain, m.To, subscriptionName)
 }
 
 func (m *MsgSend) GetValues() event.EventValues {
