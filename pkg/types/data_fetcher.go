@@ -51,4 +51,7 @@ type DataFetcher interface {
 		chain *configTypes.Chain,
 		validatorLink *configTypes.Link,
 	)
+	FindChainsByReporter(
+		reporterName string,
+	) configTypes.Chains
 }

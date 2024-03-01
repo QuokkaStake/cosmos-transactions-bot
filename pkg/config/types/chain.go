@@ -29,6 +29,16 @@ func (c Chains) FindByChainID(chainID string) (*Chain, bool) {
 	return nil, false
 }
 
+func (c Chains) HasChain(name string) bool {
+	for _, chain := range c {
+		if chain.Name == name {
+			return true
+		}
+	}
+
+	return false
+}
+
 type Chain struct {
 	Name              string
 	PrettyName        string

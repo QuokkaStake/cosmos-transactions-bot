@@ -98,7 +98,6 @@ func (reporter *Reporter) Init() {
 	bot.Handle("/help", reporter.HandleHelp)
 	bot.Handle("/start", reporter.HandleHelp)
 	bot.Handle("/status", reporter.HandleListNodesStatus)
-	bot.Handle("/config", reporter.HandleGetConfig)
 	bot.Handle("/alias", reporter.HandleSetAlias)
 	bot.Handle("/aliases", reporter.HandleGetAliases)
 

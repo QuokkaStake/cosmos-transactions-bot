@@ -18,7 +18,6 @@ const (
 	ReporterQueryHelp        ReporterQuery = "help"
 	ReporterQueryGetAliases  ReporterQuery = "get_aliases"
 	ReporterQuerySetAlias    ReporterQuery = "set_alias"
-	ReporterQueryGetConfig   ReporterQuery = "get_config"
 	ReporterQueryNodesStatus ReporterQuery = "nodes_status"
 )
 

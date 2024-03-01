@@ -15,9 +15,18 @@ func (reporter *Reporter) HandleListNodesStatus(c tele.Context) error {
 
 	reporter.MetricsManager.LogReporterQuery(reporter.Name(), constants.ReporterQueryNodesStatus)
 
+	chains := reporter.DataFetcher.FindChainsByReporter(reporter.Name())
+	if len(chains) == 0 {
+		return reporter.BotReply(c, "This reporter is not linked to any chains!")
+	}
+
 	statuses := map[string]map[string]types.TendermintRPCStatus{}
 
 	for chain, chainNodes := range reporter.NodesManager.Nodes {
+		if !chains.HasChain(chain) {
+			continue
+		}
+
 		statuses[chain] = map[string]types.TendermintRPCStatus{}
 		for _, node := range chainNodes {
 			statuses[chain][node.URL] = node.Status()
