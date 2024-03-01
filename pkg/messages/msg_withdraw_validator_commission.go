@@ -54,9 +54,7 @@ func (m *MsgWithdrawValidatorCommission) GetAdditionalData(fetcher types.DataFet
 		fetcher.PopulateAmounts(m.Chain.ChainID, m.Amount)
 	}
 
-	if validator, found := fetcher.GetValidator(m.Chain, m.ValidatorAddress.Value); found {
-		m.ValidatorAddress.Title = validator.Description.Moniker
-	}
+	fetcher.PopulateValidator(m.Chain, m.ValidatorAddress)
 }
 
 func (m *MsgWithdrawValidatorCommission) GetValues() event.EventValues {

@@ -40,11 +40,7 @@ func (m MsgDelegate) Type() string {
 }
 
 func (m *MsgDelegate) GetAdditionalData(fetcher types.DataFetcher, subscriptionName string) {
-	validator, found := fetcher.GetValidator(m.Chain, m.ValidatorAddress.Value)
-	if found {
-		m.ValidatorAddress.Title = validator.Description.Moniker
-	}
-
+	fetcher.PopulateValidator(m.Chain, m.ValidatorAddress)
 	fetcher.PopulateAmount(m.Chain.ChainID, m.Amount)
 	fetcher.PopulateWalletAlias(m.Chain, m.DelegatorAddress, subscriptionName)
 }

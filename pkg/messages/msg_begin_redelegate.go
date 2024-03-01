@@ -42,12 +42,8 @@ func (m MsgBeginRedelegate) Type() string {
 }
 
 func (m *MsgBeginRedelegate) GetAdditionalData(fetcher types.DataFetcher, subscriptionName string) {
-	if validator, found := fetcher.GetValidator(m.Chain, m.ValidatorSrcAddress.Value); found {
-		m.ValidatorSrcAddress.Title = validator.Description.Moniker
-	}
-	if validator, found := fetcher.GetValidator(m.Chain, m.ValidatorDstAddress.Value); found {
-		m.ValidatorDstAddress.Title = validator.Description.Moniker
-	}
+	fetcher.PopulateValidator(m.Chain, m.ValidatorSrcAddress)
+	fetcher.PopulateValidator(m.Chain, m.ValidatorDstAddress)
 
 	fetcher.PopulateAmount(m.Chain.ChainID, m.Amount)
 	fetcher.PopulateWalletAlias(m.Chain, m.DelegatorAddress, subscriptionName)

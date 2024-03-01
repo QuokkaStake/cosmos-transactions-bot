@@ -43,9 +43,7 @@ func (m MsgUndelegate) Type() string {
 }
 
 func (m *MsgUndelegate) GetAdditionalData(fetcher types.DataFetcher, subscriptionName string) {
-	if validator, found := fetcher.GetValidator(m.Chain, m.ValidatorAddress.Value); found {
-		m.ValidatorAddress.Title = validator.Description.Moniker
-	}
+	fetcher.PopulateValidator(m.Chain, m.ValidatorAddress)
 
 	if stakingParams, found := fetcher.GetStakingParams(m.Chain); found {
 		m.UndelegateFinishTime = time.Now().Add(stakingParams.UnbondingTime.Duration)

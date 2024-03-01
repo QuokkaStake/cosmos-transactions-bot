@@ -57,10 +57,7 @@ func (m *MsgWithdrawDelegatorReward) GetAdditionalData(fetcher types.DataFetcher
 		fetcher.PopulateAmounts(m.Chain.ChainID, m.Amount)
 	}
 
-	if validator, found := fetcher.GetValidator(m.Chain, m.ValidatorAddress.Value); found {
-		m.ValidatorAddress.Title = validator.Description.Moniker
-	}
-
+	fetcher.PopulateValidator(m.Chain, m.ValidatorAddress)
 	fetcher.PopulateWalletAlias(m.Chain, m.DelegatorAddress, subscriptionName)
 }
 

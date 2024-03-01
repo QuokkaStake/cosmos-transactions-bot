@@ -15,8 +15,6 @@ type DataFetcher interface {
 	GetPriceFetcher(info *configTypes.DenomInfo) PriceFetcher
 	PopulateAmount(chainID string, amount *amount.Amount)
 	PopulateAmounts(chainID string, amount amount.Amounts)
-
-	GetValidator(chain *configTypes.Chain, address string) (*responses.Validator, bool)
 	GetRewardsAtBlock(
 		chain *configTypes.Chain,
 		delegator string,
@@ -48,5 +46,9 @@ type DataFetcher interface {
 		chain *configTypes.Chain,
 		link *configTypes.Link,
 		subscriptionName string,
+	)
+	PopulateValidator(
+		chain *configTypes.Chain,
+		validatorLink *configTypes.Link,
 	)
 }

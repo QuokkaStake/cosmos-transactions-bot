@@ -31,3 +31,13 @@ func (f *DataFetcher) GetValidator(chain *configTypes.Chain, address string) (*r
 	f.Logger.Error().Msg("Could not connect to any nodes to get a validator")
 	return nil, false
 }
+
+func (f *DataFetcher) PopulateValidator(
+	chain *configTypes.Chain,
+	validatorLink *configTypes.Link,
+) {
+	validator, found := f.GetValidator(chain, validatorLink.Value)
+	if found {
+		validatorLink.Title = validator.Description.Moniker
+	}
+}
