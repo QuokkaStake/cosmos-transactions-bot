@@ -1,11 +1,9 @@
 package alias_manager
 
 import (
-	"main/pkg/fs"
-	"os"
-
 	"main/pkg/config"
 	configTypes "main/pkg/config/types"
+	"main/pkg/fs"
 
 	"github.com/BurntSushi/toml"
 	"github.com/rs/zerolog"
@@ -69,7 +67,7 @@ func (m *AliasManager) Save() error {
 
 	tomlAliases := m.Aliases.ToTomlAliases()
 
-	f, err := os.Create(m.Path)
+	f, err := m.FS.Create(m.Path)
 	if err != nil {
 		m.Logger.Error().Err(err).Msg("Could not create aliases file")
 		return err

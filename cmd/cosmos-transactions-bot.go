@@ -1,9 +1,9 @@
 package main
 
 import (
-	"io/fs"
 	"main/pkg"
 	configPkg "main/pkg/config"
+	"main/pkg/fs"
 	loggerPkg "main/pkg/logger"
 	"os"
 

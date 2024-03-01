@@ -2,9 +2,9 @@ package config_test
 
 import (
 	"errors"
-	"io/fs"
 	"main/assets"
 	configPkg "main/pkg/config"
+	"main/pkg/fs"
 	"testing"
 
 	"github.com/stretchr/testify/require"

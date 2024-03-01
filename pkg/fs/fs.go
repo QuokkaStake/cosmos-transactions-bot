@@ -1,10 +1,14 @@
 package fs
 
 import (
-	"io/fs"
+	"io"
 )
+
+type File interface {
+	io.WriteCloser
+}
 
 type FS interface {
 	ReadFile(name string) ([]byte, error)
-	Create(path string) (fs.File, error)
+	Create(path string) (File, error)
 }
