@@ -48,7 +48,7 @@ func NewDataFetcher(
 		Logger: logger.With().
 			Str("component", "data_fetcher").
 			Logger(),
-		Cache:                 cache.NewCache(logger),
+		Cache:                 cache.NewCache(),
 		PriceFetchers:         map[string]priceFetchers.PriceFetcher{},
 		Config:                config,
 		TendermintApiClients:  tendermintApiClients,

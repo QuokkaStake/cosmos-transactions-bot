@@ -17,11 +17,10 @@ type Cache struct {
 	Entries   map[string]CacheEntry
 }
 
-func NewCache(logger *zerolog.Logger) *Cache {
+func NewCache() *Cache {
 	return &Cache{
 		StoreTime: 10 * time.Minute,
-		Entries:   make(map[string]CacheEntry, 0),
-		Logger:    logger.With().Str("component", "cache").Logger(),
+		Entries:   make(map[string]CacheEntry),
 	}
 }
 
