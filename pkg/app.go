@@ -32,9 +32,7 @@ type App struct {
 	Version string
 }
 
-func NewApp(config *config.AppConfig, version string) *App {
-	fs := &fsPkg.OsFS{}
-
+func NewApp(config *config.AppConfig, version string, fs fsPkg.FS) *App {
 	logger := loggerPkg.GetLogger(config.LogConfig)
 	aliasManager := alias_manager.NewAliasManager(logger, config, fs)
 	aliasManager.Load()
