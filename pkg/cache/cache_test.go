@@ -1,10 +1,11 @@
 package cache_test
 
 import (
-	"github.com/stretchr/testify/require"
 	cachePkg "main/pkg/cache"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestCacheSet(t *testing.T) {
