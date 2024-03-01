@@ -75,3 +75,22 @@ func (f *DataFetcher) FindSubscriptionByReporter(
 
 	return nil, false
 }
+
+func (f *DataFetcher) FindChainsByReporter(
+	reporterName string,
+) configTypes.Chains {
+	chains := make(configTypes.Chains, 0)
+
+	for _, subscription := range f.Config.Subscriptions {
+		if subscription.Reporter != reporterName {
+			continue
+		}
+
+		for _, chainSubscription := range subscription.ChainSubscriptions {
+			chain := f.Config.Chains.FindByName(chainSubscription.Chain)
+			chains = append(chains, chain)
+		}
+	}
+
+	return chains
+}

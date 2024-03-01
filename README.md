@@ -294,7 +294,6 @@ Additionally, for the ease of using commands, you can put the following list as 
 ```
 help - Display help message
 status - Display nodes status
-config - Display .toml config
 alias - Add a wallet alias
 aliases - List wallet aliases
 ```

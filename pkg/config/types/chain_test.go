@@ -25,6 +25,17 @@ func TestChainsFindByName(t *testing.T) {
 	require.Nil(t, chains.FindByName("name-2"))
 }
 
+func TestChainsHasByName(t *testing.T) {
+	t.Parallel()
+
+	chains := types.Chains{
+		{Name: "name"},
+	}
+
+	require.True(t, chains.HasChain("name"))
+	require.False(t, chains.HasChain("name-2"))
+}
+
 func TestChainsFindByChainID(t *testing.T) {
 	t.Parallel()
 
