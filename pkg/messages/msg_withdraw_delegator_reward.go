@@ -15,7 +15,7 @@ import (
 
 type MsgWithdrawDelegatorReward struct {
 	DelegatorAddress *configTypes.Link
-	ValidatorAddress configTypes.Link
+	ValidatorAddress *configTypes.Link
 	Height           int64
 	Amount           []*amount.Amount
 
@@ -40,7 +40,7 @@ func (m MsgWithdrawDelegatorReward) Type() string {
 	return "/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward"
 }
 
-func (m *MsgWithdrawDelegatorReward) GetAdditionalData(fetcher types.DataFetcher) {
+func (m *MsgWithdrawDelegatorReward) GetAdditionalData(fetcher types.DataFetcher, subscriptionName string) {
 	rewards, found := fetcher.GetRewardsAtBlock(
 		m.Chain,
 		m.DelegatorAddress.Value,
@@ -57,13 +57,8 @@ func (m *MsgWithdrawDelegatorReward) GetAdditionalData(fetcher types.DataFetcher
 		fetcher.PopulateAmounts(m.Chain.ChainID, m.Amount)
 	}
 
-	if validator, found := fetcher.GetValidator(m.Chain, m.ValidatorAddress.Value); found {
-		m.ValidatorAddress.Title = validator.Description.Moniker
-	}
-
-	if alias := fetcher.GetAliasManager().Get(m.Chain.Name, m.DelegatorAddress.Value); alias != "" {
-		m.DelegatorAddress.Title = alias
-	}
+	fetcher.PopulateValidator(m.Chain, m.ValidatorAddress)
+	fetcher.PopulateWalletAlias(m.Chain, m.DelegatorAddress, subscriptionName)
 }
 
 func (m *MsgWithdrawDelegatorReward) GetValues() event.EventValues {

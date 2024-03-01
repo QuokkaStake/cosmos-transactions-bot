@@ -17,7 +17,7 @@ import (
 
 type MsgUndelegate struct {
 	DelegatorAddress     *configTypes.Link
-	ValidatorAddress     configTypes.Link
+	ValidatorAddress     *configTypes.Link
 	UndelegateFinishTime time.Time
 	Amount               *amount.Amount
 
@@ -42,20 +42,15 @@ func (m MsgUndelegate) Type() string {
 	return "/cosmos.staking.v1beta1.MsgUndelegate"
 }
 
-func (m *MsgUndelegate) GetAdditionalData(fetcher types.DataFetcher) {
-	if validator, found := fetcher.GetValidator(m.Chain, m.ValidatorAddress.Value); found {
-		m.ValidatorAddress.Title = validator.Description.Moniker
-	}
+func (m *MsgUndelegate) GetAdditionalData(fetcher types.DataFetcher, subscriptionName string) {
+	fetcher.PopulateValidator(m.Chain, m.ValidatorAddress)
 
 	if stakingParams, found := fetcher.GetStakingParams(m.Chain); found {
 		m.UndelegateFinishTime = time.Now().Add(stakingParams.UnbondingTime.Duration)
 	}
 
 	fetcher.PopulateAmount(m.Chain.ChainID, m.Amount)
-
-	if alias := fetcher.GetAliasManager().Get(m.Chain.Name, m.DelegatorAddress.Value); alias != "" {
-		m.DelegatorAddress.Title = alias
-	}
+	fetcher.PopulateWalletAlias(m.Chain, m.DelegatorAddress, subscriptionName)
 }
 
 func (m *MsgUndelegate) GetValues() event.EventValues {

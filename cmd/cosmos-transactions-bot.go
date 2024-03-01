@@ -3,6 +3,7 @@ package main
 import (
 	"main/pkg"
 	configPkg "main/pkg/config"
+	"main/pkg/fs"
 	loggerPkg "main/pkg/logger"
 	"os"
 
@@ -13,14 +14,19 @@ var (
 	version = "unknown"
 )
 
-type MainFS struct{}
+type OsFS struct {
+}
 
-func (fs *MainFS) ReadFile(name string) ([]byte, error) {
+func (fs *OsFS) ReadFile(name string) ([]byte, error) {
 	return os.ReadFile(name)
 }
 
+func (fs *OsFS) Create(path string) (fs.File, error) {
+	return os.Create(path)
+}
+
 func Execute(configPath string) {
-	filesystem := &MainFS{}
+	filesystem := &OsFS{}
 	config, err := configPkg.GetConfig(configPath, filesystem)
 	if err != nil {
 		loggerPkg.GetDefaultLogger().Fatal().Err(err).Msg("Could not load config")
@@ -31,7 +37,7 @@ func Execute(configPath string) {
 		warning.Log(loggerPkg.GetDefaultLogger())
 	}
 
-	app := pkg.NewApp(config, version)
+	app := pkg.NewApp(config, version, filesystem)
 	app.Start()
 }
 

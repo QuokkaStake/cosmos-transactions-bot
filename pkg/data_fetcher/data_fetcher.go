@@ -58,12 +58,20 @@ func NewDataFetcher(
 	}
 }
 
-func (f *DataFetcher) GetAliasManager() *alias_manager.AliasManager {
-	return f.AliasManager
-}
-
 func (f *DataFetcher) FindChainById(
 	chainID string,
 ) (*configTypes.Chain, bool) {
 	return f.Config.Chains.FindByChainID(chainID)
+}
+
+func (f *DataFetcher) FindSubscriptionByReporter(
+	reporterName string,
+) (*configTypes.Subscription, bool) {
+	for _, subscription := range f.Config.Subscriptions {
+		if subscription.Reporter == reporterName {
+			return subscription, true
+		}
+	}
+
+	return nil, false
 }

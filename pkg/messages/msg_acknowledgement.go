@@ -47,15 +47,10 @@ func (m MsgAcknowledgement) Type() string {
 	return "/ibc.core.channel.v1.MsgAcknowledgement"
 }
 
-func (m *MsgAcknowledgement) GetAdditionalData(fetcher types.DataFetcher) {
+func (m *MsgAcknowledgement) GetAdditionalData(fetcher types.DataFetcher, subscriptionName string) {
 	fetcher.PopulateAmount(m.Chain.ChainID, m.Token)
-	if alias := fetcher.GetAliasManager().Get(m.Chain.Name, m.Sender.Value); alias != "" {
-		m.Sender.Title = alias
-	}
-
-	if alias := fetcher.GetAliasManager().Get(m.Chain.Name, m.Signer.Value); alias != "" {
-		m.Signer.Title = alias
-	}
+	fetcher.PopulateWalletAlias(m.Chain, m.Sender, subscriptionName)
+	fetcher.PopulateWalletAlias(m.Chain, m.Signer, subscriptionName)
 }
 
 func (m *MsgAcknowledgement) GetValues() event.EventValues {

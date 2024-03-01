@@ -1,17 +1,30 @@
 package config_test
 
 import (
+	"errors"
 	"main/assets"
 	configPkg "main/pkg/config"
+	"main/pkg/fs"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 )
 
+type TmpFSInterface struct {
+}
+
+func (filesystem *TmpFSInterface) ReadFile(name string) ([]byte, error) {
+	return assets.EmbedFS.ReadFile(name)
+}
+
+func (filesystem *TmpFSInterface) Create(path string) (fs.File, error) {
+	return nil, errors.New("not yet supported")
+}
+
 func TestLoadConfigErrorReading(t *testing.T) {
 	t.Parallel()
 
-	config, err := configPkg.GetConfig("config.toml", assets.AssetsFS)
+	config, err := configPkg.GetConfig("config.toml", &TmpFSInterface{})
 
 	require.Error(t, err)
 	require.Nil(t, config)
@@ -20,7 +33,7 @@ func TestLoadConfigErrorReading(t *testing.T) {
 func TestLoadConfigInvalidConfig(t *testing.T) {
 	t.Parallel()
 
-	config, err := configPkg.GetConfig("invalid-timezone.toml", assets.AssetsFS)
+	config, err := configPkg.GetConfig("invalid-timezone.toml", &TmpFSInterface{})
 
 	require.Error(t, err)
 	require.Nil(t, config)
@@ -29,7 +42,7 @@ func TestLoadConfigInvalidConfig(t *testing.T) {
 func TestLoadConfigInvalidToml(t *testing.T) {
 	t.Parallel()
 
-	config, err := configPkg.GetConfig("invalid-toml.toml", assets.AssetsFS)
+	config, err := configPkg.GetConfig("invalid-toml.toml", &TmpFSInterface{})
 
 	require.Error(t, err)
 	require.Nil(t, config)
@@ -38,7 +51,7 @@ func TestLoadConfigInvalidToml(t *testing.T) {
 func TestLoadConfigValid(t *testing.T) {
 	t.Parallel()
 
-	config, err := configPkg.GetConfig("valid.toml", assets.AssetsFS)
+	config, err := configPkg.GetConfig("valid.toml", &TmpFSInterface{})
 
 	require.NoError(t, err)
 	require.NotNil(t, config)
@@ -47,7 +60,7 @@ func TestLoadConfigValid(t *testing.T) {
 func TestConfigDisplayWarnings(t *testing.T) {
 	t.Parallel()
 
-	config, err := configPkg.GetConfig("valid.toml", assets.AssetsFS)
+	config, err := configPkg.GetConfig("valid.toml", &TmpFSInterface{})
 
 	require.NoError(t, err)
 	require.NotNil(t, config)
@@ -59,7 +72,7 @@ func TestConfigDisplayWarnings(t *testing.T) {
 func TestConfigDisplayAsToml(t *testing.T) {
 	t.Parallel()
 
-	config, err := configPkg.GetConfig("valid.toml", assets.AssetsFS)
+	config, err := configPkg.GetConfig("valid.toml", &TmpFSInterface{})
 	require.NoError(t, err)
 
 	tomlConfig := config.ToTomlConfig()
@@ -144,7 +157,7 @@ func TestConfigDisplayAsToml(t *testing.T) {
 func TestGetConfigAsString(t *testing.T) {
 	t.Parallel()
 
-	config, err := configPkg.GetConfig("valid.toml", assets.AssetsFS)
+	config, err := configPkg.GetConfig("valid.toml", &TmpFSInterface{})
 
 	require.NoError(t, err)
 	require.NotNil(t, config)
@@ -156,7 +169,7 @@ func TestGetConfigAsString(t *testing.T) {
 func TestConfigDisplayWarningsWithUnusedReporter(t *testing.T) {
 	t.Parallel()
 
-	config, err := configPkg.GetConfig("valid-unused-reporter.toml", assets.AssetsFS)
+	config, err := configPkg.GetConfig("valid-unused-reporter.toml", &TmpFSInterface{})
 
 	require.NoError(t, err)
 	require.NotNil(t, config)
@@ -168,7 +181,7 @@ func TestConfigDisplayWarningsWithUnusedReporter(t *testing.T) {
 func TestConfigDisplayWarningsWithUnusedChain(t *testing.T) {
 	t.Parallel()
 
-	config, err := configPkg.GetConfig("valid-unused-chain.toml", assets.AssetsFS)
+	config, err := configPkg.GetConfig("valid-unused-chain.toml", &TmpFSInterface{})
 
 	require.NoError(t, err)
 	require.NotNil(t, config)

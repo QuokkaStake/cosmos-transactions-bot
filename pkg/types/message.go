@@ -8,7 +8,7 @@ import (
 
 type Message interface {
 	Type() string
-	GetAdditionalData(fetcher DataFetcher)
+	GetAdditionalData(fetcher DataFetcher, subscriptionName string)
 	GetValues() event.EventValues
 	GetRawMessages() []*codecTypes.Any
 	AddParsedMessage(message Message)

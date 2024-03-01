@@ -44,13 +44,10 @@ func (m MsgTransfer) Type() string {
 	return "/ibc.applications.transfer.v1.MsgTransfer"
 }
 
-func (m *MsgTransfer) GetAdditionalData(fetcher types.DataFetcher) {
+func (m *MsgTransfer) GetAdditionalData(fetcher types.DataFetcher, subscriptionName string) {
 	m.FetchRemoteChainData(fetcher)
-	fetcher.PopulateMultichainWallet(m.Chain, m.SrcChannel, m.SrcPort, m.Receiver)
-
-	if alias := fetcher.GetAliasManager().Get(m.Chain.Name, m.Sender.Value); alias != "" {
-		m.Sender.Title = alias
-	}
+	fetcher.PopulateMultichainWallet(m.Chain, m.SrcChannel, m.SrcPort, m.Receiver, subscriptionName)
+	fetcher.PopulateWalletAlias(m.Chain, m.Sender, subscriptionName)
 }
 
 func (m *MsgTransfer) FetchRemoteChainData(fetcher types.DataFetcher) {

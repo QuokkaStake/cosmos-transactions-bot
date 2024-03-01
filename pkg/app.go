@@ -2,6 +2,7 @@ package pkg
 
 import (
 	configTypes "main/pkg/config/types"
+	fsPkg "main/pkg/fs"
 	"os"
 	"os/signal"
 	"syscall"
@@ -31,14 +32,19 @@ type App struct {
 	Version string
 }
 
-func NewApp(config *config.AppConfig, version string) *App {
+func NewApp(config *config.AppConfig, version string, fs fsPkg.FS) *App {
 	logger := loggerPkg.GetLogger(config.LogConfig)
-	aliasManager := alias_manager.NewAliasManager(logger, config)
+	aliasManager := alias_manager.NewAliasManager(logger, config, fs)
 	aliasManager.Load()
 
 	metricsManager := metricsPkg.NewManager(logger, config.Metrics)
-
 	nodesManager := nodesManagerPkg.NewNodesManager(logger, config, metricsManager)
+	dataFetcher := data_fetcher.NewDataFetcher(
+		logger,
+		config,
+		aliasManager,
+		metricsManager,
+	)
 
 	reporters := make([]reportersPkg.Reporter, len(config.Reporters))
 	for index, reporterConfig := range config.Reporters {
@@ -49,16 +55,10 @@ func NewApp(config *config.AppConfig, version string) *App {
 			nodesManager,
 			aliasManager,
 			metricsManager,
+			dataFetcher,
 			version,
 		)
 	}
-
-	dataFetcher := data_fetcher.NewDataFetcher(
-		logger,
-		config,
-		aliasManager,
-		metricsManager,
-	)
 
 	filterer := filtererPkg.NewFilterer(logger, config, metricsManager)
 
@@ -116,7 +116,7 @@ func (a *App) Start() {
 					Str("hash", report.Reportable.GetHash()).
 					Msg("Got report")
 
-				rawReport.Reportable.GetAdditionalData(a.DataFetcher)
+				report.Reportable.GetAdditionalData(a.DataFetcher, report.Subscription.Name)
 
 				reporter := a.Reporters.FindByName(reporterName)
 

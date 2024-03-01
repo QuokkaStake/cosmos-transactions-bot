@@ -16,7 +16,7 @@ func (m MsgUnparsedMessage) Type() string {
 	return "MsgUnparsedMessage"
 }
 
-func (m *MsgUnparsedMessage) GetAdditionalData(fetcher types.DataFetcher) {
+func (m *MsgUnparsedMessage) GetAdditionalData(fetcher types.DataFetcher, subscriptionName string) {
 }
 
 func (m *MsgUnparsedMessage) GetValues() event.EventValues {

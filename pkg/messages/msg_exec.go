@@ -39,14 +39,12 @@ func (m MsgExec) Type() string {
 	return "/cosmos.authz.v1beta1.MsgExec"
 }
 
-func (m *MsgExec) GetAdditionalData(fetcher types.DataFetcher) {
-	if alias := fetcher.GetAliasManager().Get(m.Chain.Name, m.Grantee.Value); alias != "" {
-		m.Grantee.Title = alias
-	}
+func (m *MsgExec) GetAdditionalData(fetcher types.DataFetcher, subscriptionName string) {
+	fetcher.PopulateWalletAlias(m.Chain, m.Grantee, subscriptionName)
 
 	for _, message := range m.Messages {
 		if message != nil {
-			message.GetAdditionalData(fetcher)
+			message.GetAdditionalData(fetcher, subscriptionName)
 		}
 	}
 }

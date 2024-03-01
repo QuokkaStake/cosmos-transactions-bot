@@ -15,8 +15,8 @@ import (
 
 type MsgBeginRedelegate struct {
 	DelegatorAddress    *configTypes.Link
-	ValidatorSrcAddress configTypes.Link
-	ValidatorDstAddress configTypes.Link
+	ValidatorSrcAddress *configTypes.Link
+	ValidatorDstAddress *configTypes.Link
 	Amount              *amount.Amount
 
 	Chain *configTypes.Chain
@@ -41,19 +41,12 @@ func (m MsgBeginRedelegate) Type() string {
 	return "/cosmos.staking.v1beta1.MsgBeginRedelegate"
 }
 
-func (m *MsgBeginRedelegate) GetAdditionalData(fetcher types.DataFetcher) {
-	if validator, found := fetcher.GetValidator(m.Chain, m.ValidatorSrcAddress.Value); found {
-		m.ValidatorSrcAddress.Title = validator.Description.Moniker
-	}
-	if validator, found := fetcher.GetValidator(m.Chain, m.ValidatorDstAddress.Value); found {
-		m.ValidatorDstAddress.Title = validator.Description.Moniker
-	}
+func (m *MsgBeginRedelegate) GetAdditionalData(fetcher types.DataFetcher, subscriptionName string) {
+	fetcher.PopulateValidator(m.Chain, m.ValidatorSrcAddress)
+	fetcher.PopulateValidator(m.Chain, m.ValidatorDstAddress)
 
 	fetcher.PopulateAmount(m.Chain.ChainID, m.Amount)
-
-	if alias := fetcher.GetAliasManager().Get(m.Chain.Name, m.DelegatorAddress.Value); alias != "" {
-		m.DelegatorAddress.Title = alias
-	}
+	fetcher.PopulateWalletAlias(m.Chain, m.DelegatorAddress, subscriptionName)
 }
 
 func (m *MsgBeginRedelegate) GetValues() event.EventValues {

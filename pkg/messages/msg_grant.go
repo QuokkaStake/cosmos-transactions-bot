@@ -21,7 +21,7 @@ type Authorization interface{}
 type StakeAuthorization struct {
 	MaxTokens         *amount.Amount
 	AuthorizationType string
-	Validators        []configTypes.Link
+	Validators        []*configTypes.Link
 }
 
 type MsgGrant struct {
@@ -44,16 +44,16 @@ func ParseStakeAuthorization(authorization *codecTypes.Any, chain *configTypes.C
 		maxTokens = amount.AmountFrom(*parsedAuthorization.MaxTokens)
 	}
 
-	var validators []configTypes.Link
+	var validators []*configTypes.Link
 	authorizationType := "UNSPECIFIED"
 
 	if allowList := parsedAuthorization.GetAllowList(); allowList != nil {
-		validators = utils.Map(allowList.Address, func(address string) configTypes.Link {
+		validators = utils.Map(allowList.Address, func(address string) *configTypes.Link {
 			return chain.GetValidatorLink(address)
 		})
 		authorizationType = "ALLOWLIST"
 	} else if denyList := parsedAuthorization.GetDenyList(); denyList != nil {
-		validators = utils.Map(denyList.Address, func(address string) configTypes.Link {
+		validators = utils.Map(denyList.Address, func(address string) *configTypes.Link {
 			return chain.GetValidatorLink(address)
 		})
 		authorizationType = "DENYLIST"
@@ -98,14 +98,9 @@ func (m MsgGrant) Type() string {
 	return "/cosmos.authz.v1beta1.MsgGrant"
 }
 
-func (m *MsgGrant) GetAdditionalData(fetcher types.DataFetcher) {
-	if alias := fetcher.GetAliasManager().Get(m.Chain.Name, m.Grantee.Value); alias != "" {
-		m.Grantee.Title = alias
-	}
-
-	if alias := fetcher.GetAliasManager().Get(m.Chain.Name, m.Granter.Value); alias != "" {
-		m.Granter.Title = alias
-	}
+func (m *MsgGrant) GetAdditionalData(fetcher types.DataFetcher, subscriptionName string) {
+	fetcher.PopulateWalletAlias(m.Chain, m.Grantee, subscriptionName)
+	fetcher.PopulateWalletAlias(m.Chain, m.Granter, subscriptionName)
 }
 
 func (m *MsgGrant) GetValues() event.EventValues {

@@ -30,9 +30,9 @@ func (tx Tx) GetHash() string {
 	return tx.Hash.Value
 }
 
-func (tx *Tx) GetAdditionalData(fetcher DataFetcher) {
+func (tx *Tx) GetAdditionalData(fetcher DataFetcher, subscriptionName string) {
 	for _, msg := range tx.Messages {
-		msg.GetAdditionalData(fetcher)
+		msg.GetAdditionalData(fetcher, subscriptionName)
 	}
 }
 

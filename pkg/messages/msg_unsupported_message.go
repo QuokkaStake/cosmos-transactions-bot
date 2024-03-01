@@ -15,7 +15,7 @@ func (m MsgUnsupportedMessage) Type() string {
 	return "MsgUnsupportedMessage"
 }
 
-func (m *MsgUnsupportedMessage) GetAdditionalData(fetcher types.DataFetcher) {
+func (m *MsgUnsupportedMessage) GetAdditionalData(fetcher types.DataFetcher, subscriptionName string) {
 }
 
 func (m *MsgUnsupportedMessage) GetValues() event.EventValues {

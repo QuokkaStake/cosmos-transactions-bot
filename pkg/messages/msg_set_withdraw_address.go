@@ -14,7 +14,7 @@ import (
 
 type MsgSetWithdrawAddress struct {
 	DelegatorAddress *configTypes.Link
-	WithdrawAddress  configTypes.Link
+	WithdrawAddress  *configTypes.Link
 
 	Chain *configTypes.Chain
 }
@@ -36,14 +36,9 @@ func (m MsgSetWithdrawAddress) Type() string {
 	return "/cosmos.distribution.v1beta1.MsgSetWithdrawAddress"
 }
 
-func (m *MsgSetWithdrawAddress) GetAdditionalData(fetcher types.DataFetcher) {
-	if alias := fetcher.GetAliasManager().Get(m.Chain.Name, m.DelegatorAddress.Value); alias != "" {
-		m.DelegatorAddress.Title = alias
-	}
-
-	if alias := fetcher.GetAliasManager().Get(m.Chain.Name, m.WithdrawAddress.Value); alias != "" {
-		m.WithdrawAddress.Title = alias
-	}
+func (m *MsgSetWithdrawAddress) GetAdditionalData(fetcher types.DataFetcher, subscriptionName string) {
+	fetcher.PopulateWalletAlias(m.Chain, m.DelegatorAddress, subscriptionName)
+	fetcher.PopulateWalletAlias(m.Chain, m.WithdrawAddress, subscriptionName)
 }
 
 func (m *MsgSetWithdrawAddress) GetValues() event.EventValues {

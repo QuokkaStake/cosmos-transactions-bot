@@ -60,12 +60,12 @@ func (c Chain) GetWalletLink(address string) *Link {
 	}
 }
 
-func (c Chain) GetValidatorLink(address string) Link {
+func (c Chain) GetValidatorLink(address string) *Link {
 	if c.Explorer == nil {
-		return Link{Value: address}
+		return &Link{Value: address}
 	}
 
-	return Link{
+	return &Link{
 		Href:  fmt.Sprintf(c.Explorer.ValidatorLinkPattern, address),
 		Value: address,
 	}

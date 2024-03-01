@@ -48,13 +48,10 @@ func (p FungibleTokenPacket) Type() string {
 	return "FungibleTokenPacket"
 }
 
-func (p *FungibleTokenPacket) GetAdditionalData(fetcher types.DataFetcher) {
+func (p *FungibleTokenPacket) GetAdditionalData(fetcher types.DataFetcher, subscriptionName string) {
 	p.FetchRemoteChainData(fetcher)
-	fetcher.PopulateMultichainWallet(p.Chain, p.DstChannel, p.DstPort, p.Sender)
-
-	if alias := fetcher.GetAliasManager().Get(p.Chain.Name, p.Receiver.Value); alias != "" {
-		p.Receiver.Title = alias
-	}
+	fetcher.PopulateMultichainWallet(p.Chain, p.DstChannel, p.DstPort, p.Sender, subscriptionName)
+	fetcher.PopulateWalletAlias(p.Chain, p.Receiver, subscriptionName)
 }
 
 func (p *FungibleTokenPacket) FetchRemoteChainData(fetcher types.DataFetcher) {

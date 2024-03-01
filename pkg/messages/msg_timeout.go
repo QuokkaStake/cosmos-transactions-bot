@@ -44,12 +44,9 @@ func (m MsgTimeout) Type() string {
 	return "/ibc.core.channel.v1.MsgTimeout"
 }
 
-func (m *MsgTimeout) GetAdditionalData(fetcher types.DataFetcher) {
-	if alias := fetcher.GetAliasManager().Get(m.Chain.Name, m.Signer.Value); alias != "" {
-		m.Signer.Title = alias
-	}
-
-	m.Packet.GetAdditionalData(fetcher)
+func (m *MsgTimeout) GetAdditionalData(fetcher types.DataFetcher, subscriptionName string) {
+	fetcher.PopulateWalletAlias(m.Chain, m.Signer, subscriptionName)
+	m.Packet.GetAdditionalData(fetcher, subscriptionName)
 }
 
 func (m *MsgTimeout) GetValues() event.EventValues {

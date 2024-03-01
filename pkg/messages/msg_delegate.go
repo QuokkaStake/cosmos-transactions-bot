@@ -15,7 +15,7 @@ import (
 
 type MsgDelegate struct {
 	DelegatorAddress *configTypes.Link
-	ValidatorAddress configTypes.Link
+	ValidatorAddress *configTypes.Link
 	Amount           *amount.Amount
 
 	Chain *configTypes.Chain
@@ -39,17 +39,10 @@ func (m MsgDelegate) Type() string {
 	return "/cosmos.staking.v1beta1.MsgDelegate"
 }
 
-func (m *MsgDelegate) GetAdditionalData(fetcher types.DataFetcher) {
-	validator, found := fetcher.GetValidator(m.Chain, m.ValidatorAddress.Value)
-	if found {
-		m.ValidatorAddress.Title = validator.Description.Moniker
-	}
-
+func (m *MsgDelegate) GetAdditionalData(fetcher types.DataFetcher, subscriptionName string) {
+	fetcher.PopulateValidator(m.Chain, m.ValidatorAddress)
 	fetcher.PopulateAmount(m.Chain.ChainID, m.Amount)
-
-	if alias := fetcher.GetAliasManager().Get(m.Chain.Name, m.DelegatorAddress.Value); alias != "" {
-		m.DelegatorAddress.Title = alias
-	}
+	fetcher.PopulateWalletAlias(m.Chain, m.DelegatorAddress, subscriptionName)
 }
 
 func (m *MsgDelegate) GetValues() event.EventValues {

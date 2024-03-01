@@ -1,0 +1,3 @@
+[subscription]
+  [subscription.chain]
+    wallet = "alias"

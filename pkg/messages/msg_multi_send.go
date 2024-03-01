@@ -53,20 +53,14 @@ func (m MsgMultiSend) Type() string {
 	return "/cosmos.bank.v1beta1.MsgMultiSend"
 }
 
-func (m *MsgMultiSend) GetAdditionalData(fetcher types.DataFetcher) {
+func (m *MsgMultiSend) GetAdditionalData(fetcher types.DataFetcher, subscriptionName string) {
 	for _, input := range m.Inputs {
-		if alias := fetcher.GetAliasManager().Get(m.Chain.Name, input.Address.Value); alias != "" {
-			input.Address.Title = alias
-		}
-
+		fetcher.PopulateWalletAlias(m.Chain, input.Address, subscriptionName)
 		fetcher.PopulateAmounts(m.Chain.ChainID, input.Amount)
 	}
 
 	for _, output := range m.Outputs {
-		if alias := fetcher.GetAliasManager().Get(m.Chain.Name, output.Address.Value); alias != "" {
-			output.Address.Title = alias
-		}
-
+		fetcher.PopulateWalletAlias(m.Chain, output.Address, subscriptionName)
 		fetcher.PopulateAmounts(m.Chain.ChainID, output.Amount)
 	}
 }
