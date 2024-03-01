@@ -1,8 +1,9 @@
 package alias_manager
 
 import (
-	"github.com/rs/zerolog"
 	configTypes "main/pkg/config/types"
+
+	"github.com/rs/zerolog"
 )
 
 // Types that are used internally

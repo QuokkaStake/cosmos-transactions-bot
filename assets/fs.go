@@ -19,5 +19,3 @@ func (filesystem *TmpFSInterface) ReadFile(name string) ([]byte, error) {
 func (filesystem *TmpFSInterface) Create(path string) (fs.File, error) {
 	return nil, errors.New("not yet supported")
 }
-
-var FS = &TmpFSInterface{}

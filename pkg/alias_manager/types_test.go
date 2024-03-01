@@ -1,10 +1,11 @@
 package alias_manager_test
 
 import (
-	"github.com/stretchr/testify/require"
 	"main/pkg/alias_manager"
 	configTypes "main/pkg/config/types"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestTypesGetNoSubscription(t *testing.T) {
@@ -30,7 +31,7 @@ func TestTypesGetNoWallets(t *testing.T) {
 
 	aliases := alias_manager.AllAliases{
 		"subscription": &map[string]alias_manager.ChainAliases{
-			"chain": alias_manager.ChainAliases{},
+			"chain": {},
 		},
 	}
 	found := aliases.Get("subscription", "chain", "wallet")
@@ -42,7 +43,7 @@ func TestTypesGetNoWallet(t *testing.T) {
 
 	aliases := alias_manager.AllAliases{
 		"subscription": &map[string]alias_manager.ChainAliases{
-			"chain": alias_manager.ChainAliases{
+			"chain": {
 				Aliases: make(map[string]string),
 			},
 		},
@@ -56,7 +57,7 @@ func TestTypesGetSuccess(t *testing.T) {
 
 	aliases := alias_manager.AllAliases{
 		"subscription": &map[string]alias_manager.ChainAliases{
-			"chain": alias_manager.ChainAliases{
+			"chain": {
 				Aliases: map[string]string{
 					"wallet": "alias",
 				},
@@ -72,7 +73,7 @@ func TestTypesSetAliasesAllPresent(t *testing.T) {
 
 	aliases := alias_manager.AllAliases{
 		"subscription": &map[string]alias_manager.ChainAliases{
-			"chain": alias_manager.ChainAliases{
+			"chain": {
 				Aliases: map[string]string{
 					"wallet": "alias",
 				},
@@ -93,7 +94,7 @@ func TestTypesSetAliasesPresentNoWallet(t *testing.T) {
 
 	aliases := alias_manager.AllAliases{
 		"subscription": &map[string]alias_manager.ChainAliases{
-			"chain": alias_manager.ChainAliases{
+			"chain": {
 				Aliases: map[string]string{},
 			},
 		},
@@ -140,7 +141,7 @@ func TestToTomlAliasesValid(t *testing.T) {
 
 	aliases := alias_manager.AllAliases{
 		"subscription": &map[string]alias_manager.ChainAliases{
-			"chain": alias_manager.ChainAliases{
+			"chain": {
 				Chain:   &configTypes.Chain{Name: "chain"},
 				Aliases: map[string]string{"wallet": "alias"},
 			},
@@ -155,7 +156,7 @@ func TestToTomlAliasesValid(t *testing.T) {
 
 	chainAliases := (*subscriptionAliases)["chain"]
 	require.Len(t, *chainAliases, 1)
-	require.Equal(t, (*chainAliases)["wallet"], "alias")
+	require.Equal(t, "alias", (*chainAliases)["wallet"])
 }
 
 func TestToAliasesLinksValid(t *testing.T) {
@@ -163,7 +164,7 @@ func TestToAliasesLinksValid(t *testing.T) {
 
 	aliases := alias_manager.AllAliases{
 		"subscription": &map[string]alias_manager.ChainAliases{
-			"chain": alias_manager.ChainAliases{
+			"chain": {
 				Chain:   &configTypes.Chain{Name: "chain"},
 				Aliases: map[string]string{"wallet": "alias"},
 			},
@@ -172,10 +173,10 @@ func TestToAliasesLinksValid(t *testing.T) {
 
 	links := aliases.GetAliasesLinks("subscription")
 	require.Len(t, links, 1)
-	require.Equal(t, links[0].Chain.Name, "chain")
+	require.Equal(t, "chain", links[0].Chain.Name)
 	require.Len(t, links[0].Links, 1)
-	require.Equal(t, links[0].Links["wallet"].Value, "wallet")
-	require.Equal(t, links[0].Links["wallet"].Title, "alias")
+	require.Equal(t, "wallet", links[0].Links["wallet"].Value)
+	require.Equal(t, "alias", links[0].Links["wallet"].Title)
 }
 
 func TestToAliasesLinksNoSubscription(t *testing.T) {
@@ -184,5 +185,5 @@ func TestToAliasesLinksNoSubscription(t *testing.T) {
 	aliases := alias_manager.AllAliases{}
 
 	links := aliases.GetAliasesLinks("subscription")
-	require.Len(t, links, 0)
+	require.Empty(t, links)
 }

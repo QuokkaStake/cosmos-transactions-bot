@@ -1,11 +1,12 @@
 package alias_manager_test
 
 import (
-	"github.com/stretchr/testify/require"
 	"main/pkg/alias_manager"
 	configTypes "main/pkg/config/types"
 	loggerPkg "main/pkg/logger"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestToAliasesValid(t *testing.T) {
@@ -32,7 +33,7 @@ func TestToAliasesValid(t *testing.T) {
 
 	chainAliases := (*subscriptionAliases)["chain"]
 	require.Len(t, chainAliases.Aliases, 1)
-	require.Equal(t, chainAliases.Aliases["wallet"], "alias")
+	require.Equal(t, "alias", chainAliases.Aliases["wallet"])
 }
 
 func TestToAliasesNoChain(t *testing.T) {

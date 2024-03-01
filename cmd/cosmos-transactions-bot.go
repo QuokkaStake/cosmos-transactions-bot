@@ -1,11 +1,12 @@
 package main
 
 import (
-	"github.com/spf13/cobra"
 	"main/pkg"
 	configPkg "main/pkg/config"
 	"main/pkg/fs"
 	loggerPkg "main/pkg/logger"
+
+	"github.com/spf13/cobra"
 )
 
 var (
