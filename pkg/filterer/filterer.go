@@ -51,7 +51,6 @@ func (f *Filterer) GetReportableForReporters(
 			reportableFiltered := f.FilterForChainAndSubscription(
 				report.Reportable,
 				chain,
-				subscription,
 				chainSubscription,
 			)
 
@@ -84,7 +83,6 @@ func (f *Filterer) GetReportableForReporters(
 func (f *Filterer) FilterForChainAndSubscription(
 	reportable types.Reportable,
 	chain *configTypes.Chain,
-	subscription *configTypes.Subscription,
 	chainSubscription *configTypes.ChainSubscription,
 ) types.Reportable {
 	// Filtering out TxError only if chain's log-node-errors = true.
@@ -141,7 +139,7 @@ func (f *Filterer) FilterForChainAndSubscription(
 
 	txHeight, err := strconv.ParseInt(tx.Height.Value, 10, 64)
 	if err != nil {
-		f.Logger.Fatal().Err(err).Msg("Error converting height to int64")
+		f.Logger.Panic().Err(err).Msg("Error converting height to int64")
 	}
 
 	chainLastBlockHeight, ok := f.lastBlockHeights[chain.Name]
@@ -162,7 +160,7 @@ func (f *Filterer) FilterForChainAndSubscription(
 	messages := make([]types.Message, 0)
 
 	for _, message := range tx.Messages {
-		filteredMessage := f.FilterMessage(message, subscription, chainSubscription, false)
+		filteredMessage := f.FilterMessage(message, chainSubscription, false)
 		if filteredMessage != nil {
 			messages = append(messages, filteredMessage)
 		}
@@ -186,7 +184,6 @@ func (f *Filterer) FilterForChainAndSubscription(
 
 func (f *Filterer) FilterMessage(
 	message types.Message,
-	subscription *configTypes.Subscription,
 	chainSubscription *configTypes.ChainSubscription,
 	internal bool,
 ) types.Message {
@@ -238,7 +235,7 @@ func (f *Filterer) FilterMessage(
 		}
 	}
 
-	if len(message.GetRawMessages()) == 0 {
+	if len(message.GetParsedMessages()) == 0 {
 		return message
 	}
 
@@ -246,7 +243,7 @@ func (f *Filterer) FilterMessage(
 
 	// Processing internal messages (such as ones in MsgExec)
 	for _, internalMessage := range message.GetParsedMessages() {
-		if internalMessageParsed := f.FilterMessage(internalMessage, subscription, chainSubscription, true); internalMessageParsed != nil {
+		if internalMessageParsed := f.FilterMessage(internalMessage, chainSubscription, true); internalMessageParsed != nil {
 			parsedInternalMessages = append(parsedInternalMessages, internalMessageParsed)
 		}
 	}

@@ -10,11 +10,10 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promauto"
-	"github.com/rs/zerolog"
-
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/rs/zerolog"
 )
 
 type Manager struct {
@@ -48,6 +47,8 @@ type Manager struct {
 	// App metrics
 	appVersionGauge *prometheus.GaugeVec
 	startTimeGauge  *prometheus.GaugeVec
+
+	registry *prometheus.Registry
 }
 
 func NewManager(logger *zerolog.Logger, config configPkg.MetricsConfig) *Manager {
@@ -56,86 +57,129 @@ func NewManager(logger *zerolog.Logger, config configPkg.MetricsConfig) *Manager
 		config: config,
 
 		// Chain metrics
-		lastBlockHeightCollector: promauto.NewGaugeVec(prometheus.GaugeOpts{
+		lastBlockHeightCollector: prometheus.NewGaugeVec(prometheus.GaugeOpts{
 			Name: constants.PrometheusMetricsPrefix + "last_height",
 			Help: "Height of the last block processed",
 		}, []string{"chain"}),
-		lastBlockTimeCollector: promauto.NewGaugeVec(prometheus.GaugeOpts{
+		lastBlockTimeCollector: prometheus.NewGaugeVec(prometheus.GaugeOpts{
 			Name: constants.PrometheusMetricsPrefix + "last_time",
 			Help: "Time of the last block processed",
 		}, []string{"chain"}),
-		chainInfoGauge: promauto.NewGaugeVec(prometheus.GaugeOpts{
+		chainInfoGauge: prometheus.NewGaugeVec(prometheus.GaugeOpts{
 			Name: constants.PrometheusMetricsPrefix + "chain_info",
 			Help: "Chain info, with constant 1 as value and pretty_name and chain as labels",
 		}, []string{"chain", "pretty_name"}),
-		successfulQueriesCollector: promauto.NewCounterVec(prometheus.CounterOpts{
+		successfulQueriesCollector: prometheus.NewCounterVec(prometheus.CounterOpts{
 			Name: constants.PrometheusMetricsPrefix + "node_successful_queries_total",
 			Help: "Counter of successful node queries",
 		}, []string{"chain", "node", "type"}),
-		failedQueriesCollector: promauto.NewCounterVec(prometheus.CounterOpts{
+		failedQueriesCollector: prometheus.NewCounterVec(prometheus.CounterOpts{
 			Name: constants.PrometheusMetricsPrefix + "node_failed_queries_total",
 			Help: "Counter of failed node queries",
 		}, []string{"chain", "node", "type"}),
-		eventsTotalCounter: promauto.NewCounterVec(prometheus.CounterOpts{
+		eventsTotalCounter: prometheus.NewCounterVec(prometheus.CounterOpts{
 			Name: constants.PrometheusMetricsPrefix + "events_total",
 			Help: "WebSocket events received by node",
 		}, []string{"chain", "node"}),
-		eventsFilteredCounter: promauto.NewCounterVec(prometheus.CounterOpts{
+		eventsFilteredCounter: prometheus.NewCounterVec(prometheus.CounterOpts{
 			Name: constants.PrometheusMetricsPrefix + "events_filtered",
 			Help: "WebSocket events filtered out by chain, type and reason",
 		}, []string{"chain", "type", "reason"}),
 
 		// Node metrics
-		nodeConnectedCollector: promauto.NewGaugeVec(prometheus.GaugeOpts{
+		nodeConnectedCollector: prometheus.NewGaugeVec(prometheus.GaugeOpts{
 			Name: constants.PrometheusMetricsPrefix + "node_connected",
 			Help: "Whether the node is successfully connected (1 if yes, 0 if no)",
 		}, []string{"chain", "node"}),
-		reconnectsCounter: promauto.NewCounterVec(prometheus.CounterOpts{
+		reconnectsCounter: prometheus.NewCounterVec(prometheus.CounterOpts{
 			Name: constants.PrometheusMetricsPrefix + "reconnects_total",
 			Help: "Node reconnects count",
 		}, []string{"chain", "node"}),
 
 		// Reporter metrics
-		reporterEnabledGauge: promauto.NewGaugeVec(prometheus.GaugeOpts{
+		reporterEnabledGauge: prometheus.NewGaugeVec(prometheus.GaugeOpts{
 			Name: constants.PrometheusMetricsPrefix + "reporter_enabled",
 			Help: "Reporter info, with name and type, always returns 1 as value",
 		}, []string{"name", "type"}),
-		reporterReportsCounter: promauto.NewCounterVec(prometheus.CounterOpts{
+		reporterReportsCounter: prometheus.NewCounterVec(prometheus.CounterOpts{
 			Name: constants.PrometheusMetricsPrefix + "reporter_reports",
 			Help: "Counter of reports sent successfully",
 		}, []string{"chain", "reporter", "type", "subscription"}),
-		reporterErrorsCounter: promauto.NewCounterVec(prometheus.CounterOpts{
+		reporterErrorsCounter: prometheus.NewCounterVec(prometheus.CounterOpts{
 			Name: constants.PrometheusMetricsPrefix + "reporter_errors",
 			Help: "Counter of failed reports sends",
 		}, []string{"chain", "reporter", "type", "subscription"}),
-		reportEntriesCounter: promauto.NewCounterVec(prometheus.CounterOpts{
+		reportEntriesCounter: prometheus.NewCounterVec(prometheus.CounterOpts{
 			Name: constants.PrometheusMetricsPrefix + "report_entries_total",
 			Help: "Counter of messages types per each successfully sent report",
 		}, []string{"chain", "reporter", "type", "subscription"}),
-		reporterQueriesCounter: promauto.NewCounterVec(prometheus.CounterOpts{
+		reporterQueriesCounter: prometheus.NewCounterVec(prometheus.CounterOpts{
 			Name: constants.PrometheusMetricsPrefix + "queries",
 			Help: "Counter of reporters' queries (like chain status, aliases etc.)",
 		}, []string{"reporter", "type"}),
 
 		// Subscription metrics
-		subscriptionsInfoCounter: promauto.NewGaugeVec(prometheus.GaugeOpts{
+		subscriptionsInfoCounter: prometheus.NewGaugeVec(prometheus.GaugeOpts{
 			Name: constants.PrometheusMetricsPrefix + "subscriptions",
 			Help: "Count of chain subscriptions per subscription",
 		}, []string{"name", "reporter"}),
-		eventsMatchedCounter: promauto.NewCounterVec(prometheus.CounterOpts{
+		eventsMatchedCounter: prometheus.NewCounterVec(prometheus.CounterOpts{
 			Name: constants.PrometheusMetricsPrefix + "events_matched",
 			Help: "WebSocket events matching filters by chain",
 		}, []string{"chain", "type", "subscription"}),
 
 		// App metrics
-		appVersionGauge: promauto.NewGaugeVec(prometheus.GaugeOpts{
+		appVersionGauge: prometheus.NewGaugeVec(prometheus.GaugeOpts{
 			Name: constants.PrometheusMetricsPrefix + "version",
 			Help: "App version",
 		}, []string{"version"}),
-		startTimeGauge: promauto.NewGaugeVec(prometheus.GaugeOpts{
+		startTimeGauge: prometheus.NewGaugeVec(prometheus.GaugeOpts{
 			Name: constants.PrometheusMetricsPrefix + "start_time",
 			Help: "Unix timestamp on when the app was started. Useful for annotations.",
 		}, []string{}),
+		registry: prometheus.NewRegistry(),
+	}
+}
+
+func (m *Manager) Start() {
+	if !m.config.Enabled {
+		m.logger.Info().Msg("Metrics not enabled")
+		return
+	}
+
+	m.registry.MustRegister(
+		m.lastBlockHeightCollector,
+		m.lastBlockTimeCollector,
+		m.chainInfoGauge,
+		m.successfulQueriesCollector,
+		m.failedQueriesCollector,
+		m.eventsTotalCounter,
+		m.eventsFilteredCounter,
+		m.nodeConnectedCollector,
+		m.reconnectsCounter,
+		m.reporterReportsCounter,
+		m.reporterErrorsCounter,
+		m.reportEntriesCounter,
+		m.reporterEnabledGauge,
+		m.reporterQueriesCounter,
+		m.subscriptionsInfoCounter,
+		m.eventsMatchedCounter,
+		m.appVersionGauge,
+		m.startTimeGauge,
+	)
+
+	m.logger.Info().
+		Str("addr", m.config.ListenAddr).
+		Msg("Metrics handler listening")
+
+	http.Handle("/metrics", promhttp.HandlerFor(m.registry, promhttp.HandlerOpts{
+		EnableOpenMetrics: true,
+	}))
+	if err := http.ListenAndServe(m.config.ListenAddr, nil); err != nil {
+		m.logger.Fatal().
+			Err(err).
+			Str("addr", m.config.ListenAddr).
+			Msg("Cannot start metrics handler")
 	}
 }
 
@@ -180,25 +224,6 @@ func (m *Manager) SetDefaultMetrics(chain *configTypes.Chain) {
 		m.reconnectsCounter.
 			With(prometheus.Labels{"chain": chain.Name, "node": node}).
 			Add(0)
-	}
-}
-
-func (m *Manager) Start() {
-	if !m.config.Enabled {
-		m.logger.Info().Msg("Metrics not enabled")
-		return
-	}
-
-	m.logger.Info().
-		Str("addr", m.config.ListenAddr).
-		Msg("Metrics handler listening")
-
-	http.Handle("/metrics", promhttp.Handler())
-	if err := http.ListenAndServe(m.config.ListenAddr, nil); err != nil {
-		m.logger.Fatal().
-			Err(err).
-			Str("addr", m.config.ListenAddr).
-			Msg("Cannot start metrics handler")
 	}
 }
 
