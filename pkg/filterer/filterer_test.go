@@ -15,9 +15,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var logger = loggerPkg.GetDefaultLogger()
-var metricsManager = metrics.NewManager(logger, configPkg.MetricsConfig{Enabled: false})
-
 func TestFilterMessageUnsupported(t *testing.T) {
 	t.Parallel()
 
@@ -200,6 +197,8 @@ func TestFilterReportableTxError(t *testing.T) {
 	t.Parallel()
 
 	config := &configPkg.AppConfig{}
+	logger := loggerPkg.GetDefaultLogger()
+	metricsManager := metrics.NewManager(logger, configPkg.MetricsConfig{Enabled: false})
 	filterer := filtererPkg.NewFilterer(logger, config, metricsManager)
 	chain := &configTypes.Chain{Name: "chain"}
 
@@ -218,6 +217,8 @@ func TestFilterReportableTxNodeConnectError(t *testing.T) {
 	t.Parallel()
 
 	config := &configPkg.AppConfig{}
+	logger := loggerPkg.GetDefaultLogger()
+	metricsManager := metrics.NewManager(logger, configPkg.MetricsConfig{Enabled: false})
 	filterer := filtererPkg.NewFilterer(logger, config, metricsManager)
 	chain := &configTypes.Chain{Name: "chain"}
 
@@ -236,6 +237,8 @@ func TestFilterReportableTxFailed(t *testing.T) {
 	t.Parallel()
 
 	config := &configPkg.AppConfig{}
+	logger := loggerPkg.GetDefaultLogger()
+	metricsManager := metrics.NewManager(logger, configPkg.MetricsConfig{Enabled: false})
 	filterer := filtererPkg.NewFilterer(logger, config, metricsManager)
 	chain := &configTypes.Chain{Name: "chain"}
 
@@ -272,6 +275,8 @@ func TestFilterReportableTxProcessedBefore(t *testing.T) {
 	t.Parallel()
 
 	config := &configPkg.AppConfig{}
+	logger := loggerPkg.GetDefaultLogger()
+	metricsManager := metrics.NewManager(logger, configPkg.MetricsConfig{Enabled: false})
 	filterer := filtererPkg.NewFilterer(logger, config, metricsManager)
 	chain := &configTypes.Chain{Name: "chain"}
 
@@ -305,6 +310,8 @@ func TestFilterReportableTxAllMessagesFiltered(t *testing.T) {
 	t.Parallel()
 
 	config := &configPkg.AppConfig{}
+	logger := loggerPkg.GetDefaultLogger()
+	metricsManager := metrics.NewManager(logger, configPkg.MetricsConfig{Enabled: false})
 	filterer := filtererPkg.NewFilterer(logger, config, metricsManager)
 	chain := &configTypes.Chain{Name: "chain"}
 
@@ -340,6 +347,8 @@ func TestFilterReportableTxInvalidHeight(t *testing.T) {
 	}()
 
 	config := &configPkg.AppConfig{}
+	logger := loggerPkg.GetDefaultLogger()
+	metricsManager := metrics.NewManager(logger, configPkg.MetricsConfig{Enabled: false})
 	filterer := filtererPkg.NewFilterer(logger, config, metricsManager)
 	chain := &configTypes.Chain{Name: "chain"}
 
@@ -386,6 +395,8 @@ func TestGetReporters(t *testing.T) {
 			},
 		},
 	}
+	logger := loggerPkg.GetDefaultLogger()
+	metricsManager := metrics.NewManager(logger, configPkg.MetricsConfig{Enabled: false})
 	filterer := filtererPkg.NewFilterer(logger, config, metricsManager)
 	report := types.Report{
 		Chain: &configTypes.Chain{Name: "chain-2"},
