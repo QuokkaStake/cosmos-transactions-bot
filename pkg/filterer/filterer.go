@@ -235,7 +235,7 @@ func (f *Filterer) FilterMessage(
 		}
 	}
 
-	if len(message.GetRawMessages()) == 0 {
+	if len(message.GetParsedMessages()) == 0 {
 		return message
 	}
 
