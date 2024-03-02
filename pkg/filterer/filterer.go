@@ -139,7 +139,7 @@ func (f *Filterer) FilterForChainAndSubscription(
 
 	txHeight, err := strconv.ParseInt(tx.Height.Value, 10, 64)
 	if err != nil {
-		f.Logger.Fatal().Err(err).Msg("Error converting height to int64")
+		f.Logger.Panic().Err(err).Msg("Error converting height to int64")
 	}
 
 	chainLastBlockHeight, ok := f.lastBlockHeights[chain.Name]

@@ -276,8 +276,7 @@ func TestFilterReportableTxProcessedBefore(t *testing.T) {
 	chain := &configTypes.Chain{Name: "chain"}
 
 	subscription := &configTypes.ChainSubscription{
-		LogFailedTransactions: true,
-		Chain:                 "chain",
+		Chain: "chain",
 		Filters: configTypes.Filters{
 			*queryPkg.MustParse("transfer.sender = 'from'"),
 		},
@@ -310,8 +309,7 @@ func TestFilterReportableTxAllMessagesFiltered(t *testing.T) {
 	chain := &configTypes.Chain{Name: "chain"}
 
 	subscription := &configTypes.ChainSubscription{
-		LogFailedTransactions: true,
-		Chain:                 "chain",
+		Chain: "chain",
 		Filters: configTypes.Filters{
 			*queryPkg.MustParse("transfer.sender = 'from'"),
 		},
@@ -330,4 +328,84 @@ func TestFilterReportableTxAllMessagesFiltered(t *testing.T) {
 		},
 	}
 	require.Nil(t, filterer.FilterForChainAndSubscription(reportable, chain, subscription))
+}
+
+func TestFilterReportableTxInvalidHeight(t *testing.T) {
+	t.Parallel()
+
+	defer func() {
+		if r := recover(); r == nil {
+			require.Fail(t, "Expected to have a panic here!")
+		}
+	}()
+
+	config := &configPkg.AppConfig{}
+	filterer := filtererPkg.NewFilterer(logger, config, metricsManager)
+	chain := &configTypes.Chain{Name: "chain"}
+
+	subscription := &configTypes.ChainSubscription{
+		Chain:   "chain",
+		Filters: configTypes.Filters{},
+	}
+	reportable := &types.Tx{
+		Height: configTypes.Link{Value: "test"},
+		Code:   0,
+	}
+	_ = filterer.FilterForChainAndSubscription(reportable, chain, subscription)
+}
+
+func TestGetReporters(t *testing.T) {
+	t.Parallel()
+
+	config := &configPkg.AppConfig{
+		Chains: configTypes.Chains{
+			{Name: "chain-1"},
+			{Name: "chain-2"},
+		},
+		Subscriptions: configTypes.Subscriptions{
+			{
+				Name:     "subscription-1",
+				Reporter: "reporter-1",
+				ChainSubscriptions: configTypes.ChainSubscriptions{
+					{Chain: "chain-1"},
+				},
+			},
+			{
+				Name:     "subscription-2",
+				Reporter: "reporter-2",
+				ChainSubscriptions: configTypes.ChainSubscriptions{
+					{
+						Chain:                 "chain-2",
+						LogFailedTransactions: false,
+					},
+					{
+						Chain:                 "chain-2",
+						LogFailedTransactions: true,
+					},
+				},
+			},
+		},
+	}
+	filterer := filtererPkg.NewFilterer(logger, config, metricsManager)
+	report := types.Report{
+		Chain: &configTypes.Chain{Name: "chain-2"},
+		Reportable: &types.Tx{
+			Code:   1,
+			Height: configTypes.Link{Value: "123"},
+			Messages: []types.Message{
+				&messages.MsgSend{
+					From: &configTypes.Link{Value: "from2"},
+					To:   &configTypes.Link{Value: "to"},
+					Amount: amount.Amounts{
+						amount.AmountFromString("100", "ustake"),
+					},
+				},
+			},
+		},
+	}
+	result := filterer.GetReportableForReporters(report)
+	require.Len(t, result, 1)
+
+	_, ok := result["reporter-2"]
+	require.True(t, ok)
 }
