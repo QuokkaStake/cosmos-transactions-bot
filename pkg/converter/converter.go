@@ -7,7 +7,6 @@ import (
 	"main/pkg/types"
 	"strings"
 
-	abciTypes "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/crypto/tmhash"
 	"github.com/cometbft/cometbft/libs/json"
 	coreTypes "github.com/cometbft/cometbft/rpc/core/types"
@@ -115,7 +114,7 @@ func (c *Converter) ParseEvent(event jsonRpcTypes.RPCResponse, nodeURL string) t
 	txMessages := []types.Message{}
 
 	for _, message := range txProto.GetBody().Messages {
-		if msgParsed := c.ParseMessage(message, txResult); msgParsed != nil {
+		if msgParsed := c.ParseMessage(message, txResult.Height); msgParsed != nil {
 			txMessages = append(txMessages, msgParsed)
 		}
 	}
@@ -141,14 +140,14 @@ func (c *Converter) ParseEvent(event jsonRpcTypes.RPCResponse, nodeURL string) t
 
 func (c *Converter) ParseMessage(
 	message *codecTypes.Any,
-	txResult abciTypes.TxResult,
+	height int64,
 ) types.Message {
 	parser, ok := c.Parsers[message.TypeUrl]
 	if !ok {
 		return &messages.MsgUnsupportedMessage{MsgType: message.TypeUrl}
 	}
 
-	msgParsed, err := parser(message.Value, c.Chain, txResult.Height)
+	msgParsed, err := parser(message.Value, c.Chain, height)
 	if err != nil {
 		return &messages.MsgUnparsedMessage{
 			MsgType: message.TypeUrl,
@@ -161,7 +160,7 @@ func (c *Converter) ParseMessage(
 
 	// Processing internal messages (such as ones in MsgExec
 	for _, internalMessage := range msgParsed.GetRawMessages() {
-		if internalMessageParsed := c.ParseMessage(internalMessage, txResult); internalMessageParsed != nil {
+		if internalMessageParsed := c.ParseMessage(internalMessage, height); internalMessageParsed != nil {
 			msgParsed.AddParsedMessage(internalMessageParsed)
 		}
 	}
