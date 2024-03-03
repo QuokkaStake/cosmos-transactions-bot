@@ -2,10 +2,11 @@ package responses_test
 
 import (
 	"encoding/json"
-	"github.com/stretchr/testify/require"
 	"main/pkg/types/responses"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestMarshalDurationInvalidString(t *testing.T) {

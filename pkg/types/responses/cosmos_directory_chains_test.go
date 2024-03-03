@@ -1,9 +1,10 @@
 package responses_test
 
 import (
-	"github.com/stretchr/testify/require"
 	"main/pkg/types/responses"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestCosmosDirectoryChainsFind(t *testing.T) {
