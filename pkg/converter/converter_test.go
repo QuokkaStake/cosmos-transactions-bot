@@ -114,10 +114,6 @@ func TestConverterUnparsedMessage(t *testing.T) {
 	chain := &configTypes.Chain{Name: "chain"}
 	converter := converterPkg.NewConverter(logger, chain)
 
-	// msgSend := &cosmosBankTypes.MsgSend{}
-	// bytes, err := msgSend.Marshal()
-	// require.NoError(t, err)
-
 	message := &codecTypes.Any{
 		TypeUrl: "/cosmos.bank.v1beta1.MsgSend",
 		Value:   []byte("unparsed"),
