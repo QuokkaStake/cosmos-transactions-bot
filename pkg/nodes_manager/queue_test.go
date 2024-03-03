@@ -1,11 +1,12 @@
 package nodes_manager_test
 
 import (
-	"github.com/stretchr/testify/require"
 	configTypes "main/pkg/config/types"
 	nodesManagerPkg "main/pkg/nodes_manager"
 	"main/pkg/types"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestQueueAdd(t *testing.T) {
