@@ -10,7 +10,7 @@ Amounts:
 
 Outputs:
 {{- range $outputId, $output := .Outputs }}
-From: {{ SerializeLink $output.Address }}
+To: {{ SerializeLink $output.Address }}
 Amounts:
 {{- range $amountId, $amount := $output.Amount }}
 - {{ SerializeAmount $amount }}
