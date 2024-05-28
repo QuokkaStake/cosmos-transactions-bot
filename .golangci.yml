@@ -15,16 +15,11 @@ linters:
   enable-all: true
   disable:
     - funlen
-    - scopelint
-    - interfacer
-    - exhaustivestruct
-    - maligned
-    - golint
     - nlreturn
     - wrapcheck
     - gomnd
     - cyclop
-    - goerr113
+    - err113
     - exhaustruct
     - wsl
     - lll
@@ -40,14 +35,10 @@ linters:
     - stylecheck
     - gosimple
     - ireturn
-    - nosnakecase
-    - ifshort
     - gci
     - musttag
-    - structcheck
-    - varcheck
-    - deadcode
     - depguard
     - interfacebloat
     - perfsprint
     - mnd
+    - nilnil
