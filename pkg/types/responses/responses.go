@@ -97,6 +97,7 @@ type StakingParams struct {
 
 // Golang cannot properly deserialize string into time.Duration, that's why this workaround.
 // Cheers to https://biscuit.ninja/posts/go-unmarshalling-json-into-time-duration/
+
 type Duration struct {
 	time.Duration
 }

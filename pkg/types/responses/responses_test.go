@@ -9,7 +9,15 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestMarshalDurationInvalidString(t *testing.T) {
+func TestUnmarshalDurationInvalidInput(t *testing.T) {
+	t.Parallel()
+
+	duration := responses.Duration{}
+	err := duration.UnmarshalJSON([]byte{})
+	require.Error(t, err)
+}
+
+func TestUnmarshalDurationInvalidString(t *testing.T) {
 	t.Parallel()
 
 	var duration responses.Duration
@@ -19,17 +27,27 @@ func TestMarshalDurationInvalidString(t *testing.T) {
 	require.Zero(t, duration.Duration)
 }
 
-func TestMarshalDurationNotString(t *testing.T) {
+func TestUnmarshalDurationNotString(t *testing.T) {
 	t.Parallel()
 
 	var duration responses.Duration
-	err := json.Unmarshal([]byte("invalid"), &duration)
+	err := json.Unmarshal([]byte("3"), &duration)
 
 	require.Error(t, err)
 	require.Zero(t, duration.Duration)
 }
 
-func TestMarshalDurationValid(t *testing.T) {
+func TestUnmarshalDurationValid(t *testing.T) {
+	t.Parallel()
+
+	var duration responses.Duration
+	err := json.Unmarshal([]byte("\"20s\""), &duration)
+
+	require.NoError(t, err)
+	require.Equal(t, 20*time.Second, duration.Duration)
+}
+
+func TestUnMarshalDurationValid(t *testing.T) {
 	t.Parallel()
 
 	var duration responses.Duration
