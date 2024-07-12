@@ -7,6 +7,8 @@ import (
 	"main/pkg/types"
 	"strings"
 
+	abciTypes "github.com/cometbft/cometbft/abci/types"
+
 	"github.com/cometbft/cometbft/crypto/tmhash"
 	"github.com/cometbft/cometbft/libs/json"
 	coreTypes "github.com/cometbft/cometbft/rpc/core/types"
@@ -111,6 +113,10 @@ func (c *Converter) ParseEvent(event jsonRpcTypes.RPCResponse, nodeURL string) t
 		Str("node", nodeURL).
 		Msg("Got transaction")
 
+	return c.ParseTx(txProto, txResult, txHash)
+}
+
+func (c *Converter) ParseTx(txProto tx.Tx, txResult abciTypes.TxResult, txHash string) *types.Tx {
 	txMessages := []types.Message{}
 
 	for _, message := range txProto.GetBody().Messages {

@@ -10,6 +10,12 @@ import (
 
 func GetDefaultLogger() *zerolog.Logger {
 	log := zerolog.New(zerolog.ConsoleWriter{Out: os.Stdout}).With().Timestamp().Logger()
+	zerolog.SetGlobalLevel(zerolog.TraceLevel)
+	return &log
+}
+
+func GetNopLogger() *zerolog.Logger {
+	log := zerolog.Nop()
 	return &log
 }
 
