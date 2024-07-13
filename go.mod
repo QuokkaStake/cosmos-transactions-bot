@@ -5,6 +5,7 @@ go 1.18
 replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 
 require (
+	cosmossdk.io/math v1.1.2
 	github.com/BurntSushi/toml v1.2.1
 	github.com/cometbft/cometbft v0.37.2
 	github.com/cosmos/cosmos-sdk v0.47.5
@@ -13,10 +14,11 @@ require (
 	github.com/dustin/go-humanize v1.0.1
 	github.com/gogo/protobuf v1.3.3
 	github.com/google/uuid v1.3.0
+	github.com/jarcoal/httpmock v1.3.1
 	github.com/prometheus/client_golang v1.14.0
 	github.com/rs/zerolog v1.30.0
 	github.com/spf13/cobra v1.7.0
-	github.com/superoo7/go-gecko v1.0.0
+	github.com/stretchr/testify v1.8.4
 	gopkg.in/guregu/null.v4 v4.0.0
 	gopkg.in/telebot.v3 v3.1.2
 )
@@ -26,7 +28,6 @@ require (
 	cosmossdk.io/core v0.5.1 // indirect
 	cosmossdk.io/depinject v1.0.0-alpha.4 // indirect
 	cosmossdk.io/errors v1.0.0 // indirect
-	cosmossdk.io/math v1.1.2 // indirect
 	filippo.io/edwards25519 v1.0.0 // indirect
 	github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4 // indirect
 	github.com/99designs/keyring v1.2.1 // indirect
@@ -107,7 +108,6 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.16.0 // indirect
-	github.com/stretchr/testify v1.8.4 // indirect
 	github.com/subosito/gotenv v1.4.2 // indirect
 	github.com/syndtr/goleveldb v1.0.1-0.20220721030215-126854af5e6d // indirect
 	github.com/tendermint/go-amino v0.16.0 // indirect

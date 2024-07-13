@@ -42,3 +42,4 @@ linters:
     - perfsprint
     - mnd
     - nilnil
+    - testpackage

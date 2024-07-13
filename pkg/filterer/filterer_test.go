@@ -233,6 +233,21 @@ func TestFilterReportableTxNodeConnectError(t *testing.T) {
 	}))
 }
 
+func TestFilterReportableNotSupported(t *testing.T) {
+	t.Parallel()
+
+	config := &configPkg.AppConfig{}
+	logger := loggerPkg.GetDefaultLogger()
+	metricsManager := metrics.NewManager(logger, configPkg.MetricsConfig{Enabled: false})
+	filterer := filtererPkg.NewFilterer(logger, config, metricsManager)
+	chain := &configTypes.Chain{Name: "chain"}
+
+	reportable := &types.UnsupportedReportable{}
+	require.Nil(t, filterer.FilterForChainAndSubscription(reportable, chain, &configTypes.ChainSubscription{
+		Chain: "chain",
+	}))
+}
+
 func TestFilterReportableTxFailed(t *testing.T) {
 	t.Parallel()
 
@@ -336,7 +351,6 @@ func TestFilterReportableTxAllMessagesFiltered(t *testing.T) {
 	}
 	require.Nil(t, filterer.FilterForChainAndSubscription(reportable, chain, subscription))
 }
-
 func TestFilterReportableTxInvalidHeight(t *testing.T) {
 	t.Parallel()
 

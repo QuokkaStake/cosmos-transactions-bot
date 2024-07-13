@@ -40,3 +40,10 @@ func TestGetLoggerValidJSON(t *testing.T) {
 	logger := loggerPkg.GetLogger(configPkg.LogConfig{LogLevel: "info", JSONOutput: true})
 	require.NotNil(t, logger)
 }
+
+func TestGetLoggerNop(t *testing.T) {
+	t.Parallel()
+
+	logger := loggerPkg.GetNopLogger()
+	require.NotNil(t, logger)
+}

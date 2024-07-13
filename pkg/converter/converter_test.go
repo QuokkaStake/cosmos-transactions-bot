@@ -8,6 +8,9 @@ import (
 	"main/pkg/types"
 	"testing"
 
+	abciTypes "github.com/cometbft/cometbft/abci/types"
+	"github.com/cosmos/cosmos-sdk/types/tx"
+
 	jsonRpcTypes "github.com/cometbft/cometbft/rpc/jsonrpc/types"
 	codecTypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cosmosAuthzTypes "github.com/cosmos/cosmos-sdk/x/authz"
@@ -80,6 +83,21 @@ func TestConverterErrorConvert(t *testing.T) {
 }
 
 func TestConverterErrorUnmarshal(t *testing.T) {
+	t.Parallel()
+
+	logger := loggerPkg.GetDefaultLogger()
+	chain := &configTypes.Chain{Name: "chain"}
+	converter := converterPkg.NewConverter(logger, chain)
+
+	event := jsonRpcTypes.RPCResponse{
+		Result: []byte("{\"data\":{\"type\":\"tendermint/event/Tx\",\"value\":{\"TxResult\":{\"height\":\"1\",\"index\":9,\"tx\":\"cmFuZG9tYnl0ZXMK\",\"result\":{\"data\":\"CisKKS9zZW50aW5lbC5ub2RlLnYyLk1zZ1VwZGF0ZURldGFpbHNSZXF1ZXN0\",\"log\":\"\",\"gas_wanted\":\"106365\",\"gas_used\":\"102726\",\"events\":[]}}}},\"events\":{}}"),
+	}
+	result := converter.ParseEvent(event, "example")
+	require.NotNil(t, result)
+	require.IsType(t, &types.TxError{}, result)
+}
+
+func TestConverterOkUnmarshal(t *testing.T) {
 	t.Parallel()
 
 	logger := loggerPkg.GetDefaultLogger()
@@ -174,4 +192,26 @@ func TestConverterParsedInternal(t *testing.T) {
 	require.IsType(t, &messages.MsgExec{}, result)
 	require.Len(t, result.GetParsedMessages(), 1)
 	require.IsType(t, &messages.MsgSend{}, result.GetParsedMessages()[0])
+}
+
+func TestConverterAllMessageSkipped(t *testing.T) {
+	t.Parallel()
+
+	logger := loggerPkg.GetDefaultLogger()
+	chain := &configTypes.Chain{Name: "chain"}
+	converter := converterPkg.NewConverter(logger, chain)
+
+	txProto := tx.Tx{
+		Body: &tx.TxBody{Messages: []*codecTypes.Any{}},
+	}
+
+	txResult := abciTypes.TxResult{
+		Height: 123,
+		Index:  0,
+		Tx:     nil,
+		Result: abciTypes.ResponseDeliverTx{},
+	}
+
+	result := converter.ParseTx(txProto, txResult, "hash")
+	require.Nil(t, result)
 }
