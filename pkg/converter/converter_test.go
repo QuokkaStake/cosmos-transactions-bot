@@ -21,7 +21,7 @@ import (
 func TestConverterTxError(t *testing.T) {
 	t.Parallel()
 
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	chain := &configTypes.Chain{Name: "chain"}
 	converter := converterPkg.NewConverter(logger, chain)
 
@@ -42,7 +42,7 @@ func TestConverterTxError(t *testing.T) {
 func TestConverterParseError(t *testing.T) {
 	t.Parallel()
 
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	chain := &configTypes.Chain{Name: "chain"}
 	converter := converterPkg.NewConverter(logger, chain)
 
@@ -57,7 +57,7 @@ func TestConverterParseError(t *testing.T) {
 func TestConverterEmptyEvent(t *testing.T) {
 	t.Parallel()
 
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	chain := &configTypes.Chain{Name: "chain"}
 	converter := converterPkg.NewConverter(logger, chain)
 
@@ -71,7 +71,7 @@ func TestConverterEmptyEvent(t *testing.T) {
 func TestConverterErrorConvert(t *testing.T) {
 	t.Parallel()
 
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	chain := &configTypes.Chain{Name: "chain"}
 	converter := converterPkg.NewConverter(logger, chain)
 
@@ -85,7 +85,7 @@ func TestConverterErrorConvert(t *testing.T) {
 func TestConverterErrorUnmarshal(t *testing.T) {
 	t.Parallel()
 
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	chain := &configTypes.Chain{Name: "chain"}
 	converter := converterPkg.NewConverter(logger, chain)
 
@@ -100,7 +100,7 @@ func TestConverterErrorUnmarshal(t *testing.T) {
 func TestConverterOkUnmarshal(t *testing.T) {
 	t.Parallel()
 
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	chain := &configTypes.Chain{Name: "chain"}
 	converter := converterPkg.NewConverter(logger, chain)
 
@@ -115,7 +115,7 @@ func TestConverterOkUnmarshal(t *testing.T) {
 func TestConverterUnsupportedMessage(t *testing.T) {
 	t.Parallel()
 
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	chain := &configTypes.Chain{Name: "chain"}
 	converter := converterPkg.NewConverter(logger, chain)
 
@@ -128,7 +128,7 @@ func TestConverterUnsupportedMessage(t *testing.T) {
 func TestConverterUnparsedMessage(t *testing.T) {
 	t.Parallel()
 
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	chain := &configTypes.Chain{Name: "chain"}
 	converter := converterPkg.NewConverter(logger, chain)
 
@@ -144,7 +144,7 @@ func TestConverterUnparsedMessage(t *testing.T) {
 func TestConverterParsedCorrectly(t *testing.T) {
 	t.Parallel()
 
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	chain := &configTypes.Chain{Name: "chain"}
 	converter := converterPkg.NewConverter(logger, chain)
 
@@ -164,7 +164,7 @@ func TestConverterParsedCorrectly(t *testing.T) {
 func TestConverterParsedInternal(t *testing.T) {
 	t.Parallel()
 
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	chain := &configTypes.Chain{Name: "chain"}
 	converter := converterPkg.NewConverter(logger, chain)
 
@@ -197,7 +197,7 @@ func TestConverterParsedInternal(t *testing.T) {
 func TestConverterAllMessageSkipped(t *testing.T) {
 	t.Parallel()
 
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	chain := &configTypes.Chain{Name: "chain"}
 	converter := converterPkg.NewConverter(logger, chain)
 

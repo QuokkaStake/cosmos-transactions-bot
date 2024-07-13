@@ -1,0 +1,104 @@
+{
+  "repository": {
+    "url": "https://github.com/cosmos/chain-registry",
+    "branch": "master",
+    "commit": "c6cfe11be261b20ce5881ea9ba38d855130c22a5",
+    "timestamp": 1720810736
+  },
+  "chains": [
+    {
+      "name": "8ball",
+      "path": "8ball",
+      "chain_name": "8ball",
+      "network_type": "mainnet",
+      "pretty_name": "8ball",
+      "chain_id": "eightball-1",
+      "status": "live",
+      "bech32_prefix": "8ball",
+      "slip44": 118,
+      "symbol": "EBL",
+      "display": "ebl",
+      "denom": "uebl",
+      "decimals": 6,
+      "image": "https://raw.githubusercontent.com/cosmos/chain-registry/master/8ball/images/8ball.svg",
+      "website": "https://8ball.info/",
+      "height": null,
+      "best_apis": {
+        "rest": [],
+        "rpc": []
+      },
+      "proxy_status": {
+        "rest": false,
+        "rpc": false
+      },
+      "versions": {
+        "application_version": "v1",
+        "cosmos_sdk_version": "0.46.7"
+      },
+      "cosmwasm_enabled": true,
+      "explorers": [
+        {
+          "url": "https://explorer.8ball.info/",
+          "tx_page": "https://explorer.8ball.info/8ball/tx/${txHash}"
+        },
+        {
+          "kind": "ping.pub",
+          "url": "https://ping.pub/8ball",
+          "tx_page": "https://ping.pub/8ball/tx/${txHash}"
+        },
+        {
+          "kind": "NodeStake Explorer",
+          "url": "https://explorer.nodestake.top/8ball/",
+          "tx_page": "https://explorer.nodestake.top/8ball/tx/${txHash}"
+        },
+        {
+          "kind": "TC Network",
+          "url": "https://explorer.tcnetwork.io/8ball",
+          "tx_page": "https://explorer.tcnetwork.io/8ball/transaction/${txHash}"
+        },
+        {
+          "kind": "TC Network",
+          "url": "https://explorer.co.id/8ball",
+          "tx_page": "https://explorer.co.id/8ball/tx/${txHash}"
+        },
+        {
+          "kind": "NODEXPLORER",
+          "url": "https://explorer.nodexcapital.com/8ball",
+          "tx_page": "https://explorer.nodexcapital.com/8ball/tx/${txHash}"
+        }
+      ],
+      "assets": [
+        {
+          "name": "8ball",
+          "description": "The native staking token of 8ball.",
+          "symbol": "EBL",
+          "denom": "uebl",
+          "decimals": 6,
+          "base": {
+            "denom": "uebl",
+            "exponent": 0
+          },
+          "display": {
+            "denom": "ebl",
+            "exponent": 6
+          },
+          "denom_units": [
+            {
+              "denom": "uebl",
+              "exponent": 0
+            },
+            {
+              "denom": "ebl",
+              "exponent": 6
+            }
+          ],
+          "logo_URIs": {
+            "png": "https://raw.githubusercontent.com/cosmos/chain-registry/master/8ball/images/8ball.png",
+            "svg": "https://raw.githubusercontent.com/cosmos/chain-registry/master/8ball/images/8ball.svg"
+          },
+          "image": "https://raw.githubusercontent.com/cosmos/chain-registry/master/8ball/images/8ball.svg"
+        }
+      ]
+    }
+  ]
+}

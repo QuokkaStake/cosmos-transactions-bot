@@ -18,7 +18,7 @@ import (
 func TestFilterMessageUnsupported(t *testing.T) {
 	t.Parallel()
 
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	config := &configPkg.AppConfig{}
 	filterer := filtererPkg.NewFilterer(logger, config, nil)
 
@@ -36,7 +36,7 @@ func TestFilterMessageUnsupported(t *testing.T) {
 func TestFilterMessageUnparsed(t *testing.T) {
 	t.Parallel()
 
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	config := &configPkg.AppConfig{}
 	filterer := filtererPkg.NewFilterer(logger, config, nil)
 
@@ -54,7 +54,7 @@ func TestFilterMessageUnparsed(t *testing.T) {
 func TestFilterMessageSimpleNotMatching(t *testing.T) {
 	t.Parallel()
 
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	config := &configPkg.AppConfig{}
 	filterer := filtererPkg.NewFilterer(logger, config, nil)
 
@@ -78,7 +78,7 @@ func TestFilterMessageSimpleNotMatching(t *testing.T) {
 func TestFilterMessageSimpleMatching(t *testing.T) {
 	t.Parallel()
 
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	config := &configPkg.AppConfig{}
 	filterer := filtererPkg.NewFilterer(logger, config, nil)
 
@@ -102,7 +102,7 @@ func TestFilterMessageSimpleMatching(t *testing.T) {
 func TestFilterMessageSimpleRecursiveMatchingExternalAndIgnoreInternal(t *testing.T) {
 	t.Parallel()
 
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	config := &configPkg.AppConfig{}
 	filterer := filtererPkg.NewFilterer(logger, config, nil)
 
@@ -133,7 +133,7 @@ func TestFilterMessageSimpleRecursiveMatchingExternalAndIgnoreInternal(t *testin
 func TestFilterMessageSimpleRecursiveMatchingExternalAndFilterInternal(t *testing.T) {
 	t.Parallel()
 
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	config := &configPkg.AppConfig{}
 	filterer := filtererPkg.NewFilterer(logger, config, nil)
 
@@ -164,7 +164,7 @@ func TestFilterMessageSimpleRecursiveMatchingExternalAndFilterInternal(t *testin
 func TestFilterMessageSimpleRecursiveMatchingExternalAndInternal(t *testing.T) {
 	t.Parallel()
 
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	config := &configPkg.AppConfig{}
 	filterer := filtererPkg.NewFilterer(logger, config, nil)
 
@@ -197,7 +197,7 @@ func TestFilterReportableTxError(t *testing.T) {
 	t.Parallel()
 
 	config := &configPkg.AppConfig{}
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	metricsManager := metrics.NewManager(logger, configPkg.MetricsConfig{Enabled: false})
 	filterer := filtererPkg.NewFilterer(logger, config, metricsManager)
 	chain := &configTypes.Chain{Name: "chain"}
@@ -217,7 +217,7 @@ func TestFilterReportableTxNodeConnectError(t *testing.T) {
 	t.Parallel()
 
 	config := &configPkg.AppConfig{}
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	metricsManager := metrics.NewManager(logger, configPkg.MetricsConfig{Enabled: false})
 	filterer := filtererPkg.NewFilterer(logger, config, metricsManager)
 	chain := &configTypes.Chain{Name: "chain"}
@@ -237,7 +237,7 @@ func TestFilterReportableNotSupported(t *testing.T) {
 	t.Parallel()
 
 	config := &configPkg.AppConfig{}
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	metricsManager := metrics.NewManager(logger, configPkg.MetricsConfig{Enabled: false})
 	filterer := filtererPkg.NewFilterer(logger, config, metricsManager)
 	chain := &configTypes.Chain{Name: "chain"}
@@ -252,7 +252,7 @@ func TestFilterReportableTxFailed(t *testing.T) {
 	t.Parallel()
 
 	config := &configPkg.AppConfig{}
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	metricsManager := metrics.NewManager(logger, configPkg.MetricsConfig{Enabled: false})
 	filterer := filtererPkg.NewFilterer(logger, config, metricsManager)
 	chain := &configTypes.Chain{Name: "chain"}
@@ -290,7 +290,7 @@ func TestFilterReportableTxProcessedBefore(t *testing.T) {
 	t.Parallel()
 
 	config := &configPkg.AppConfig{}
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	metricsManager := metrics.NewManager(logger, configPkg.MetricsConfig{Enabled: false})
 	filterer := filtererPkg.NewFilterer(logger, config, metricsManager)
 	chain := &configTypes.Chain{Name: "chain"}
@@ -325,7 +325,7 @@ func TestFilterReportableTxAllMessagesFiltered(t *testing.T) {
 	t.Parallel()
 
 	config := &configPkg.AppConfig{}
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	metricsManager := metrics.NewManager(logger, configPkg.MetricsConfig{Enabled: false})
 	filterer := filtererPkg.NewFilterer(logger, config, metricsManager)
 	chain := &configTypes.Chain{Name: "chain"}
@@ -361,7 +361,7 @@ func TestFilterReportableTxInvalidHeight(t *testing.T) {
 	}()
 
 	config := &configPkg.AppConfig{}
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	metricsManager := metrics.NewManager(logger, configPkg.MetricsConfig{Enabled: false})
 	filterer := filtererPkg.NewFilterer(logger, config, metricsManager)
 	chain := &configTypes.Chain{Name: "chain"}
@@ -409,7 +409,7 @@ func TestGetReporters(t *testing.T) {
 			},
 		},
 	}
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	metricsManager := metrics.NewManager(logger, configPkg.MetricsConfig{Enabled: false})
 	filterer := filtererPkg.NewFilterer(logger, config, metricsManager)
 	report := types.Report{

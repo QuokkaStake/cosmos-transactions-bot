@@ -1,0 +1,10 @@
+{
+  "commission": {
+    "commission": [
+      {
+        "denom": "uatom",
+        "amount": "12345"
+      }
+    ]
+  }
+}
