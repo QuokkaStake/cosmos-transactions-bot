@@ -1,0 +1,19 @@
+{
+  "channel": {
+    "state": "STATE_TRYOPEN",
+    "ordering": "ORDER_UNORDERED",
+    "counterparty": {
+      "port_id": "transfer",
+      "channel_id": "channel-0"
+    },
+    "connection_hops": [
+      "connection-5"
+    ],
+    "version": "ics20-1"
+  },
+  "proof": null,
+  "proof_height": {
+    "revision_number": "4",
+    "revision_height": "21299329"
+  }
+}
