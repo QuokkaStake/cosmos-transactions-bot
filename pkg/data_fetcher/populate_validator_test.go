@@ -116,3 +116,56 @@ func TestDataFetcherFetchValidatorSuccessfullyFetched(t *testing.T) {
 	require.NotNil(t, data)
 	require.Equal(t, "cosmosvaloper1xqz9pemz5e5zycaa89kys5aw6m8rhgsvw4328e", data.OperatorAddress)
 }
+
+//nolint:paralleltest // disabled due to httpmock usage
+func TestDataFetcherPopulateValidatorNotPresent(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	config := &configPkg.AppConfig{
+		Chains: types.Chains{
+			{Name: "chain"},
+		},
+		Metrics: configPkg.MetricsConfig{Enabled: false},
+	}
+
+	filesystem := &fs.MockFs{}
+	logger := loggerPkg.GetNopLogger()
+	aliasManager := aliasManagerPkg.NewAliasManager(logger, config, filesystem)
+	metricsManager := metrics.NewManager(logger, config.Metrics)
+	dataFetcher := NewDataFetcher(logger, config, aliasManager, metricsManager)
+
+	validator := &types.Link{Value: "address"}
+
+	dataFetcher.PopulateValidator(config.Chains[0], validator)
+	require.Empty(t, validator.Title)
+}
+
+func TestDataFetcherPopulateValidatorPresent(t *testing.T) {
+	t.Parallel()
+
+	config := &configPkg.AppConfig{
+		Chains: types.Chains{
+			{Name: "chain"},
+		},
+		Metrics:     configPkg.MetricsConfig{Enabled: false},
+		AliasesPath: "path.toml",
+	}
+
+	filesystem := &fs.MockFs{}
+	logger := loggerPkg.GetNopLogger()
+	aliasManager := aliasManagerPkg.NewAliasManager(logger, config, filesystem)
+	metricsManager := metrics.NewManager(logger, config.Metrics)
+	dataFetcher := NewDataFetcher(logger, config, aliasManager, metricsManager)
+
+	dataFetcher.Cache.Set("chain_validator_address", &responses.Validator{
+		Description: responses.ValidatorDescription{
+			Moniker: "🐹 Quokka Stake",
+		},
+	})
+
+	validator := &types.Link{Value: "address"}
+
+	dataFetcher.PopulateValidator(config.Chains[0], validator)
+	require.Equal(t, "🐹 Quokka Stake", validator.Title)
+}
