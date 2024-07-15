@@ -13,7 +13,7 @@ func (f *DataFetcher) GetValidator(chain *configTypes.Chain, address string) (*r
 			return cachedValidatorParsed, true
 		}
 
-		f.Logger.Error().Msg("Could not convert cached validator to *stakingTypes.Validator")
+		f.Logger.Error().Msg("Could not convert cached validator to *responses.Validator")
 		return nil, false
 	}
 
