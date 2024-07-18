@@ -19,7 +19,7 @@ func (f *DataFetcher) GetDenomTrace(
 
 	denomHash := denomSplit[1]
 
-	keyName := chain.Name + "_denom_trace_" + denom
+	keyName := chain.Name + "_denom_trace_" + denomHash
 
 	if cachedEntry, cachedEntryPresent := f.Cache.Get(keyName); cachedEntryPresent {
 		if cachedEntryParsed, ok := cachedEntry.(*transferTypes.DenomTrace); ok {

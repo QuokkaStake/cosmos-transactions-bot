@@ -20,7 +20,7 @@ func TestToAliasesValid(t *testing.T) {
 		},
 	}
 
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	chains := configTypes.Chains{
 		{Name: "chain"},
 	}
@@ -47,7 +47,7 @@ func TestToAliasesNoChain(t *testing.T) {
 		},
 	}
 
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	chains := configTypes.Chains{}
 
 	defer func() {

@@ -1,8 +1,6 @@
 package alias_manager_test
 
 import (
-	"errors"
-	"main/assets"
 	"main/pkg/alias_manager"
 	configPkg "main/pkg/config"
 	configTypes "main/pkg/config/types"
@@ -13,60 +11,14 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-type MockFile struct {
-	FailWrite bool
-	FailClose bool
-}
-
-func (file *MockFile) Write(p []byte) (int, error) {
-	if file.FailWrite {
-		return 1, errors.New("not yet supported")
-	}
-
-	return len(p), nil
-}
-
-func (file *MockFile) Close() error {
-	if file.FailClose {
-		return errors.New("not yet supported")
-	}
-
-	return nil
-}
-
-type MockAliasesFS struct {
-	FailCreate bool
-	FailWrite  bool
-	FailClose  bool
-}
-
-func (filesystem *MockAliasesFS) ReadFile(name string) ([]byte, error) {
-	return assets.EmbedFS.ReadFile(name)
-}
-
-func (filesystem *MockAliasesFS) Create(path string) (fs.File, error) {
-	if filesystem.FailCreate {
-		return nil, errors.New("not yet supported")
-	}
-
-	return &MockFile{
-		FailWrite: filesystem.FailWrite,
-		FailClose: filesystem.FailClose,
-	}, nil
-}
-
-func (filesystem *MockAliasesFS) Write(p []byte) (int, error) {
-	return 0, errors.New("not yet supported")
-}
-
 func TestAliasManagerEnabled(t *testing.T) {
 	t.Parallel()
 
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	config := &configPkg.AppConfig{
 		AliasesPath: "path",
 	}
-	filesystem := &MockAliasesFS{}
+	filesystem := &fs.MockFs{}
 	aliasManager := alias_manager.NewAliasManager(logger, config, filesystem)
 	require.True(t, aliasManager.Enabled())
 }
@@ -74,9 +26,9 @@ func TestAliasManagerEnabled(t *testing.T) {
 func TestAliasManagerLoadDisabled(t *testing.T) {
 	t.Parallel()
 
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	config := &configPkg.AppConfig{}
-	filesystem := &MockAliasesFS{}
+	filesystem := &fs.MockFs{}
 	aliasManager := alias_manager.NewAliasManager(logger, config, filesystem)
 	aliasManager.Load()
 	require.Empty(t, aliasManager.Aliases)
@@ -85,9 +37,9 @@ func TestAliasManagerLoadDisabled(t *testing.T) {
 func TestAliasManagerLoadFailed(t *testing.T) {
 	t.Parallel()
 
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	config := &configPkg.AppConfig{AliasesPath: "nonexistent.toml"}
-	filesystem := &MockAliasesFS{}
+	filesystem := &fs.MockFs{}
 	aliasManager := alias_manager.NewAliasManager(logger, config, filesystem)
 	aliasManager.Load()
 	require.Empty(t, aliasManager.Aliases)
@@ -96,9 +48,9 @@ func TestAliasManagerLoadFailed(t *testing.T) {
 func TestAliasManagerLoadInvalidToml(t *testing.T) {
 	t.Parallel()
 
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	config := &configPkg.AppConfig{AliasesPath: "invalid-toml.toml"}
-	filesystem := &MockAliasesFS{}
+	filesystem := &fs.MockFs{}
 	aliasManager := alias_manager.NewAliasManager(logger, config, filesystem)
 	aliasManager.Load()
 	require.Empty(t, aliasManager.Aliases)
@@ -107,14 +59,14 @@ func TestAliasManagerLoadInvalidToml(t *testing.T) {
 func TestAliasManagerLoadSuccess(t *testing.T) {
 	t.Parallel()
 
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	config := &configPkg.AppConfig{
 		AliasesPath: "valid-aliases.toml",
 		Chains: configTypes.Chains{
 			{Name: "chain"},
 		},
 	}
-	filesystem := &MockAliasesFS{}
+	filesystem := &fs.MockFs{}
 	aliasManager := alias_manager.NewAliasManager(logger, config, filesystem)
 	aliasManager.Load()
 	require.NotEmpty(t, aliasManager.Aliases)
@@ -124,9 +76,9 @@ func TestAliasManagerLoadSuccess(t *testing.T) {
 func TestAliasManagerSaveDisabled(t *testing.T) {
 	t.Parallel()
 
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	config := &configPkg.AppConfig{}
-	filesystem := &MockAliasesFS{}
+	filesystem := &fs.MockFs{}
 	aliasManager := alias_manager.NewAliasManager(logger, config, filesystem)
 	err := aliasManager.Save()
 	require.NoError(t, err)
@@ -135,9 +87,9 @@ func TestAliasManagerSaveDisabled(t *testing.T) {
 func TestAliasManagerSaveErrorOpening(t *testing.T) {
 	t.Parallel()
 
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	config := &configPkg.AppConfig{AliasesPath: "savefile.toml"}
-	filesystem := &MockAliasesFS{FailCreate: true}
+	filesystem := &fs.MockFs{FailCreate: true}
 	aliasManager := alias_manager.NewAliasManager(logger, config, filesystem)
 	err := aliasManager.Save()
 	require.Error(t, err)
@@ -146,19 +98,19 @@ func TestAliasManagerSaveErrorOpening(t *testing.T) {
 func TestAliasManagerSaveErrorWriting(t *testing.T) {
 	t.Parallel()
 
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	config := &configPkg.AppConfig{
 		AliasesPath: "savefile.toml",
 		Chains: configTypes.Chains{
 			{Name: "chain"},
 		},
 	}
-	filesystem := &MockAliasesFS{}
+	filesystem := &fs.MockFs{}
 	aliasManager := alias_manager.NewAliasManager(logger, config, filesystem)
 	err := aliasManager.Set("subscription", "chain", "wallet", "alias")
 	require.NoError(t, err)
 
-	aliasManager.FS = &MockAliasesFS{FailWrite: true}
+	aliasManager.FS = &fs.MockFs{FailWrite: true}
 	err = aliasManager.Save()
 	require.Error(t, err)
 }
@@ -166,19 +118,19 @@ func TestAliasManagerSaveErrorWriting(t *testing.T) {
 func TestAliasManagerSaveErrorClosing(t *testing.T) {
 	t.Parallel()
 
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	config := &configPkg.AppConfig{
 		AliasesPath: "savefile.toml",
 		Chains: configTypes.Chains{
 			{Name: "chain"},
 		},
 	}
-	filesystem := &MockAliasesFS{}
+	filesystem := &fs.MockFs{}
 	aliasManager := alias_manager.NewAliasManager(logger, config, filesystem)
 	err := aliasManager.Set("subscription", "chain", "wallet", "alias")
 	require.NoError(t, err)
 
-	aliasManager.FS = &MockAliasesFS{FailClose: true}
+	aliasManager.FS = &fs.MockFs{FailClose: true}
 	err = aliasManager.Save()
 	require.Error(t, err)
 }
@@ -186,9 +138,9 @@ func TestAliasManagerSaveErrorClosing(t *testing.T) {
 func TestAliasManagerSetDisabled(t *testing.T) {
 	t.Parallel()
 
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	config := &configPkg.AppConfig{}
-	filesystem := &MockAliasesFS{}
+	filesystem := &fs.MockFs{}
 	aliasManager := alias_manager.NewAliasManager(logger, config, filesystem)
 	err := aliasManager.Set("subscription", "chain", "wallet", "alias")
 	require.NoError(t, err)
@@ -203,12 +155,12 @@ func TestAliasManagerSetNoChain(t *testing.T) {
 		}
 	}()
 
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	config := &configPkg.AppConfig{
 		AliasesPath: "savefile.toml",
 		Chains:      configTypes.Chains{},
 	}
-	filesystem := &MockAliasesFS{}
+	filesystem := &fs.MockFs{}
 	aliasManager := alias_manager.NewAliasManager(logger, config, filesystem)
 	_ = aliasManager.Set("subscription", "chain", "wallet", "alias")
 }
@@ -216,14 +168,14 @@ func TestAliasManagerSetNoChain(t *testing.T) {
 func TestAliasManagerGetLinks(t *testing.T) {
 	t.Parallel()
 
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	config := &configPkg.AppConfig{
 		AliasesPath: "savefile.toml",
 		Chains: configTypes.Chains{
 			{Name: "chain"},
 		},
 	}
-	filesystem := &MockAliasesFS{}
+	filesystem := &fs.MockFs{}
 	aliasManager := alias_manager.NewAliasManager(logger, config, filesystem)
 	err := aliasManager.Set("subscription", "chain", "wallet", "alias")
 	require.NoError(t, err)

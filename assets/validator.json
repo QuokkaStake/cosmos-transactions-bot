@@ -1,0 +1,42 @@
+{
+  "validator": {
+    "operator_address": "cosmosvaloper1xqz9pemz5e5zycaa89kys5aw6m8rhgsvw4328e",
+    "consensus_pubkey": {
+      "@type": "/cosmos.crypto.ed25519.PubKey",
+      "key": "DdZjDxgmWzB6cqk1OjRjiKJ7dAGUt18xeh4Qorh930s="
+    },
+    "jailed": false,
+    "status": "BOND_STATUS_BONDED",
+    "tokens": "194546758015",
+    "delegator_shares": "194546758015.000000000000000000",
+    "description": {
+      "moniker": "🐹 Quokka Stake",
+      "identity": "14BFE711AAB70C77",
+      "website": "https://quokkastake.io",
+      "security_contact": "quokkastake@gmail.com",
+      "details": "100% slashing refund | 24/7 monitoring. Stake with us! Subscribe for news: https://t.me/quokkastake"
+    },
+    "unbonding_height": "18037515",
+    "unbonding_time": "2023-12-18T18:12:38.688999277Z",
+    "commission": {
+      "commission_rates": {
+        "rate": "0.050000000000000000",
+        "max_rate": "0.200000000000000000",
+        "max_change_rate": "0.010000000000000000"
+      },
+      "update_time": "2023-01-03T12:29:29.048914658Z"
+    },
+    "min_self_delegation": "1",
+    "unbonding_on_hold_ref_count": "0",
+    "unbonding_ids": [
+      "36045",
+      "45875",
+      "52499",
+      "56201",
+      "59636",
+      "202054"
+    ],
+    "validator_bond_shares": "516286890.000000000000000000",
+    "liquid_shares": "11160615760.000000000000000000"
+  }
+}

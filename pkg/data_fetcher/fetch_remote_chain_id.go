@@ -49,7 +49,7 @@ func (f *DataFetcher) GetIbcRemoteChainID(
 	if len(ibcChannel.ConnectionHops) != 1 {
 		f.Logger.Error().
 			Int("len", len(ibcChannel.ConnectionHops)).
-			Msg("Could not connect to any nodes to get IBC channel")
+			Msg("Multi-hop IBC connections are not yet supported.")
 		return "", false
 	}
 

@@ -46,6 +46,7 @@ func (c *CoingeckoPriceFetcher) GetPrices(denomInfos configTypes.DenomInfos) (ma
 			Err(err).
 			Strs("currencies", currenciesToFetch).
 			Msg("Could not get rates, probably rate-limiting")
+		return map[*configTypes.DenomInfo]float64{}, err
 	}
 
 	result := make(map[*configTypes.DenomInfo]float64)
