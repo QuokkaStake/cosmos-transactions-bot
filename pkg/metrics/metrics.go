@@ -1,6 +1,7 @@
 package metrics
 
 import (
+	"context"
 	configPkg "main/pkg/config"
 	configTypes "main/pkg/config/types"
 	"main/pkg/constants"
@@ -49,9 +50,12 @@ type Manager struct {
 	startTimeGauge  *prometheus.GaugeVec
 
 	registry *prometheus.Registry
+	server   *http.Server
 }
 
 func NewManager(logger *zerolog.Logger, config configPkg.MetricsConfig) *Manager {
+	server := &http.Server{Addr: config.ListenAddr, Handler: nil}
+
 	return &Manager{
 		logger: logger.With().Str("component", "metrics").Logger(),
 		config: config,
@@ -137,7 +141,9 @@ func NewManager(logger *zerolog.Logger, config configPkg.MetricsConfig) *Manager
 			Name: constants.PrometheusMetricsPrefix + "start_time",
 			Help: "Unix timestamp on when the app was started. Useful for annotations.",
 		}, []string{}),
+
 		registry: prometheus.NewRegistry(),
+		server:   server,
 	}
 }
 
@@ -172,15 +178,30 @@ func (m *Manager) Start() {
 		Str("addr", m.config.ListenAddr).
 		Msg("Metrics handler listening")
 
-	http.Handle("/metrics", promhttp.HandlerFor(m.registry, promhttp.HandlerOpts{
+	handler := http.NewServeMux()
+	handler.Handle("/metrics", promhttp.HandlerFor(m.registry, promhttp.HandlerOpts{
 		EnableOpenMetrics: true,
 	}))
-	if err := http.ListenAndServe(m.config.ListenAddr, nil); err != nil {
-		m.logger.Fatal().
+	handler.HandleFunc("/healthcheck", m.Healthcheck)
+	m.server.Handler = handler
+
+	if err := m.server.ListenAndServe(); err != nil {
+		m.logger.Panic().
 			Err(err).
 			Str("addr", m.config.ListenAddr).
 			Msg("Cannot start metrics handler")
 	}
+}
+
+func (m *Manager) Healthcheck(w http.ResponseWriter, r *http.Request) {
+	_, _ = w.Write([]byte("ok"))
+}
+
+func (m *Manager) Stop() {
+	m.logger.Info().Str("addr", m.config.ListenAddr).Msg("Shutting down server...")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	_ = m.server.Shutdown(ctx)
 }
 
 func (m *Manager) SetAllDefaultMetrics(config *configPkg.AppConfig) {
@@ -205,16 +226,6 @@ func (m *Manager) SetDefaultMetrics(chain *configTypes.Chain) {
 	m.chainInfoGauge.
 		With(prometheus.Labels{"chain": chain.Name, "pretty_name": chain.PrettyName}).
 		Set(1)
-
-	for _, node := range chain.TendermintNodes {
-		m.eventsTotalCounter.
-			With(prometheus.Labels{"chain": chain.Name, "node": node}).
-			Add(0)
-
-		m.reconnectsCounter.
-			With(prometheus.Labels{"chain": chain.Name, "node": node}).
-			Add(0)
-	}
 
 	for _, node := range chain.TendermintNodes {
 		m.eventsTotalCounter.
