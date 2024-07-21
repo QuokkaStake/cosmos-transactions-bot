@@ -8,7 +8,7 @@ import (
 	"syscall"
 
 	"main/pkg/alias_manager"
-	"main/pkg/config"
+	configPkg "main/pkg/config"
 	"main/pkg/data_fetcher"
 	filtererPkg "main/pkg/filterer"
 	loggerPkg "main/pkg/logger"
@@ -21,7 +21,7 @@ import (
 
 type App struct {
 	Logger         zerolog.Logger
-	Config         *config.AppConfig
+	Config         *configPkg.AppConfig
 	Chains         []*configTypes.Chain
 	NodesManager   *nodesManagerPkg.NodesManager
 	Reporters      reportersPkg.Reporters
@@ -32,9 +32,19 @@ type App struct {
 	Version string
 }
 
-func NewApp(config *config.AppConfig, version string, fs fsPkg.FS) *App {
+func NewApp(filesystem fsPkg.FS, configPath string, version string) *App {
+	config, err := configPkg.GetConfig(configPath, filesystem)
+	if err != nil {
+		loggerPkg.GetDefaultLogger().Panic().Err(err).Msg("Could not load config")
+	}
+	warnings := config.DisplayWarnings()
+
+	for _, warning := range warnings {
+		warning.Log(loggerPkg.GetDefaultLogger())
+	}
+
 	logger := loggerPkg.GetLogger(config.LogConfig)
-	aliasManager := alias_manager.NewAliasManager(logger, config, fs)
+	aliasManager := alias_manager.NewAliasManager(logger, config, filesystem)
 	aliasManager.Load()
 
 	metricsManager := metricsPkg.NewManager(logger, config.Metrics)
