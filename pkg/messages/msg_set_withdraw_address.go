@@ -32,7 +32,7 @@ func ParseMsgSetWithdrawAddress(data []byte, chain *configTypes.Chain, height in
 	}, nil
 }
 
-func (m MsgSetWithdrawAddress) Type() string {
+func (m *MsgSetWithdrawAddress) Type() string {
 	return "/cosmos.distribution.v1beta1.MsgSetWithdrawAddress"
 }
 
