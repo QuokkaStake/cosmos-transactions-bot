@@ -2,9 +2,10 @@ package messages
 
 import (
 	"errors"
-	"github.com/stretchr/testify/require"
 	"main/pkg/types"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestMsgUnparsedMessageBase(t *testing.T) {

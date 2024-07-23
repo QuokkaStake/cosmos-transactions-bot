@@ -1,9 +1,10 @@
 package messages
 
 import (
-	"github.com/stretchr/testify/require"
 	"main/pkg/types"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestMsgUnsupportedMessageBase(t *testing.T) {
