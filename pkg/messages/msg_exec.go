@@ -35,7 +35,7 @@ func ParseMsgExec(data []byte, chain *configTypes.Chain, height int64) (types.Me
 	}, nil
 }
 
-func (m MsgExec) Type() string {
+func (m *MsgExec) Type() string {
 	return "/cosmos.authz.v1beta1.MsgExec"
 }
 

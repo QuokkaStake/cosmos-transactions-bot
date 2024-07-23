@@ -1,7 +1,6 @@
 package messages
 
 import (
-	ibcClientTypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	aliasManagerPkg "main/pkg/alias_manager"
 	configPkg "main/pkg/config"
 	configTypes "main/pkg/config/types"
@@ -12,6 +11,8 @@ import (
 	"main/pkg/types"
 	"main/pkg/types/event"
 	"testing"
+
+	ibcClientTypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 
 	cosmosTypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/gogo/protobuf/proto"
