@@ -38,7 +38,7 @@ func ParseMsgUndelegate(data []byte, chain *configTypes.Chain, height int64) (ty
 	}, nil
 }
 
-func (m MsgUndelegate) Type() string {
+func (m *MsgUndelegate) Type() string {
 	return "/cosmos.staking.v1beta1.MsgUndelegate"
 }
 

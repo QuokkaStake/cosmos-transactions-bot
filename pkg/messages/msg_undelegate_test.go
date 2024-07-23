@@ -13,6 +13,7 @@ import (
 	"main/pkg/types/event"
 	"main/pkg/types/responses"
 	"testing"
+	"time"
 
 	cosmosStakingTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
@@ -21,10 +22,10 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestMsgDelegateParse(t *testing.T) {
+func TestMsgUndelegateParse(t *testing.T) {
 	t.Parallel()
 
-	msg := &cosmosStakingTypes.MsgDelegate{
+	msg := &cosmosStakingTypes.MsgUndelegate{
 		DelegatorAddress: "delegator",
 		ValidatorAddress: "validator",
 		Amount:           cosmosTypes.Coin{Amount: cosmosTypes.NewInt(100), Denom: "ustake"},
@@ -32,19 +33,19 @@ func TestMsgDelegateParse(t *testing.T) {
 	msgBytes, err := proto.Marshal(msg)
 	require.NoError(t, err)
 
-	parsed, err := ParseMsgDelegate(msgBytes, &configTypes.Chain{Name: "chain"}, 100)
+	parsed, err := ParseMsgUndelegate(msgBytes, &configTypes.Chain{Name: "chain"}, 100)
 	require.NoError(t, err)
 	require.NotNil(t, parsed)
 
-	parsed2, err2 := ParseMsgDelegate([]byte("aaa"), &configTypes.Chain{Name: "chain"}, 100)
+	parsed2, err2 := ParseMsgUndelegate([]byte("aaa"), &configTypes.Chain{Name: "chain"}, 100)
 	require.Error(t, err2)
 	require.Nil(t, parsed2)
 }
 
-func TestMsgDelegateBase(t *testing.T) {
+func TestMsgUndelegateBase(t *testing.T) {
 	t.Parallel()
 
-	msg := &cosmosStakingTypes.MsgDelegate{
+	msg := &cosmosStakingTypes.MsgUndelegate{
 		DelegatorAddress: "delegator",
 		ValidatorAddress: "validator",
 		Amount:           cosmosTypes.Coin{Amount: cosmosTypes.NewInt(100), Denom: "ustake"},
@@ -52,20 +53,20 @@ func TestMsgDelegateBase(t *testing.T) {
 	msgBytes, err := proto.Marshal(msg)
 	require.NoError(t, err)
 
-	parsed, err := ParseMsgDelegate(msgBytes, &configTypes.Chain{Name: "chain"}, 100)
+	parsed, err := ParseMsgUndelegate(msgBytes, &configTypes.Chain{Name: "chain"}, 100)
 	require.NoError(t, err)
 	require.NotNil(t, parsed)
 
-	require.Equal(t, "/cosmos.staking.v1beta1.MsgDelegate", parsed.Type())
+	require.Equal(t, "/cosmos.staking.v1beta1.MsgUndelegate", parsed.Type())
 
 	values := parsed.GetValues()
 
 	require.Equal(t, event.EventValues{
-		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, "/cosmos.staking.v1beta1.MsgDelegate"),
+		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeyAction, "/cosmos.staking.v1beta1.MsgUndelegate"),
 		event.From(cosmosTypes.EventTypeMessage, cosmosTypes.AttributeKeySender, "delegator"),
-		event.From(cosmosStakingTypes.EventTypeDelegate, cosmosStakingTypes.AttributeKeyValidator, "validator"),
-		event.From(cosmosStakingTypes.EventTypeDelegate, cosmosStakingTypes.AttributeKeyDelegator, "delegator"),
-		event.From(cosmosStakingTypes.EventTypeDelegate, cosmosTypes.AttributeKeyAmount, "100ustake"),
+		event.From(cosmosStakingTypes.EventTypeUnbond, cosmosStakingTypes.AttributeKeyValidator, "validator"),
+		event.From(cosmosStakingTypes.EventTypeUnbond, cosmosStakingTypes.AttributeKeyDelegator, "delegator"),
+		event.From(cosmosStakingTypes.EventTypeUnbond, cosmosTypes.AttributeKeyAmount, "100ustake"),
 	}, values)
 
 	parsed.AddParsedMessage(nil)
@@ -74,10 +75,10 @@ func TestMsgDelegateBase(t *testing.T) {
 	require.Empty(t, parsed.GetRawMessages())
 }
 
-func TestMsgDelegatePopulate(t *testing.T) {
+func TestMsgUndelegatePopulate(t *testing.T) {
 	t.Parallel()
 
-	msg := &cosmosStakingTypes.MsgDelegate{
+	msg := &cosmosStakingTypes.MsgUndelegate{
 		DelegatorAddress: "delegator",
 		ValidatorAddress: "validator",
 		Amount:           cosmosTypes.Coin{Amount: cosmosTypes.NewInt(100000000), Denom: "uatom"},
@@ -99,7 +100,7 @@ func TestMsgDelegatePopulate(t *testing.T) {
 		AliasesPath: "path.toml",
 	}
 
-	parsed, err := ParseMsgDelegate(msgBytes, config.Chains[0], 100)
+	parsed, err := ParseMsgUndelegate(msgBytes, config.Chains[0], 100)
 	require.NoError(t, err)
 	require.NotNil(t, parsed)
 
@@ -117,14 +118,18 @@ func TestMsgDelegatePopulate(t *testing.T) {
 		OperatorAddress: "test",
 		Description:     responses.ValidatorDescription{Moniker: "Validator Moniker"},
 	})
+	dataFetcher.Cache.Set("chain_staking_params", &responses.StakingParams{
+		UnbondingTime: responses.Duration{Duration: 15 * time.Second},
+	})
 
 	parsed.GetAdditionalData(dataFetcher, "subscription")
 
-	msgDelegate, _ := parsed.(*MsgDelegate)
+	message, _ := parsed.(*MsgUndelegate)
 
-	require.Equal(t, "delegator_alias", msgDelegate.DelegatorAddress.Title)
-	require.Equal(t, "Validator Moniker", msgDelegate.ValidatorAddress.Title)
-	require.Equal(t, "100.00", fmt.Sprintf("%.2f", msgDelegate.Amount.Value))
-	require.Equal(t, "670.00", fmt.Sprintf("%.2f", msgDelegate.Amount.PriceUSD))
-	require.Equal(t, "atom", msgDelegate.Amount.Denom.String())
+	require.Equal(t, "delegator_alias", message.DelegatorAddress.Title)
+	require.Equal(t, "Validator Moniker", message.ValidatorAddress.Title)
+	require.Equal(t, "100.00", fmt.Sprintf("%.2f", message.Amount.Value))
+	require.Equal(t, "670.00", fmt.Sprintf("%.2f", message.Amount.PriceUSD))
+	require.Equal(t, "atom", message.Amount.Denom.String())
+	require.NotZero(t, message.UndelegateFinishTime)
 }
