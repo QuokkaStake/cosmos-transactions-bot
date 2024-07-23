@@ -2,6 +2,7 @@ package metrics
 
 import (
 	"context"
+	"errors"
 	configPkg "main/pkg/config"
 	configTypes "main/pkg/config/types"
 	"main/pkg/constants"
@@ -178,14 +179,16 @@ func (m *Manager) Start() {
 		Str("addr", m.config.ListenAddr).
 		Msg("Metrics handler listening")
 
-	handler := http.NewServeMux()
-	handler.Handle("/metrics", promhttp.HandlerFor(m.registry, promhttp.HandlerOpts{
-		EnableOpenMetrics: true,
-	}))
-	handler.HandleFunc("/healthcheck", m.Healthcheck)
-	m.server.Handler = handler
+	go func() {
+		handler := http.NewServeMux()
+		handler.Handle("/metrics", promhttp.HandlerFor(m.registry, promhttp.HandlerOpts{
+			EnableOpenMetrics: true,
+		}))
+		handler.HandleFunc("/healthcheck", m.Healthcheck)
+		m.server.Handler = handler
+	}()
 
-	if err := m.server.ListenAndServe(); err != nil {
+	if err := m.server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		m.logger.Panic().
 			Err(err).
 			Str("addr", m.config.ListenAddr).

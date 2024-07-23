@@ -128,7 +128,7 @@ func (t *TendermintWebsocketClient) Listen() {
 func (t *TendermintWebsocketClient) Stop() {
 	t.Logger.Info().Msg("Stopping the node...")
 
-	if t.Client != nil {
+	if t.Client != nil && t.Client.ResponsesCh != nil {
 		if err := t.Client.Stop(); err != nil {
 			t.Logger.Warn().Err(err).Msg("Error stopping the node")
 		}

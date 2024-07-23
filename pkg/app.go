@@ -3,6 +3,7 @@ package pkg
 import (
 	configTypes "main/pkg/config/types"
 	fsPkg "main/pkg/fs"
+	"main/pkg/types"
 	"os"
 	"os/signal"
 	"syscall"
@@ -28,6 +29,7 @@ type App struct {
 	DataFetcher    *data_fetcher.DataFetcher
 	Filterer       *filtererPkg.Filterer
 	MetricsManager *metricsPkg.Manager
+	QuitChannel    chan os.Signal
 
 	Version string
 }
@@ -82,6 +84,7 @@ func NewApp(filesystem fsPkg.FS, configPath string, version string) *App {
 		Filterer:       filterer,
 		MetricsManager: metricsManager,
 		Version:        version,
+		QuitChannel:    make(chan os.Signal, 1),
 	}
 }
 
@@ -101,47 +104,50 @@ func (a *App) Start() {
 
 	a.NodesManager.Listen()
 
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
+	signal.Notify(a.QuitChannel, os.Interrupt, syscall.SIGTERM)
 
 	for {
 		select {
 		case rawReport := <-a.NodesManager.Channel:
-			reportablesForReporters := a.Filterer.GetReportableForReporters(rawReport)
-
-			if len(reportablesForReporters) == 0 {
-				a.Logger.Debug().
-					Str("node", rawReport.Node).
-					Str("chain", rawReport.Chain.Name).
-					Str("hash", rawReport.Reportable.GetHash()).
-					Msg("Got report which is nowhere to send")
-				continue
-			}
-
-			for reporterName, report := range reportablesForReporters {
-				a.Logger.Info().
-					Str("node", report.Node).
-					Str("chain", report.Chain.Name).
-					Str("reporter", reporterName).
-					Str("hash", report.Reportable.GetHash()).
-					Msg("Got report")
-
-				report.Reportable.GetAdditionalData(a.DataFetcher, report.Subscription.Name)
-
-				reporter := a.Reporters.FindByName(reporterName)
-
-				if err := reporter.Send(report); err != nil {
-					a.Logger.Error().
-						Err(err).
-						Msg("Error sending report")
-					a.MetricsManager.LogReport(report, reporterName, false)
-				} else {
-					a.MetricsManager.LogReport(report, reporterName, true)
-				}
-			}
-		case <-quit:
+			a.ProcessReport(rawReport)
+		case <-a.QuitChannel:
 			a.NodesManager.Stop()
-			os.Exit(0)
+			a.MetricsManager.Stop()
+			return
+		}
+	}
+}
+
+func (a *App) ProcessReport(rawReport types.Report) {
+	reportablesForReporters := a.Filterer.GetReportableForReporters(rawReport)
+
+	if len(reportablesForReporters) == 0 {
+		a.Logger.Debug().
+			Str("node", rawReport.Node).
+			Str("chain", rawReport.Chain.Name).
+			Str("hash", rawReport.Reportable.GetHash()).
+			Msg("Got report which is nowhere to send")
+	}
+
+	for reporterName, report := range reportablesForReporters {
+		a.Logger.Info().
+			Str("node", report.Node).
+			Str("chain", report.Chain.Name).
+			Str("reporter", reporterName).
+			Str("hash", report.Reportable.GetHash()).
+			Msg("Got report")
+
+		report.Reportable.GetAdditionalData(a.DataFetcher, report.Subscription.Name)
+
+		reporter := a.Reporters.FindByName(reporterName)
+
+		if err := reporter.Send(report); err != nil {
+			a.Logger.Error().
+				Err(err).
+				Msg("Error sending report")
+			a.MetricsManager.LogReport(report, reporterName, false)
+		} else {
+			a.MetricsManager.LogReport(report, reporterName, true)
 		}
 	}
 }
