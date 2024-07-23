@@ -32,7 +32,7 @@ func ParseMsgUpdateClient(data []byte, chain *configTypes.Chain, height int64) (
 	}, nil
 }
 
-func (m MsgUpdateClient) Type() string {
+func (m *MsgUpdateClient) Type() string {
 	return "/ibc.core.client.v1.MsgUpdateClient"
 }
 
