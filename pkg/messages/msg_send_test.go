@@ -72,6 +72,7 @@ func TestMsgSendBase(t *testing.T) {
 	parsed.AddParsedMessage(nil)
 	parsed.SetParsedMessages([]types.Message{})
 	require.Empty(t, parsed.GetParsedMessages())
+	require.Empty(t, parsed.GetRawMessages())
 }
 
 func TestMsgSendPopulate(t *testing.T) {
