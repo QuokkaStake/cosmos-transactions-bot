@@ -94,7 +94,7 @@ func ParseMsgGrant(data []byte, chain *configTypes.Chain, height int64) (types.M
 	}, nil
 }
 
-func (m MsgGrant) Type() string {
+func (m *MsgGrant) Type() string {
 	return "/cosmos.authz.v1beta1.MsgGrant"
 }
 
