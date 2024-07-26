@@ -29,8 +29,6 @@ func ParseMsgTimeout(data []byte, chain *configTypes.Chain, height int64) (types
 	parsedPacket, err := packet.ParsePacket(parsedMessage.Packet, chain)
 	if err != nil {
 		return nil, err
-	} else if parsedPacket == nil {
-		return nil, nil
 	}
 
 	return &MsgTimeout{
@@ -40,7 +38,7 @@ func ParseMsgTimeout(data []byte, chain *configTypes.Chain, height int64) (types
 	}, nil
 }
 
-func (m MsgTimeout) Type() string {
+func (m *MsgTimeout) Type() string {
 	return "/ibc.core.channel.v1.MsgTimeout"
 }
 
