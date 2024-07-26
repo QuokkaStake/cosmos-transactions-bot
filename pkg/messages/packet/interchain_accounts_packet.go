@@ -2,11 +2,12 @@ package packet
 
 import (
 	"fmt"
-	cosmosBankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	configTypes "main/pkg/config/types"
 	"main/pkg/types"
 	"main/pkg/types/event"
 	"strconv"
+
+	cosmosBankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/std"

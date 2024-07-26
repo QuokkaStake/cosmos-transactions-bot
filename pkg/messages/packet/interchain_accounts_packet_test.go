@@ -2,7 +2,6 @@ package packet
 
 import (
 	"fmt"
-	icaTypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/types"
 	aliasManagerPkg "main/pkg/alias_manager"
 	configPkg "main/pkg/config"
 	configTypes "main/pkg/config/types"
@@ -14,6 +13,8 @@ import (
 	"main/pkg/types/amount"
 	"math/big"
 	"testing"
+
+	icaTypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/types"
 
 	types2 "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/gogo/protobuf/proto"
