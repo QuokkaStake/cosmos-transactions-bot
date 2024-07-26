@@ -43,7 +43,7 @@ func ParseMsgAcknowledgement(data []byte, chain *configTypes.Chain, height int64
 	}, nil
 }
 
-func (m MsgAcknowledgement) Type() string {
+func (m *MsgAcknowledgement) Type() string {
 	return "/ibc.core.channel.v1.MsgAcknowledgement"
 }
 
