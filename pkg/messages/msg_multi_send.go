@@ -49,7 +49,7 @@ func ParseMsgMultiSend(data []byte, chain *configTypes.Chain, height int64) (typ
 	}, nil
 }
 
-func (m MsgMultiSend) Type() string {
+func (m *MsgMultiSend) Type() string {
 	return "/cosmos.bank.v1beta1.MsgMultiSend"
 }
 

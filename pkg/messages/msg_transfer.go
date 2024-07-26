@@ -40,7 +40,7 @@ func ParseMsgTransfer(data []byte, chain *configTypes.Chain, height int64) (type
 	}, nil
 }
 
-func (m MsgTransfer) Type() string {
+func (m *MsgTransfer) Type() string {
 	return "/ibc.applications.transfer.v1.MsgTransfer"
 }
 

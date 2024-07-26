@@ -35,7 +35,7 @@ func ParseMsgDelegate(data []byte, chain *configTypes.Chain, height int64) (type
 	}, nil
 }
 
-func (m MsgDelegate) Type() string {
+func (m *MsgDelegate) Type() string {
 	return "/cosmos.staking.v1beta1.MsgDelegate"
 }
 

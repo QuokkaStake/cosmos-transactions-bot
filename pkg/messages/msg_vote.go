@@ -40,7 +40,7 @@ func ParseMsgVote(data []byte, chain *configTypes.Chain, height int64) (types.Me
 	}, nil
 }
 
-func (m MsgVote) Type() string {
+func (m *MsgVote) Type() string {
 	return "/cosmos.gov.v1beta1.MsgVote"
 }
 

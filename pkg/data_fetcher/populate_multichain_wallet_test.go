@@ -221,7 +221,7 @@ func TestDataFetcherPopulateMultichainWalletRemoteOk(t *testing.T) {
 
 	dataFetcher.Cache.Set("chain_channel_channel_port_port", "remote-chain")
 
-	err := aliasManager.Set("subscription", "chain", "address", "alias")
+	err := aliasManager.Set("subscription", "chain2", "address", "alias")
 	require.NoError(t, err)
 
 	wallet := &types.Link{Value: "address"}

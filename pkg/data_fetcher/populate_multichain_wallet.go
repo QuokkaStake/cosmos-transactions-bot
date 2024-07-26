@@ -49,7 +49,7 @@ func (f *DataFetcher) PopulateMultichainWallet(
 	}
 
 	walletLink.Href = localChain.Explorer.GetWalletLink(walletLink.Value)
-	if alias := f.AliasManager.Get(subscriptionName, chain.Name, walletLink.Value); alias != "" {
+	if alias := f.AliasManager.Get(subscriptionName, localChain.Name, walletLink.Value); alias != "" {
 		walletLink.Title = alias
 	}
 }

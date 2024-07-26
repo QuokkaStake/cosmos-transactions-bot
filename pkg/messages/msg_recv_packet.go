@@ -29,8 +29,6 @@ func ParseMsgRecvPacket(data []byte, chain *configTypes.Chain, height int64) (ty
 	parsedPacket, err := packet.ParsePacket(parsedMessage.Packet, chain)
 	if err != nil {
 		return nil, err
-	} else if parsedPacket == nil {
-		return nil, nil
 	}
 
 	return &MsgRecvPacket{

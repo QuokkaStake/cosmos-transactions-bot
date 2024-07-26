@@ -36,7 +36,7 @@ func ParseMsgWithdrawDelegatorReward(data []byte, chain *configTypes.Chain, heig
 	}, nil
 }
 
-func (m MsgWithdrawDelegatorReward) Type() string {
+func (m *MsgWithdrawDelegatorReward) Type() string {
 	return "/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward"
 }
 

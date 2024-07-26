@@ -34,7 +34,7 @@ func ParseMsgWithdrawValidatorCommission(data []byte, chain *configTypes.Chain, 
 	}, nil
 }
 
-func (m MsgWithdrawValidatorCommission) Type() string {
+func (m *MsgWithdrawValidatorCommission) Type() string {
 	return "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission"
 }
 

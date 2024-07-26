@@ -36,7 +36,7 @@ func ParseMsgSend(data []byte, chain *configTypes.Chain, height int64) (types.Me
 	}, nil
 }
 
-func (m MsgSend) Type() string {
+func (m *MsgSend) Type() string {
 	return "/cosmos.bank.v1beta1.MsgSend"
 }
 

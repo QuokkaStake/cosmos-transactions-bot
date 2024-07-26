@@ -44,7 +44,7 @@ func ParseFungibleTokenPacket(
 	}
 }
 
-func (p FungibleTokenPacket) Type() string {
+func (p *FungibleTokenPacket) Type() string {
 	return "FungibleTokenPacket"
 }
 

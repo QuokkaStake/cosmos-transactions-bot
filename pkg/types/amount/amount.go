@@ -67,7 +67,7 @@ func (a *Amount) AddUSDPrice(usdPrice float64) {
 	a.PriceUSD = new(big.Float).Mul(tokenPriceBigFloat, amountValueBigFloat)
 }
 
-func (a Amount) String() string {
+func (a *Amount) String() string {
 	value, _ := a.Value.Int(nil)
 	return fmt.Sprintf("%d%s", value, a.Denom)
 }
