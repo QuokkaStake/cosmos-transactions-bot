@@ -2,6 +2,7 @@ package packet
 
 import (
 	"fmt"
+	cosmosBankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	configTypes "main/pkg/config/types"
 	"main/pkg/types"
 	"main/pkg/types/event"
@@ -34,6 +35,7 @@ func ParseInterchainAccountsPacket(
 
 	std.RegisterLegacyAminoCodec(cdc)
 	std.RegisterInterfaces(interfaceRegistry)
+	cosmosBankTypes.RegisterInterfaces(interfaceRegistry)
 
 	var cosmosTx icaTypes.CosmosTx
 	if err := protoCodec.Unmarshal(packetData.Data, &cosmosTx); err != nil {
@@ -50,7 +52,7 @@ func ParseInterchainAccountsPacket(
 	}, nil
 }
 
-func (p InterchainAccountsPacket) Type() string {
+func (p *InterchainAccountsPacket) Type() string {
 	return "InterchainAccountsPacket"
 }
 
