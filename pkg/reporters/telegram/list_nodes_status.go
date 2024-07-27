@@ -1,23 +1,25 @@
 package telegram
 
 import (
+	"fmt"
 	"main/pkg/constants"
 	"main/pkg/types"
 
 	tele "gopkg.in/telebot.v3"
 )
 
-func (reporter *Reporter) HandleListNodesStatus(c tele.Context) error {
-	reporter.Logger.Info().
-		Str("sender", c.Sender().Username).
-		Str("text", c.Text()).
-		Msg("Got status query")
+func (reporter *Reporter) GetListNodesCommand() Command {
+	return Command{
+		Name:    "help",
+		Query:   constants.ReporterQueryNodesStatus,
+		Execute: reporter.HandleListNodesStatus,
+	}
+}
 
-	reporter.MetricsManager.LogReporterQuery(reporter.Name(), constants.ReporterQueryNodesStatus)
-
+func (reporter *Reporter) HandleListNodesStatus(c tele.Context) (string, error) {
 	chains := reporter.DataFetcher.FindChainsByReporter(reporter.Name())
 	if len(chains) == 0 {
-		return reporter.BotReply(c, "This reporter is not linked to any chains!")
+		return "This reporter is not linked to any chains!", fmt.Errorf("no chains linked")
 	}
 
 	statuses := map[string]map[string]types.TendermintRPCStatus{}
@@ -33,10 +35,5 @@ func (reporter *Reporter) HandleListNodesStatus(c tele.Context) error {
 		}
 	}
 
-	template, err := reporter.Render("Status", statuses)
-	if err != nil {
-		return err
-	}
-
-	return reporter.BotReply(c, template)
+	return reporter.Render("Status", statuses)
 }
