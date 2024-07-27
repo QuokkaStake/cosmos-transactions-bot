@@ -7,28 +7,24 @@ import (
 	tele "gopkg.in/telebot.v3"
 )
 
-func (reporter *Reporter) HandleGetAliases(c tele.Context) error {
-	reporter.Logger.Info().
-		Str("sender", c.Sender().Username).
-		Str("text", c.Text()).
-		Msg("Got get aliases query")
+func (reporter *Reporter) GetGetAliasesCommand() Command {
+	return Command{
+		Name:    "help",
+		Query:   constants.ReporterQueryGetAliases,
+		Execute: reporter.HandleGetAliases,
+	}
+}
 
-	reporter.MetricsManager.LogReporterQuery(reporter.Name(), constants.ReporterQueryGetAliases)
-
+func (reporter *Reporter) HandleGetAliases(c tele.Context) (string, error) {
 	if !reporter.AliasManager.Enabled() {
-		return reporter.BotReply(c, "Aliases manager not enabled!")
+		return "Aliases manager not enabled!", fmt.Errorf("aliases manager not enabled")
 	}
 
 	subscription, found := reporter.DataFetcher.FindSubscriptionByReporter(reporter.Name())
 	if !found {
-		return reporter.BotReply(c, "This reporter is not linked to any subscription!")
+		return "This reporter is not linked to any subscription!", fmt.Errorf("no subscriptions")
 	}
 
 	aliases := reporter.AliasManager.GetAliasesLinks(subscription.Name)
-	template, err := reporter.Render("Aliases", aliases)
-	if err != nil {
-		return reporter.BotReply(c, fmt.Sprintf("Error displaying aliases: %s", err))
-	}
-
-	return reporter.BotReply(c, template)
+	return reporter.Render("Aliases", aliases)
 }

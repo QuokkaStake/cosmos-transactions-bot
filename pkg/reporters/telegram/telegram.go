@@ -2,6 +2,7 @@ package telegram
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"html"
 	"html/template"
@@ -10,6 +11,7 @@ import (
 	"main/pkg/metrics"
 	"main/pkg/types"
 	"main/pkg/types/amount"
+	"strings"
 	"time"
 
 	"github.com/dustin/go-humanize"
@@ -95,15 +97,53 @@ func (reporter *Reporter) Init() {
 		bot.Use(middleware.Whitelist(reporter.Admins...))
 	}
 
-	bot.Handle("/help", reporter.HandleHelp)
-	bot.Handle("/start", reporter.HandleHelp)
-	bot.Handle("/status", reporter.HandleListNodesStatus)
-	bot.Handle("/alias", reporter.HandleSetAlias)
-	bot.Handle("/aliases", reporter.HandleGetAliases)
+	reporter.AddCommand("/help", bot, reporter.GetHelpCommand())
+	reporter.AddCommand("/start", bot, reporter.GetHelpCommand())
+	reporter.AddCommand("/status", bot, reporter.GetListNodesCommand())
+	reporter.AddCommand("/alias", bot, reporter.GetSetAliasCommand())
+	reporter.AddCommand("/aliases", bot, reporter.GetGetAliasesCommand())
 
 	reporter.TelegramBot = bot
 	go reporter.TelegramBot.Start()
 }
+
+func (reporter *Reporter) AddCommand(query string, bot *tele.Bot, command Command) {
+	bot.Handle(query, func(c tele.Context) error {
+		reporter.Logger.Info().
+			Str("sender", c.Sender().Username).
+			Str("text", c.Text()).
+			Str("command", command.Name).
+			Msg("Got query")
+
+		reporter.MetricsManager.LogReporterQuery(reporter.Name(), command.Query)
+
+		args := strings.Split(c.Text(), " ")
+
+		if len(args)-1 < command.MinArgs {
+			if err := reporter.BotReply(c, html.EscapeString(fmt.Sprintf(command.Usage, args[0]))); err != nil {
+				return err
+			}
+
+			return errors.New("invalid invocation")
+		}
+
+		result, err := command.Execute(c)
+		if err != nil {
+			reporter.Logger.Error().
+				Err(err).
+				Str("command", command.Name).
+				Msg("Error processing command")
+			if result != "" {
+				return reporter.BotReply(c, result)
+			} else {
+				return reporter.BotReply(c, "Internal error!")
+			}
+		}
+
+		return reporter.BotReply(c, result)
+	})
+}
+
 func (reporter *Reporter) GetTemplate(name string) (*template.Template, error) {
 	if cachedTemplate, ok := reporter.Templates[name]; ok {
 		reporter.Logger.Trace().Str("type", name).Msg("Using cached template")
@@ -225,7 +265,7 @@ func (reporter *Reporter) BotReply(c tele.Context, msg string) error {
 	messages := utils.SplitStringIntoChunks(msg, MaxMessageSize)
 
 	for _, message := range messages {
-		if err := c.Reply(message, tele.ModeHTML); err != nil {
+		if err := c.Reply(message, tele.ModeHTML, tele.NoPreview); err != nil {
 			reporter.Logger.Error().Err(err).Msg("Could not send Telegram message")
 			return err
 		}
