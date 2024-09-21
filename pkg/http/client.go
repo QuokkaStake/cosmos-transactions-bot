@@ -43,7 +43,19 @@ func (c *Client) GetWithHeaders(
 ) (error, query_info.QueryInfo) {
 	url := fmt.Sprintf("%s%s", c.host, relativeURL)
 
-	client := &http.Client{Timeout: c.timeout}
+	var transport http.RoundTripper
+
+	transportRaw, ok := http.DefaultTransport.(*http.Transport)
+	if ok {
+		transport = transportRaw.Clone()
+	} else {
+		transport = http.DefaultTransport
+	}
+
+	client := &http.Client{
+		Timeout:   c.timeout,
+		Transport: transport,
+	}
 	start := time.Now()
 	queryInfo := query_info.QueryInfo{
 		Success: false,
