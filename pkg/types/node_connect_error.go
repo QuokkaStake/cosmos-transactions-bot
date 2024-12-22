@@ -10,15 +10,15 @@ type NodeConnectError struct {
 	URL   string
 }
 
-func (e NodeConnectError) GetMessages() []Message {
+func (e *NodeConnectError) GetMessages() []Message {
 	return []Message{}
 }
 
-func (e NodeConnectError) Type() string {
+func (e *NodeConnectError) Type() string {
 	return "NodeConnectError"
 }
 
-func (e NodeConnectError) GetHash() string {
+func (e *NodeConnectError) GetHash() string {
 	return uuid.NewString()
 }
 

@@ -12,7 +12,7 @@ type MsgUnparsedMessage struct {
 	Error   error
 }
 
-func (m MsgUnparsedMessage) Type() string {
+func (m *MsgUnparsedMessage) Type() string {
 	return "MsgUnparsedMessage"
 }
 

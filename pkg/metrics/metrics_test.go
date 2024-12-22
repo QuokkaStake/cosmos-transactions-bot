@@ -275,8 +275,6 @@ func TestMetricsManagerStartDisabled(t *testing.T) {
 	logger := loggerPkg.GetNopLogger()
 	metricsManager := NewManager(logger, config)
 	metricsManager.Start()
-
-	assert.True(t, true)
 }
 
 func TestMetricsManagerFailToStart(t *testing.T) {
@@ -301,7 +299,6 @@ func TestMetricsManagerStopOperation(t *testing.T) {
 	logger := loggerPkg.GetNopLogger()
 	metricsManager := NewManager(logger, config)
 	metricsManager.Stop()
-	assert.True(t, true)
 }
 
 //nolint:paralleltest // disabled

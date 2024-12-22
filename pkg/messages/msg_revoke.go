@@ -35,7 +35,7 @@ func ParseMsgRevoke(data []byte, chain *configTypes.Chain, height int64) (types.
 	}, nil
 }
 
-func (m MsgRevoke) Type() string {
+func (m *MsgRevoke) Type() string {
 	return "/cosmos.authz.v1beta1.MsgRevoke"
 }
 

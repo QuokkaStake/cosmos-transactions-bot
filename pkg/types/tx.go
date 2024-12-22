@@ -18,15 +18,15 @@ type Tx struct {
 	Messages []Message
 }
 
-func (tx Tx) GetMessages() []Message {
+func (tx *Tx) GetMessages() []Message {
 	return tx.Messages
 }
 
-func (tx Tx) Type() string {
+func (tx *Tx) Type() string {
 	return "Tx"
 }
 
-func (tx Tx) GetHash() string {
+func (tx *Tx) GetHash() string {
 	return tx.Hash.Value
 }
 

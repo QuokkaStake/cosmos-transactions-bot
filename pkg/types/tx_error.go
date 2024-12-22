@@ -8,15 +8,15 @@ type TxError struct {
 	Error error
 }
 
-func (txError TxError) GetMessages() []Message {
+func (txError *TxError) GetMessages() []Message {
 	return []Message{}
 }
 
-func (txError TxError) Type() string {
+func (txError *TxError) Type() string {
 	return "TxError"
 }
 
-func (txError TxError) GetHash() string {
+func (txError *TxError) GetHash() string {
 	return uuid.NewString()
 }
 

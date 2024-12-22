@@ -10,8 +10,8 @@ import (
 func TestChainGetPrettyName(t *testing.T) {
 	t.Parallel()
 
-	require.Equal(t, "name", types.Chain{Name: "name"}.GetName())
-	require.Equal(t, "Name", types.Chain{Name: "name", PrettyName: "Name"}.GetName())
+	require.Equal(t, "name", (&types.Chain{Name: "name"}).GetName())
+	require.Equal(t, "Name", (&types.Chain{Name: "name", PrettyName: "Name"}).GetName())
 }
 
 func TestChainsFindByName(t *testing.T) {

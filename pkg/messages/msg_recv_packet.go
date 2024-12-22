@@ -38,7 +38,7 @@ func ParseMsgRecvPacket(data []byte, chain *configTypes.Chain, height int64) (ty
 	}, nil
 }
 
-func (m MsgRecvPacket) Type() string {
+func (m *MsgRecvPacket) Type() string {
 	return "/ibc.core.channel.v1.MsgRecvPacket"
 }
 

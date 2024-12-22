@@ -15,7 +15,8 @@ import (
 )
 
 type Reporter interface {
-	Init()
+	Init() error
+	Start()
 	Name() string
 	Type() string
 	Send(report types.Report) error

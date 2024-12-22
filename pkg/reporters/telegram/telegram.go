@@ -44,7 +44,8 @@ type Reporter struct {
 	MetricsManager *metrics.Manager
 	DataFetcher    *data_fetcher.DataFetcher
 
-	Version string
+	Version     string
+	StopChannel chan bool
 }
 
 const (
@@ -74,13 +75,14 @@ func NewReporter(
 		MetricsManager: metricsManager,
 		DataFetcher:    dataFetcher,
 		Version:        version,
+		StopChannel:    make(chan bool),
 	}
 }
 
-func (reporter *Reporter) Init() {
+func (reporter *Reporter) Init() error {
 	if reporter.Token == "" || reporter.Chat == 0 {
 		reporter.Logger.Debug().Msg("Telegram credentials not set, not creating Telegram reporter.")
-		return
+		return nil
 	}
 
 	bot, err := tele.NewBot(tele.Settings{
@@ -89,7 +91,7 @@ func (reporter *Reporter) Init() {
 	})
 	if err != nil {
 		reporter.Logger.Warn().Err(err).Msg("Could not create Telegram bot")
-		return
+		return err
 	}
 
 	if len(reporter.Admins) > 0 {
@@ -104,7 +106,20 @@ func (reporter *Reporter) Init() {
 	reporter.AddCommand("/aliases", bot, reporter.GetGetAliasesCommand())
 
 	reporter.TelegramBot = bot
+
+	return nil
+}
+
+func (reporter *Reporter) Start() {
+	if reporter.TelegramBot == nil {
+		return
+	}
+
 	go reporter.TelegramBot.Start()
+
+	<-reporter.StopChannel
+	reporter.Logger.Info().Msg("Shutting down...")
+	reporter.TelegramBot.Stop()
 }
 
 func (reporter *Reporter) AddCommand(query string, bot *tele.Bot, command Command) {
@@ -305,4 +320,8 @@ func (reporter *Reporter) SerializeAmount(amount amount.Amount) template.HTML {
 
 func (reporter *Reporter) SerializeDate(date time.Time) template.HTML {
 	return template.HTML(date.In(reporter.Config.Timezone).Format(time.RFC822))
+}
+
+func (reporter *Reporter) Stop() {
+	reporter.StopChannel <- true
 }

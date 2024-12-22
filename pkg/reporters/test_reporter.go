@@ -8,10 +8,19 @@ import (
 
 type TestReporter struct {
 	FailToSend   bool
+	FailToInit   bool
 	ReporterName string
 }
 
-func (r *TestReporter) Init() {
+func (r *TestReporter) Init() error {
+	if r.FailToInit {
+		return errors.New("fail to init")
+	}
+
+	return nil
+}
+
+func (r *TestReporter) Start() {
 
 }
 
