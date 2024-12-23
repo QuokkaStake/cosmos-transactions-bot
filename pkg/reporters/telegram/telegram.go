@@ -123,7 +123,11 @@ func (reporter *Reporter) Start() {
 }
 
 func (reporter *Reporter) AddCommand(query string, bot *tele.Bot, command Command) {
-	bot.Handle(query, func(c tele.Context) error {
+	bot.Handle(query, reporter.Handler(command))
+}
+
+func (reporter *Reporter) Handler(command Command) tele.HandlerFunc {
+	return func(c tele.Context) error {
 		reporter.Logger.Info().
 			Str("sender", c.Sender().Username).
 			Str("text", c.Text()).
@@ -156,7 +160,7 @@ func (reporter *Reporter) AddCommand(query string, bot *tele.Bot, command Comman
 		}
 
 		return reporter.BotReply(c, result)
-	})
+	}
 }
 
 func (reporter *Reporter) GetTemplate(name string) (*template.Template, error) {
@@ -232,9 +236,9 @@ func (reporter *Reporter) Send(report types.Report) error {
 			Err(err).
 			Msg("Could not serialize Telegram message to report, trying to send fallback message")
 
-		if err := reporter.BotSend("Error serializing report, check logs for more info."); err != nil {
-			reporter.Logger.Err(err).Msg("Could not send Telegram fallback message")
-			return err
+		if sendErr := reporter.BotSend("Error serializing report, check logs for more info."); sendErr != nil {
+			reporter.Logger.Err(sendErr).Msg("Could not send Telegram fallback message")
+			return sendErr
 		}
 
 		return nil
@@ -242,9 +246,9 @@ func (reporter *Reporter) Send(report types.Report) error {
 
 	reporter.Logger.Trace().Str("report", reportString).Msg("Sending a report")
 
-	if err := reporter.BotSend(reportString); err != nil {
-		reporter.Logger.Err(err).Msg("Could not send Telegram message")
-		return err
+	if sendErr := reporter.BotSend(reportString); sendErr != nil {
+		reporter.Logger.Err(sendErr).Msg("Could not send Telegram message")
+		return sendErr
 	}
 	return nil
 }
@@ -262,10 +266,8 @@ func (reporter *Reporter) BotSend(msg string) error {
 
 	for _, message := range messages {
 		if _, err := reporter.TelegramBot.Send(
-			&tele.User{
-				ID: reporter.Chat,
-			},
-			message,
+			&tele.User{ID: reporter.Chat},
+			strings.TrimSpace(message),
 			tele.ModeHTML,
 			tele.NoPreview,
 		); err != nil {
@@ -280,7 +282,7 @@ func (reporter *Reporter) BotReply(c tele.Context, msg string) error {
 	messages := utils.SplitStringIntoChunks(msg, MaxMessageSize)
 
 	for _, message := range messages {
-		if err := c.Reply(message, tele.ModeHTML, tele.NoPreview); err != nil {
+		if err := c.Reply(strings.TrimSpace(message), tele.ModeHTML, tele.NoPreview); err != nil {
 			reporter.Logger.Error().Err(err).Msg("Could not send Telegram message")
 			return err
 		}
