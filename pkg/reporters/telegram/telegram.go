@@ -1,20 +1,17 @@
 package telegram
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"html"
-	"html/template"
 	"main/pkg/constants"
 	"main/pkg/data_fetcher"
 	"main/pkg/metrics"
+	"main/pkg/templates"
 	"main/pkg/types"
-	"main/pkg/types/amount"
 	"strings"
 	"time"
 
-	"github.com/dustin/go-humanize"
 	"gopkg.in/telebot.v3/middleware"
 
 	"main/pkg/alias_manager"
@@ -22,7 +19,6 @@ import (
 	configTypes "main/pkg/config/types"
 	nodesManager "main/pkg/nodes_manager"
 	"main/pkg/utils"
-	"main/templates"
 
 	"github.com/rs/zerolog"
 	tele "gopkg.in/telebot.v3"
@@ -35,14 +31,14 @@ type Reporter struct {
 	Chat   int64
 	Admins []int64
 
-	TelegramBot    *tele.Bot
-	Logger         zerolog.Logger
-	Templates      map[string]*template.Template
-	NodesManager   *nodesManager.NodesManager
-	Config         *config.AppConfig
-	AliasManager   *alias_manager.AliasManager
-	MetricsManager *metrics.Manager
-	DataFetcher    *data_fetcher.DataFetcher
+	TelegramBot      *tele.Bot
+	Logger           zerolog.Logger
+	NodesManager     *nodesManager.NodesManager
+	Config           *config.AppConfig
+	AliasManager     *alias_manager.AliasManager
+	MetricsManager   *metrics.Manager
+	DataFetcher      *data_fetcher.DataFetcher
+	TemplatesManager templates.Manager
 
 	Version     string
 	StopChannel chan bool
@@ -63,19 +59,19 @@ func NewReporter(
 	version string,
 ) *Reporter {
 	return &Reporter{
-		ReporterName:   reporterConfig.Name,
-		Token:          reporterConfig.TelegramConfig.Token,
-		Chat:           reporterConfig.TelegramConfig.Chat,
-		Admins:         reporterConfig.TelegramConfig.Admins,
-		Config:         config,
-		Logger:         logger.With().Str("component", "telegram_reporter").Logger(),
-		Templates:      make(map[string]*template.Template),
-		NodesManager:   nodesManager,
-		AliasManager:   aliasManager,
-		MetricsManager: metricsManager,
-		DataFetcher:    dataFetcher,
-		Version:        version,
-		StopChannel:    make(chan bool),
+		ReporterName:     reporterConfig.Name,
+		Token:            reporterConfig.TelegramConfig.Token,
+		Chat:             reporterConfig.TelegramConfig.Chat,
+		Admins:           reporterConfig.TelegramConfig.Admins,
+		Config:           config,
+		Logger:           logger.With().Str("component", "telegram_reporter").Logger(),
+		TemplatesManager: templates.NewTelegramTemplateManager(logger, config.Timezone),
+		NodesManager:     nodesManager,
+		AliasManager:     aliasManager,
+		MetricsManager:   metricsManager,
+		DataFetcher:      dataFetcher,
+		Version:          version,
+		StopChannel:      make(chan bool),
 	}
 }
 
@@ -163,70 +159,9 @@ func (reporter *Reporter) Handler(command Command) tele.HandlerFunc {
 	}
 }
 
-func (reporter *Reporter) GetTemplate(name string) (*template.Template, error) {
-	if cachedTemplate, ok := reporter.Templates[name]; ok {
-		reporter.Logger.Trace().Str("type", name).Msg("Using cached template")
-		return cachedTemplate, nil
-	}
-
-	reporter.Logger.Trace().Str("type", name).Msg("Loading template")
-
-	filename := fmt.Sprintf("%s.html", utils.RemoveFirstSlash(name))
-
-	t, err := template.New(filename).Funcs(template.FuncMap{
-		"SerializeLink":    reporter.SerializeLink,
-		"SerializeAmount":  reporter.SerializeAmount,
-		"SerializeDate":    reporter.SerializeDate,
-		"SerializeMessage": reporter.SerializeMessage,
-	}).ParseFS(templates.TemplatesFs, "telegram/"+filename)
-	if err != nil {
-		return nil, err
-	}
-
-	reporter.Templates[name] = t
-
-	return t, nil
-}
-
-func (reporter *Reporter) Render(templateName string, data interface{}) (string, error) {
-	reportTemplate, err := reporter.GetTemplate(templateName)
-	if err != nil {
-		reporter.Logger.Error().Err(err).Str("type", templateName).Msg("Error loading template")
-		return "", err
-	}
-
-	var buffer bytes.Buffer
-	err = reportTemplate.Execute(&buffer, data)
-	if err != nil {
-		reporter.Logger.Error().Err(err).Str("type", templateName).Msg("Error rendering template")
-		return "", err
-	}
-
-	return buffer.String(), err
-}
-
 func (reporter *Reporter) SerializeReport(r types.Report) (string, error) {
 	reportableType := r.Reportable.Type()
-	return reporter.Render(reportableType, r)
-}
-
-func (reporter *Reporter) SerializeMessage(msg types.Message) template.HTML {
-	msgType := msg.Type()
-
-	reporterTemplate, err := reporter.GetTemplate(msgType)
-	if err != nil {
-		reporter.Logger.Error().Err(err).Str("type", msgType).Msg("Error loading template")
-		return template.HTML(fmt.Sprintf("Error loading template: <code>%s</code>", html.EscapeString(err.Error())))
-	}
-
-	var buffer bytes.Buffer
-	err = reporterTemplate.Execute(&buffer, msg)
-	if err != nil {
-		reporter.Logger.Error().Err(err).Str("type", msgType).Msg("Error rendering template")
-		return template.HTML(fmt.Sprintf("Error rendering template: <code>%s</code>", html.EscapeString(err.Error())))
-	}
-
-	return template.HTML(buffer.String())
+	return reporter.TemplatesManager.Render(reportableType, r)
 }
 
 func (reporter *Reporter) Send(report types.Report) error {
@@ -288,40 +223,6 @@ func (reporter *Reporter) BotReply(c tele.Context, msg string) error {
 		}
 	}
 	return nil
-}
-
-func (reporter *Reporter) SerializeLink(link *configTypes.Link) template.HTML {
-	value := link.Title
-	if value == "" {
-		value = link.Value
-	}
-
-	if link.Href != "" {
-		return template.HTML(fmt.Sprintf("<a href='%s'>%s</a>", link.Href, value))
-	}
-
-	return template.HTML(value)
-}
-
-func (reporter *Reporter) SerializeAmount(amount amount.Amount) template.HTML {
-	if amount.PriceUSD == nil {
-		return template.HTML(fmt.Sprintf(
-			"%s %s",
-			utils.StripTrailingDigits(humanize.BigCommaf(amount.Value), 6),
-			amount.Denom,
-		))
-	}
-
-	return template.HTML(fmt.Sprintf(
-		"%s %s ($%s)",
-		utils.StripTrailingDigits(humanize.BigCommaf(amount.Value), 6),
-		amount.Denom,
-		utils.StripTrailingDigits(humanize.BigCommaf(amount.PriceUSD), 3),
-	))
-}
-
-func (reporter *Reporter) SerializeDate(date time.Time) template.HTML {
-	return template.HTML(date.In(reporter.Config.Timezone).Format(time.RFC822))
 }
 
 func (reporter *Reporter) Stop() {

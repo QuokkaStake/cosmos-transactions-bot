@@ -44,9 +44,9 @@ func (reporter *Reporter) HandleSetAlias(c tele.Context) (string, error) {
 		return fmt.Sprintf("Error saving alias: %s", err), err
 	}
 
-	return fmt.Sprintf(
-		"Saved alias: %s -> <code>%s</code>",
-		reporter.SerializeLink(chainFound.GetWalletLink(address)),
-		alias,
-	), nil
+	return reporter.TemplatesManager.Render("SetAlias", SetAliasRender{
+		Chain:   chainFound,
+		Alias:   alias,
+		Address: address,
+	})
 }

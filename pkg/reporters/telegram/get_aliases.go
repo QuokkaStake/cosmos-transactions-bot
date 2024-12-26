@@ -26,5 +26,5 @@ func (reporter *Reporter) HandleGetAliases(c tele.Context) (string, error) {
 	}
 
 	aliases := reporter.AliasManager.GetAliasesLinks(subscription.Name)
-	return reporter.Render("Aliases", aliases)
+	return reporter.TemplatesManager.Render("Aliases", aliases)
 }
