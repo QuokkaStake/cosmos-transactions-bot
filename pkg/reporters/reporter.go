@@ -57,6 +57,6 @@ func GetReporter(
 		)
 	}
 
-	logger.Fatal().Str("type", reporterConfig.Type).Msg("Unsupported reporter received!")
+	logger.Panic().Str("type", reporterConfig.Type).Msg("Unsupported reporter received!")
 	return nil
 }
