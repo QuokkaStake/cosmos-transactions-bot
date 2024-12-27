@@ -50,6 +50,9 @@ func TestTelegramReporterNoCredentials(t *testing.T) {
 
 	err = reporter.Init()
 	require.NoError(t, err)
+
+	require.Equal(t, "reporter", reporter.Name())
+	require.Equal(t, "telegram", reporter.Type())
 }
 
 //nolint:paralleltest // disabled
@@ -211,5 +214,213 @@ func TestHandlerInternalError(t *testing.T) {
 	}
 
 	err = reporter.Handler(command)(context)
+	require.NoError(t, err)
+}
+
+//nolint:paralleltest // disabled
+func TestSendReportFailToSerializeAndSend(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(
+		"POST",
+		"https://api.telegram.org/botxxx:yyy/getMe",
+		httpmock.NewBytesResponder(200, assets.GetBytesOrPanic("telegram-bot-ok.json")))
+
+	httpmock.RegisterResponder(
+		"POST",
+		"https://api.telegram.org/botxxx:yyy/sendMessage",
+		httpmock.NewErrorResponder(errors.New("custom error")),
+	)
+
+	logger := loggerPkg.GetDefaultLogger()
+	config := &configPkg.AppConfig{}
+	aliasManager := alias_manager.NewAliasManager(logger, config, &fs.MockFs{})
+	metricsManager := metrics.NewManager(logger, configPkg.MetricsConfig{})
+
+	reporter := NewReporter(
+		&configTypes.Reporter{
+			Name:           "reporter",
+			Type:           "telegram",
+			TelegramConfig: &configTypes.TelegramConfig{Token: "xxx:yyy", Chat: 123, Admins: []int64{1}},
+		},
+		config,
+		logger,
+		nil,
+		aliasManager,
+		metricsManager,
+		data_fetcher.NewDataFetcher(logger, config, aliasManager, metricsManager),
+		"1.2.3",
+	)
+
+	err := reporter.Init()
+	require.NoError(t, err)
+
+	err = reporter.Send(types.Report{
+		Chain:             &configTypes.Chain{Name: "chain"},
+		Subscription:      &configTypes.Subscription{Name: "subscription"},
+		ChainSubscription: &configTypes.ChainSubscription{},
+		Node:              "https://example.com",
+		Reportable:        &types.UnsupportedReportable{},
+	})
+	require.Error(t, err)
+	require.ErrorContains(t, err, "custom error")
+}
+
+//nolint:paralleltest // disabled
+func TestSendReportFailToSerialize(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(
+		"POST",
+		"https://api.telegram.org/botxxx:yyy/getMe",
+		httpmock.NewBytesResponder(200, assets.GetBytesOrPanic("telegram-bot-ok.json")))
+
+	httpmock.RegisterMatcherResponder(
+		"POST",
+		"https://api.telegram.org/botxxx:yyy/sendMessage",
+		types.TelegramResponseHasText("Error serializing report, check logs for more info."),
+		httpmock.NewBytesResponder(200, assets.GetBytesOrPanic("telegram-send-message-ok.json")),
+	)
+
+	logger := loggerPkg.GetDefaultLogger()
+	config := &configPkg.AppConfig{}
+	aliasManager := alias_manager.NewAliasManager(logger, config, &fs.MockFs{})
+	metricsManager := metrics.NewManager(logger, configPkg.MetricsConfig{})
+
+	reporter := NewReporter(
+		&configTypes.Reporter{
+			Name:           "reporter",
+			Type:           "telegram",
+			TelegramConfig: &configTypes.TelegramConfig{Token: "xxx:yyy", Chat: 123, Admins: []int64{1}},
+		},
+		config,
+		logger,
+		nil,
+		aliasManager,
+		metricsManager,
+		data_fetcher.NewDataFetcher(logger, config, aliasManager, metricsManager),
+		"1.2.3",
+	)
+
+	err := reporter.Init()
+	require.NoError(t, err)
+
+	err = reporter.Send(types.Report{
+		Chain:             &configTypes.Chain{Name: "chain"},
+		Subscription:      &configTypes.Subscription{Name: "subscription"},
+		ChainSubscription: &configTypes.ChainSubscription{},
+		Node:              "https://example.com",
+		Reportable:        &types.UnsupportedReportable{},
+	})
+	require.NoError(t, err)
+}
+
+//nolint:paralleltest // disabled
+func TestSendReportFailToSend(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(
+		"POST",
+		"https://api.telegram.org/botxxx:yyy/getMe",
+		httpmock.NewBytesResponder(200, assets.GetBytesOrPanic("telegram-bot-ok.json")))
+
+	httpmock.RegisterResponder(
+		"POST",
+		"https://api.telegram.org/botxxx:yyy/sendMessage",
+		httpmock.NewErrorResponder(errors.New("custom error")),
+	)
+
+	logger := loggerPkg.GetDefaultLogger()
+	config := &configPkg.AppConfig{}
+	aliasManager := alias_manager.NewAliasManager(logger, config, &fs.MockFs{})
+	metricsManager := metrics.NewManager(logger, configPkg.MetricsConfig{})
+
+	reporter := NewReporter(
+		&configTypes.Reporter{
+			Name:           "reporter",
+			Type:           "telegram",
+			TelegramConfig: &configTypes.TelegramConfig{Token: "xxx:yyy", Chat: 123, Admins: []int64{1}},
+		},
+		config,
+		logger,
+		nil,
+		aliasManager,
+		metricsManager,
+		data_fetcher.NewDataFetcher(logger, config, aliasManager, metricsManager),
+		"1.2.3",
+	)
+
+	err := reporter.Init()
+	require.NoError(t, err)
+
+	err = reporter.Send(types.Report{
+		Chain:             &configTypes.Chain{Name: "chain"},
+		Subscription:      &configTypes.Subscription{Name: "subscription"},
+		ChainSubscription: &configTypes.ChainSubscription{},
+		Node:              "https://example.com",
+		Reportable: &types.NodeConnectError{
+			Error: errors.New("custom error"),
+			Chain: "chain",
+			URL:   "https://example.com",
+		},
+	})
+	require.Error(t, err)
+	require.ErrorContains(t, err, "custom error")
+}
+
+//nolint:paralleltest // disabled
+func TestSendReportOk(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(
+		"POST",
+		"https://api.telegram.org/botxxx:yyy/getMe",
+		httpmock.NewBytesResponder(200, assets.GetBytesOrPanic("telegram-bot-ok.json")))
+
+	httpmock.RegisterMatcherResponder(
+		"POST",
+		"https://api.telegram.org/botxxx:yyy/sendMessage",
+		types.TelegramResponseHasText("❌ Error connecting to a node <code>https://example.com</code> on chain: custom error"),
+		httpmock.NewBytesResponder(200, assets.GetBytesOrPanic("telegram-send-message-ok.json")),
+	)
+
+	logger := loggerPkg.GetDefaultLogger()
+	config := &configPkg.AppConfig{}
+	aliasManager := alias_manager.NewAliasManager(logger, config, &fs.MockFs{})
+	metricsManager := metrics.NewManager(logger, configPkg.MetricsConfig{})
+
+	reporter := NewReporter(
+		&configTypes.Reporter{
+			Name:           "reporter",
+			Type:           "telegram",
+			TelegramConfig: &configTypes.TelegramConfig{Token: "xxx:yyy", Chat: 123, Admins: []int64{1}},
+		},
+		config,
+		logger,
+		nil,
+		aliasManager,
+		metricsManager,
+		data_fetcher.NewDataFetcher(logger, config, aliasManager, metricsManager),
+		"1.2.3",
+	)
+
+	err := reporter.Init()
+	require.NoError(t, err)
+
+	err = reporter.Send(types.Report{
+		Chain:             &configTypes.Chain{Name: "chain"},
+		Subscription:      &configTypes.Subscription{Name: "subscription"},
+		ChainSubscription: &configTypes.ChainSubscription{},
+		Node:              "https://example.com",
+		Reportable: &types.NodeConnectError{
+			Error: errors.New("custom error"),
+			Chain: "chain",
+			URL:   "https://example.com",
+		},
+	})
 	require.NoError(t, err)
 }
