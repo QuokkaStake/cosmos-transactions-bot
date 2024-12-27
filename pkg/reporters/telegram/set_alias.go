@@ -10,7 +10,7 @@ import (
 
 func (reporter *Reporter) GetSetAliasCommand() Command {
 	return Command{
-		Name:    "help",
+		Name:    "alias",
 		Query:   constants.ReporterQuerySetAlias,
 		Execute: reporter.HandleSetAlias,
 		MinArgs: 3,
@@ -20,7 +20,7 @@ func (reporter *Reporter) GetSetAliasCommand() Command {
 
 func (reporter *Reporter) HandleSetAlias(c tele.Context) (string, error) {
 	if !reporter.AliasManager.Enabled() {
-		return "Aliases manager not enabled!", fmt.Errorf("aliases manager not enabled")
+		return "Aliases manager is not enabled!", fmt.Errorf("aliases manager not enabled")
 	}
 
 	args := strings.SplitAfterN(c.Text(), " ", 4)
