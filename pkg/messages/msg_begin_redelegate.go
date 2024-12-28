@@ -37,7 +37,7 @@ func ParseMsgBeginRedelegate(data []byte, chain *configTypes.Chain, height int64
 	}, nil
 }
 
-func (m MsgBeginRedelegate) Type() string {
+func (m *MsgBeginRedelegate) Type() string {
 	return "/cosmos.staking.v1beta1.MsgBeginRedelegate"
 }
 

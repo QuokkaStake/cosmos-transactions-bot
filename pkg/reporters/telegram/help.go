@@ -15,5 +15,5 @@ func (reporter *Reporter) GetHelpCommand() Command {
 }
 
 func (reporter *Reporter) HandleHelp(c tele.Context) (string, error) {
-	return reporter.Render("Help", reporter.Version)
+	return reporter.TemplatesManager.Render("Help", reporter.Version)
 }

@@ -94,7 +94,11 @@ func (a *App) Start() {
 	a.MetricsManager.SetAllDefaultMetrics(a.Config)
 
 	for _, reporter := range a.Reporters {
-		reporter.Init()
+		if err := reporter.Init(); err != nil {
+			continue
+		}
+
+		go reporter.Start()
 		a.MetricsManager.LogReporterEnabled(reporter.Name(), reporter.Type())
 		a.Logger.Info().
 			Str("name", reporter.Name()).

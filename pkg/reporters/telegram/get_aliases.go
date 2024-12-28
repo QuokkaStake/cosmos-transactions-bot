@@ -17,7 +17,7 @@ func (reporter *Reporter) GetGetAliasesCommand() Command {
 
 func (reporter *Reporter) HandleGetAliases(c tele.Context) (string, error) {
 	if !reporter.AliasManager.Enabled() {
-		return "Aliases manager not enabled!", fmt.Errorf("aliases manager not enabled")
+		return "Aliases manager is not enabled!", fmt.Errorf("aliases manager not enabled")
 	}
 
 	subscription, found := reporter.DataFetcher.FindSubscriptionByReporter(reporter.Name())
@@ -26,5 +26,5 @@ func (reporter *Reporter) HandleGetAliases(c tele.Context) (string, error) {
 	}
 
 	aliases := reporter.AliasManager.GetAliasesLinks(subscription.Name)
-	return reporter.Render("Aliases", aliases)
+	return reporter.TemplatesManager.Render("Aliases", aliases)
 }

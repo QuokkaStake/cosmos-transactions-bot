@@ -4,8 +4,10 @@
 {{- range $node, $status := $chain }}
 {{- if $status.Success }}
 🟢 <code>{{ $node }}</code> -> active
-{{- else }}
+{{- else if $status.Error }}
 🔴 <code>{{ $node }}</code> -> not active: {{ $status.Error }}
+{{- else }}
+🔴 <code>{{ $node }}</code> -> not active
 {{- end }}
 {{- end }}
 {{ end }}

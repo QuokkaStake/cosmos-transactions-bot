@@ -35,5 +35,5 @@ func (reporter *Reporter) HandleListNodesStatus(c tele.Context) (string, error) 
 		}
 	}
 
-	return reporter.Render("Status", statuses)
+	return reporter.TemplatesManager.Render("Status", statuses)
 }

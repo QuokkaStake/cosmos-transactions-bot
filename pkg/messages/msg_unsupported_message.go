@@ -11,7 +11,7 @@ type MsgUnsupportedMessage struct {
 	MsgType string
 }
 
-func (m MsgUnsupportedMessage) Type() string {
+func (m *MsgUnsupportedMessage) Type() string {
 	return "MsgUnsupportedMessage"
 }
 

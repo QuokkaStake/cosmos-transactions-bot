@@ -56,6 +56,12 @@ func TestAppStart(t *testing.T) {
 	app := NewApp(&fs.MockFs{}, "valid.toml", "1.2.3")
 	require.NotNil(t, app)
 
+	app.Reporters = reportersPkg.Reporters{
+		&reportersPkg.TestReporter{ReporterName: "test-reporter"},
+		&reportersPkg.TestReporter{ReporterName: "test-reporter-2", FailToSend: true},
+		&reportersPkg.TestReporter{ReporterName: "test-reporter-3", FailToInit: true},
+	}
+
 	go app.Start()
 
 	for {
@@ -130,6 +136,7 @@ func TestAppProcessReport(t *testing.T) {
 		Reporters: reportersPkg.Reporters{
 			&reportersPkg.TestReporter{ReporterName: "test-reporter"},
 			&reportersPkg.TestReporter{ReporterName: "test-reporter-2", FailToSend: true},
+			&reportersPkg.TestReporter{ReporterName: "test-reporter-3", FailToInit: true},
 		},
 		Filterer:       filterer,
 		MetricsManager: metricsManager,

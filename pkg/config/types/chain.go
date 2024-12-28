@@ -51,7 +51,7 @@ type Chain struct {
 	Denoms            DenomInfos
 }
 
-func (c Chain) GetName() string {
+func (c *Chain) GetName() string {
 	if c.PrettyName != "" {
 		return c.PrettyName
 	}
@@ -59,7 +59,7 @@ func (c Chain) GetName() string {
 	return c.Name
 }
 
-func (c Chain) GetWalletLink(address string) *Link {
+func (c *Chain) GetWalletLink(address string) *Link {
 	if c.Explorer == nil {
 		return &Link{Value: address}
 	}
@@ -70,7 +70,7 @@ func (c Chain) GetWalletLink(address string) *Link {
 	}
 }
 
-func (c Chain) GetValidatorLink(address string) *Link {
+func (c *Chain) GetValidatorLink(address string) *Link {
 	if c.Explorer == nil {
 		return &Link{Value: address}
 	}
@@ -81,7 +81,7 @@ func (c Chain) GetValidatorLink(address string) *Link {
 	}
 }
 
-func (c Chain) GetProposalLink(proposalID string) Link {
+func (c *Chain) GetProposalLink(proposalID string) Link {
 	if c.Explorer == nil {
 		return Link{Value: proposalID}
 	}
@@ -92,7 +92,7 @@ func (c Chain) GetProposalLink(proposalID string) Link {
 	}
 }
 
-func (c Chain) GetTransactionLink(hash string) Link {
+func (c *Chain) GetTransactionLink(hash string) Link {
 	if c.Explorer == nil {
 		return Link{Value: hash}
 	}
@@ -103,7 +103,7 @@ func (c Chain) GetTransactionLink(hash string) Link {
 	}
 }
 
-func (c Chain) GetBlockLink(height int64) Link {
+func (c *Chain) GetBlockLink(height int64) Link {
 	heightStr := strconv.FormatInt(height, 10)
 
 	if c.Explorer == nil {
