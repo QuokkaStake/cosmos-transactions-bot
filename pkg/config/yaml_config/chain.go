@@ -1,4 +1,4 @@
-package toml_config
+package yaml_config
 
 import (
 	"fmt"
@@ -8,17 +8,17 @@ import (
 )
 
 type Chain struct {
-	Name            string     `toml:"name"`
-	PrettyName      string     `toml:"pretty-name"`
-	ChainID         string     `toml:"chain-id"`
-	TendermintNodes []string   `toml:"tendermint-nodes"`
-	APINodes        []string   `toml:"api-nodes"`
-	Queries         []string   `default:"[\"tx.height > 1\"]" toml:"queries"`
-	MintscanPrefix  string     `toml:"mintscan-prefix"`
-	PingPrefix      string     `toml:"ping-prefix"`
-	PingBaseUrl     string     `default:"https://ping.pub"    toml:"ping-base-url"`
-	Explorer        *Explorer  `toml:"explorer"`
-	Denoms          DenomInfos `toml:"denoms"`
+	Name            string     `yaml:"name"`
+	PrettyName      string     `yaml:"pretty-name"`
+	ChainID         string     `yaml:"chain-id"`
+	TendermintNodes []string   `yaml:"tendermint-nodes"`
+	APINodes        []string   `yaml:"api-nodes"`
+	Queries         []string   `default:"[\"tx.height > 1\"]" yaml:"queries"`
+	MintscanPrefix  string     `yaml:"mintscan-prefix"`
+	PingPrefix      string     `yaml:"ping-prefix"`
+	PingBaseUrl     string     `default:"https://ping.pub"    yaml:"ping-base-url"`
+	Explorer        *Explorer  `yaml:"explorer"`
+	Denoms          DenomInfos `yaml:"denoms"`
 }
 
 func (c *Chain) Validate() error {
@@ -98,7 +98,7 @@ func FromAppConfigChain(c *types.Chain) *Chain {
 		ChainID:         c.ChainID,
 		TendermintNodes: c.TendermintNodes,
 		APINodes:        c.APINodes,
-		Denoms:          TomlConfigDenomsFrom(c.Denoms),
+		Denoms:          YamlConfigDenomsFrom(c.Denoms),
 	}
 
 	if c.SupportedExplorer == nil && c.Explorer != nil {

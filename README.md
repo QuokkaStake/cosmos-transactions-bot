@@ -46,7 +46,7 @@ User=<username>
 TimeoutStartSec=0
 CPUWeight=95
 IOWeight=95
-ExecStart=cosmos-transactions-bot --config /path/to/config.toml
+ExecStart=cosmos-transactions-bot --config /path/to/config.yml
 Restart=always
 RestartSec=2
 LimitNOFILE=800000
@@ -81,8 +81,8 @@ and validator rewards are claimed from). Lastly, each of these transactions are 
 
 ## How can I configure it?
 
-All configuration is done with a `.toml` file, which is passed to an app through a `--config` flag.
-See `config.example.toml` for reference.
+All configuration is done with a `.yml` file, which is passed to an app through a `--config` flag.
+See `config.example.yml` for reference.
 
 ### Chains, subscriptions, chain subscriptions and reporters
 
@@ -135,17 +135,17 @@ That's also manageable. You can do the following:
 - subscription 3, let's call it "whale-votes", with reporter "third" and the following chain subscription
 - - chain subscription 1, chain C, 1 filter matching any delegations with amount more than 10M $TOKEN on chain C
 
-See config.example.toml for real-life examples.
+See config.example.yml for real-life examples.
 
 ### Queries and filters
 
 This is another quite complex topic and deserves a special explanation.
 
-When a node starts, it connects to a Websocket of the fullnode and subscribes to queries (`queries` in `.toml` config).
+When a node starts, it connects to a Websocket of the fullnode and subscribes to queries (`queries` in `.yml` config).
 If there's a transaction that does not match these filters, a fullnode won't emit the event for it
 and this transaction won't reach the app.
 
-If using filters (`filters` in `.toml` config), when a transaction is received, all messages in the transaction
+If using filters (`filters` in `.yml` config), when a transaction is received, all messages in the transaction
 are checked whether they match these filters, and can be filtered out (and the transaction itself would be filtered out
 if there are 0 non-filtered messages left).
 
@@ -212,7 +212,7 @@ See [the documentation](https://docs.tendermint.com/master/rpc/#/Websocket/subsc
 One important thing to keep in mind: by default, Tendermint RPC now only allows 5 connections per client,
 so if you have more than 5 filters specified, this will fail when subscribing to 6th one.
 If you own the node you are subscribing to, o fix this, change this parameter to something that suits your needs
-in `<fullnode folder>/config/config.toml`:
+in `<fullnode folder>/config/config.yml`:
 
 ```
 max_subscriptions_per_client = 5
@@ -284,7 +284,7 @@ unless you contact it first, so write a message to a bot before proceeding.
 - you want to send messages to a channel. Write something to a channel, then forward it to [@getmyid_bot](https://t.me/getmyid_bot)
 and copy the `Forwarded from chat` number. Then add the bot as an admin.
 
-Then run a program with Telegram config (see `config.example.toml` as example).
+Then run a program with Telegram config (see `config.example.yml` as example).
 
 You would likely want to also put only the IDs of trusted people to admins list in Telegram config, so the bot
 won't react to anyone writing messages to it except these users.

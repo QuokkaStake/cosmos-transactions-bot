@@ -149,7 +149,7 @@ func TestDataFetcherPopulateValidatorPresent(t *testing.T) {
 			{Name: "chain"},
 		},
 		Metrics:     configPkg.MetricsConfig{Enabled: false},
-		AliasesPath: "path.toml",
+		AliasesPath: "path.yaml",
 	}
 
 	filesystem := &fs.MockFs{}

@@ -38,7 +38,7 @@ func TestGetAliasesDisabled(t *testing.T) {
 	timezone, err := time.LoadLocation("Etc/GMT")
 	require.NoError(t, err)
 
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 
 	reporter := NewReporter(
 		&configTypes.Reporter{
@@ -91,7 +91,7 @@ func TestGetAliasesCouldNotFindSubscription(t *testing.T) {
 	timezone, err := time.LoadLocation("Etc/GMT")
 	require.NoError(t, err)
 
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	config := &configPkg.AppConfig{AliasesPath: "path.yml"}
 	aliasManager := alias_manager.NewAliasManager(logger, config, &fs.MockFs{})
 	metricsManager := metrics.NewManager(logger, configPkg.MetricsConfig{})
@@ -147,9 +147,9 @@ func TestGetAliasesOk(t *testing.T) {
 	timezone, err := time.LoadLocation("Etc/GMT")
 	require.NoError(t, err)
 
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	config := &configPkg.AppConfig{
-		AliasesPath: "aliases.toml",
+		AliasesPath: "aliases.yml",
 		Chains:      configTypes.Chains{{Name: "chain", PrettyName: "ChainName"}},
 		Subscriptions: configTypes.Subscriptions{{
 			Name:     "subscription",

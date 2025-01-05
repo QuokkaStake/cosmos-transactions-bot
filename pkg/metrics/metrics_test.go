@@ -304,7 +304,7 @@ func TestMetricsManagerStopOperation(t *testing.T) {
 //nolint:paralleltest // disabled
 func TestAppLoadConfigOk(t *testing.T) {
 	config := configPkg.MetricsConfig{Enabled: true, ListenAddr: ":9580"}
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	metricsManager := NewManager(logger, config)
 	metricsManager.LogAppVersion("1.2.3")
 	go metricsManager.Start()

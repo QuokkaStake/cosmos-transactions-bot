@@ -24,7 +24,7 @@ func (filesystem *TmpFSInterface) Create(path string) (fs.File, error) {
 func TestLoadConfigErrorReading(t *testing.T) {
 	t.Parallel()
 
-	config, err := configPkg.GetConfig("config.toml", &TmpFSInterface{})
+	config, err := configPkg.GetConfig("config.yml", &TmpFSInterface{})
 
 	require.Error(t, err)
 	require.Nil(t, config)
@@ -33,16 +33,16 @@ func TestLoadConfigErrorReading(t *testing.T) {
 func TestLoadConfigInvalidConfig(t *testing.T) {
 	t.Parallel()
 
-	config, err := configPkg.GetConfig("invalid-timezone.toml", &TmpFSInterface{})
+	config, err := configPkg.GetConfig("invalid-timezone.yml", &TmpFSInterface{})
 
 	require.Error(t, err)
 	require.Nil(t, config)
 }
 
-func TestLoadConfigInvalidToml(t *testing.T) {
+func TestLoadConfigInvalidYaml(t *testing.T) {
 	t.Parallel()
 
-	config, err := configPkg.GetConfig("invalid-toml.toml", &TmpFSInterface{})
+	config, err := configPkg.GetConfig("invalid-yml.yml", &TmpFSInterface{})
 
 	require.Error(t, err)
 	require.Nil(t, config)
@@ -51,7 +51,7 @@ func TestLoadConfigInvalidToml(t *testing.T) {
 func TestLoadConfigValid(t *testing.T) {
 	t.Parallel()
 
-	config, err := configPkg.GetConfig("valid.toml", &TmpFSInterface{})
+	config, err := configPkg.GetConfig("valid.yml", &TmpFSInterface{})
 
 	require.NoError(t, err)
 	require.NotNil(t, config)
@@ -60,7 +60,7 @@ func TestLoadConfigValid(t *testing.T) {
 func TestConfigDisplayWarnings(t *testing.T) {
 	t.Parallel()
 
-	config, err := configPkg.GetConfig("valid.toml", &TmpFSInterface{})
+	config, err := configPkg.GetConfig("valid.yml", &TmpFSInterface{})
 
 	require.NoError(t, err)
 	require.NotNil(t, config)
@@ -69,14 +69,14 @@ func TestConfigDisplayWarnings(t *testing.T) {
 	require.Empty(t, warnings)
 }
 
-func TestConfigDisplayAsToml(t *testing.T) {
+func TestConfigDisplayAsYaml(t *testing.T) {
 	t.Parallel()
 
-	config, err := configPkg.GetConfig("valid.toml", &TmpFSInterface{})
+	config, err := configPkg.GetConfig("valid.yml", &TmpFSInterface{})
 	require.NoError(t, err)
 
-	tomlConfig := config.ToTomlConfig()
-	configAgain := configPkg.FromTomlConfig(tomlConfig)
+	yamlConfig := config.ToYamlConfig()
+	configAgain := configPkg.FromYamlConfig(yamlConfig)
 
 	require.EqualValues(t, config.LogConfig, configAgain.LogConfig)
 	require.EqualValues(t, config.AliasesPath, configAgain.AliasesPath)
@@ -154,22 +154,10 @@ func TestConfigDisplayAsToml(t *testing.T) {
 	}
 }
 
-func TestGetConfigAsString(t *testing.T) {
-	t.Parallel()
-
-	config, err := configPkg.GetConfig("valid.toml", &TmpFSInterface{})
-
-	require.NoError(t, err)
-	require.NotNil(t, config)
-
-	configString := config.GetConfigAsString()
-	require.NotEmpty(t, configString)
-}
-
 func TestConfigDisplayWarningsWithUnusedReporter(t *testing.T) {
 	t.Parallel()
 
-	config, err := configPkg.GetConfig("valid-unused-reporter.toml", &TmpFSInterface{})
+	config, err := configPkg.GetConfig("valid-unused-reporter.yml", &TmpFSInterface{})
 
 	require.NoError(t, err)
 	require.NotNil(t, config)
@@ -181,7 +169,7 @@ func TestConfigDisplayWarningsWithUnusedReporter(t *testing.T) {
 func TestConfigDisplayWarningsWithUnusedChain(t *testing.T) {
 	t.Parallel()
 
-	config, err := configPkg.GetConfig("valid-unused-chain.toml", &TmpFSInterface{})
+	config, err := configPkg.GetConfig("valid-unused-chain.yml", &TmpFSInterface{})
 
 	require.NoError(t, err)
 	require.NotNil(t, config)

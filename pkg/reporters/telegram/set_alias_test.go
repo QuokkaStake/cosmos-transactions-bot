@@ -38,7 +38,7 @@ func TestSetAliasesInvalidInvocationFailedToSend(t *testing.T) {
 	timezone, err := time.LoadLocation("Etc/GMT")
 	require.NoError(t, err)
 
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 
 	reporter := NewReporter(
 		&configTypes.Reporter{
@@ -92,7 +92,7 @@ func TestSetAliasesInvalidInvocation(t *testing.T) {
 	timezone, err := time.LoadLocation("Etc/GMT")
 	require.NoError(t, err)
 
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 
 	reporter := NewReporter(
 		&configTypes.Reporter{
@@ -146,7 +146,7 @@ func TestSetAliasesDisabled(t *testing.T) {
 	timezone, err := time.LoadLocation("Etc/GMT")
 	require.NoError(t, err)
 
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 
 	reporter := NewReporter(
 		&configTypes.Reporter{
@@ -199,7 +199,7 @@ func TestSetAliasesCouldNotFindChain(t *testing.T) {
 	timezone, err := time.LoadLocation("Etc/GMT")
 	require.NoError(t, err)
 
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	config := &configPkg.AppConfig{
 		AliasesPath: "path.yml",
 		Chains: configTypes.Chains{
@@ -267,7 +267,7 @@ func TestSetAliasesCouldNotFindSubscription(t *testing.T) {
 		httpmock.NewBytesResponder(200, assets.GetBytesOrPanic("telegram-send-message-ok.json")),
 	)
 
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	config := &configPkg.AppConfig{
 		AliasesPath: "path.yml",
 		Chains: configTypes.Chains{
@@ -323,11 +323,11 @@ func TestSetAliasesCouldNotSaveAlias(t *testing.T) {
 	httpmock.RegisterMatcherResponder(
 		"POST",
 		"https://api.telegram.org/botxxx:yyy/sendMessage",
-		types.TelegramResponseHasText("Error saving alias: not yet supported"),
+		types.TelegramResponseHasText("Error saving alias: yaml: write error: not yet supported"),
 		httpmock.NewBytesResponder(200, assets.GetBytesOrPanic("telegram-send-message-ok.json")),
 	)
 
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	config := &configPkg.AppConfig{
 		AliasesPath: "path.yml",
 		Chains: configTypes.Chains{
@@ -395,7 +395,7 @@ func TestSetAliasesOk(t *testing.T) {
 		httpmock.NewBytesResponder(200, assets.GetBytesOrPanic("telegram-send-message-ok.json")),
 	)
 
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	config := &configPkg.AppConfig{
 		AliasesPath: "path.yml",
 		Chains: configTypes.Chains{

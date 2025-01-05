@@ -97,7 +97,7 @@ func TestMsgUndelegatePopulate(t *testing.T) {
 			},
 		},
 		Metrics:     configPkg.MetricsConfig{Enabled: false},
-		AliasesPath: "path.toml",
+		AliasesPath: "path.yaml",
 	}
 
 	parsed, err := ParseMsgUndelegate(msgBytes, config.Chains[0], 100)

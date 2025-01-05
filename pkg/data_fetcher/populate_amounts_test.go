@@ -166,7 +166,7 @@ func TestPopulateAmountsFetched(t *testing.T) {
 	}
 
 	filesystem := &fs.MockFs{}
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	aliasManager := aliasManagerPkg.NewAliasManager(logger, config, filesystem)
 	metricsManager := metrics.NewManager(logger, config.Metrics)
 	dataFetcher := NewDataFetcher(logger, config, aliasManager, metricsManager)

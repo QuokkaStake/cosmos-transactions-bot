@@ -19,7 +19,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestNewAppInvalidToml(t *testing.T) {
+func TestNewAppInvalidYaml(t *testing.T) {
 	t.Parallel()
 
 	defer func() {
@@ -28,20 +28,20 @@ func TestNewAppInvalidToml(t *testing.T) {
 		}
 	}()
 
-	NewApp(&fs.MockFs{}, "invalid-toml.toml", "1.2.3")
+	NewApp(&fs.MockFs{}, "invalid-yaml.yml", "1.2.3")
 }
 
-func TestNewAppValidTomlWithWarnings(t *testing.T) {
+func TestNewAppValidYamlWithWarnings(t *testing.T) {
 	t.Parallel()
 
-	app := NewApp(&fs.MockFs{}, "valid-unused-chain.toml", "1.2.3")
+	app := NewApp(&fs.MockFs{}, "valid-unused-chain.yml", "1.2.3")
 	require.NotNil(t, app)
 }
 
-func TestNewAppValidToml(t *testing.T) {
+func TestNewAppValidYaml(t *testing.T) {
 	t.Parallel()
 
-	app := NewApp(&fs.MockFs{}, "valid.toml", "1.2.3")
+	app := NewApp(&fs.MockFs{}, "valid.yml", "1.2.3")
 	require.NotNil(t, app)
 }
 
@@ -53,7 +53,7 @@ func TestAppStart(t *testing.T) {
 	httpmock.RegisterResponder("GET", "http://localhost:9580/healthcheck", httpmock.InitialTransport.RoundTrip)
 	httpmock.RegisterResponder("GET", "http://localhost:9580/metrics", httpmock.InitialTransport.RoundTrip)
 
-	app := NewApp(&fs.MockFs{}, "valid.toml", "1.2.3")
+	app := NewApp(&fs.MockFs{}, "valid.yml", "1.2.3")
 	require.NotNil(t, app)
 
 	app.Reporters = reportersPkg.Reporters{

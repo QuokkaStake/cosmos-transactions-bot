@@ -1,8 +1,8 @@
-config.toml
+config.yml
 main
 .idea
 .DS_Store
-aliases.toml
+aliases.yml
 cosmos-transactions-bot
 dist/
 cover.out

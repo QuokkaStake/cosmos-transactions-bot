@@ -5,7 +5,8 @@ import (
 	configTypes "main/pkg/config/types"
 	"main/pkg/fs"
 
-	"github.com/BurntSushi/toml"
+	"gopkg.in/yaml.v3"
+
 	"github.com/rs/zerolog"
 )
 
@@ -47,10 +48,8 @@ func (m *AliasManager) Load() {
 		return
 	}
 
-	aliasesString := string(aliasesBytes)
-
-	var aliasesStruct TomlAliases
-	if _, err = toml.Decode(aliasesString, &aliasesStruct); err != nil {
+	var aliasesStruct YamlAliases
+	if err = yaml.Unmarshal(aliasesBytes, &aliasesStruct); err != nil {
 		m.Logger.Error().Err(err).Msg("Could not decode aliases")
 		return
 	}
@@ -65,20 +64,20 @@ func (m *AliasManager) Save() error {
 		return nil
 	}
 
-	tomlAliases := m.Aliases.ToTomlAliases()
+	yamlAliases := m.Aliases.ToYamlAliases()
 
 	f, err := m.FS.Create(m.Path)
 	if err != nil {
 		m.Logger.Error().Err(err).Msg("Could not create aliases file")
 		return err
 	}
-	if err := toml.NewEncoder(f).Encode(tomlAliases); err != nil {
-		m.Logger.Error().Err(err).Msg("Could not save aliases")
-		return err
+	if encodeErr := yaml.NewEncoder(f).Encode(yamlAliases); encodeErr != nil {
+		m.Logger.Error().Err(encodeErr).Msg("Could not save aliases")
+		return encodeErr
 	}
-	if err := f.Close(); err != nil {
-		m.Logger.Error().Err(err).Msg("Could not close aliases file when saving")
-		return err
+	if closeErr := f.Close(); closeErr != nil {
+		m.Logger.Error().Err(closeErr).Msg("Could not close aliases file when saving")
+		return closeErr
 	}
 
 	return nil

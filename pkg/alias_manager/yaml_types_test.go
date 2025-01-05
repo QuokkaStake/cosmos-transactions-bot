@@ -12,9 +12,9 @@ import (
 func TestToAliasesValid(t *testing.T) {
 	t.Parallel()
 
-	tomlAliases := alias_manager.TomlAliases{
-		"subscription": &alias_manager.TomlSubscriptionAliases{
-			"chain": &alias_manager.TomlChainAliases{
+	yamlAliases := alias_manager.YamlAliases{
+		"subscription": &alias_manager.YamlSubscriptionAliases{
+			"chain": &alias_manager.YamlChainAliases{
 				"wallet": "alias",
 			},
 		},
@@ -25,7 +25,7 @@ func TestToAliasesValid(t *testing.T) {
 		{Name: "chain"},
 	}
 
-	aliases := tomlAliases.ToAliases(chains, *logger)
+	aliases := yamlAliases.ToAliases(chains, *logger)
 	require.Len(t, aliases, 1)
 
 	subscriptionAliases := aliases["subscription"]
@@ -39,9 +39,9 @@ func TestToAliasesValid(t *testing.T) {
 func TestToAliasesNoChain(t *testing.T) {
 	t.Parallel()
 
-	tomlAliases := alias_manager.TomlAliases{
-		"subscription": &alias_manager.TomlSubscriptionAliases{
-			"chain": &alias_manager.TomlChainAliases{
+	yamlAliases := alias_manager.YamlAliases{
+		"subscription": &alias_manager.YamlSubscriptionAliases{
+			"chain": &alias_manager.YamlChainAliases{
 				"wallet": "alias",
 			},
 		},
@@ -56,5 +56,5 @@ func TestToAliasesNoChain(t *testing.T) {
 		}
 	}()
 
-	_ = tomlAliases.ToAliases(chains, *logger)
+	_ = yamlAliases.ToAliases(chains, *logger)
 }

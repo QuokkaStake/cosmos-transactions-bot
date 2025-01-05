@@ -81,7 +81,7 @@ func TestMsgUpdateClientPopulate(t *testing.T) {
 	config := &configPkg.AppConfig{
 		Chains:      configTypes.Chains{{Name: "chain"}},
 		Metrics:     configPkg.MetricsConfig{Enabled: false},
-		AliasesPath: "path.toml",
+		AliasesPath: "path.yaml",
 	}
 
 	parsed, err := ParseMsgUpdateClient(msgBytes, config.Chains[0], 100)

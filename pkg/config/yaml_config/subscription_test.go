@@ -1,8 +1,8 @@
-package toml_config_test
+package yaml_config_test
 
 import (
-	tomlConfig "main/pkg/config/toml_config"
 	"main/pkg/config/types"
+	yamlConfig "main/pkg/config/yaml_config"
 	"testing"
 
 	queryPkg "github.com/cometbft/cometbft/libs/pubsub/query"
@@ -13,14 +13,14 @@ import (
 func TestSubscriptionNoName(t *testing.T) {
 	t.Parallel()
 
-	subscription := tomlConfig.Subscription{}
+	subscription := yamlConfig.Subscription{}
 	require.Error(t, subscription.Validate())
 }
 
 func TestSubscriptionNoReporter(t *testing.T) {
 	t.Parallel()
 
-	subscription := tomlConfig.Subscription{
+	subscription := yamlConfig.Subscription{
 		Name: "name",
 	}
 	require.Error(t, subscription.Validate())
@@ -29,10 +29,10 @@ func TestSubscriptionNoReporter(t *testing.T) {
 func TestSubscriptionInvalidChainSubscription(t *testing.T) {
 	t.Parallel()
 
-	subscription := tomlConfig.Subscription{
+	subscription := yamlConfig.Subscription{
 		Name:     "name",
 		Reporter: "reporter",
-		ChainSubscriptions: tomlConfig.ChainSubscriptions{
+		ChainSubscriptions: yamlConfig.ChainSubscriptions{
 			{},
 		},
 	}
@@ -42,10 +42,10 @@ func TestSubscriptionInvalidChainSubscription(t *testing.T) {
 func TestSubscriptionValid(t *testing.T) {
 	t.Parallel()
 
-	subscription := tomlConfig.Subscription{
+	subscription := yamlConfig.Subscription{
 		Name:     "name",
 		Reporter: "reporter",
-		ChainSubscriptions: tomlConfig.ChainSubscriptions{
+		ChainSubscriptions: yamlConfig.ChainSubscriptions{
 			{Chain: "chain"},
 		},
 	}
@@ -55,14 +55,14 @@ func TestSubscriptionValid(t *testing.T) {
 func TestChainSubscriptionNoName(t *testing.T) {
 	t.Parallel()
 
-	subscription := tomlConfig.ChainSubscription{}
+	subscription := yamlConfig.ChainSubscription{}
 	require.Error(t, subscription.Validate())
 }
 
 func TestChainSubscriptionInvalidFilter(t *testing.T) {
 	t.Parallel()
 
-	subscription := tomlConfig.ChainSubscription{
+	subscription := yamlConfig.ChainSubscription{
 		Chain:   "chain",
 		Filters: []string{"invalid"},
 	}
@@ -72,7 +72,7 @@ func TestChainSubscriptionInvalidFilter(t *testing.T) {
 func TestChainSubscriptionValid(t *testing.T) {
 	t.Parallel()
 
-	subscription := tomlConfig.ChainSubscription{
+	subscription := yamlConfig.ChainSubscription{
 		Chain:   "chain",
 		Filters: []string{"event.key = 'value'"},
 	}
@@ -82,55 +82,55 @@ func TestChainSubscriptionValid(t *testing.T) {
 func TestSubscriptionsInvalidSubscription(t *testing.T) {
 	t.Parallel()
 
-	subscriptions := tomlConfig.Subscriptions{{}}
+	subscriptions := yamlConfig.Subscriptions{{}}
 	require.Error(t, subscriptions.Validate())
 }
 
 func TestSubscriptionsDuplicates(t *testing.T) {
 	t.Parallel()
 
-	subscription1 := &tomlConfig.Subscription{
+	subscription1 := &yamlConfig.Subscription{
 		Name:     "name",
 		Reporter: "reporter",
-		ChainSubscriptions: tomlConfig.ChainSubscriptions{
+		ChainSubscriptions: yamlConfig.ChainSubscriptions{
 			{Chain: "chain"},
 		},
 	}
 
-	subscription2 := &tomlConfig.Subscription{
+	subscription2 := &yamlConfig.Subscription{
 		Name:     "name",
 		Reporter: "reporter",
-		ChainSubscriptions: tomlConfig.ChainSubscriptions{
+		ChainSubscriptions: yamlConfig.ChainSubscriptions{
 			{Chain: "chain"},
 		},
 	}
 
-	subscriptions := tomlConfig.Subscriptions{subscription1, subscription2}
+	subscriptions := yamlConfig.Subscriptions{subscription1, subscription2}
 	require.Error(t, subscriptions.Validate())
 }
 
 func TestSubscriptionsValid(t *testing.T) {
 	t.Parallel()
 
-	subscription := &tomlConfig.Subscription{
+	subscription := &yamlConfig.Subscription{
 		Name:     "name",
 		Reporter: "reporter",
-		ChainSubscriptions: tomlConfig.ChainSubscriptions{
+		ChainSubscriptions: yamlConfig.ChainSubscriptions{
 			{Chain: "chain"},
 		},
 	}
 
-	subscriptions := tomlConfig.Subscriptions{subscription}
+	subscriptions := yamlConfig.Subscriptions{subscription}
 	require.NoError(t, subscriptions.Validate())
 }
 
 func TestSubscriptionToAppConfigSubscription(t *testing.T) {
 	t.Parallel()
 
-	subscription := &tomlConfig.Subscription{
+	subscription := &yamlConfig.Subscription{
 		Name:     "name",
 		Reporter: "reporter",
-		ChainSubscriptions: tomlConfig.ChainSubscriptions{
+		ChainSubscriptions: yamlConfig.ChainSubscriptions{
 			{Chain: "chain"},
 		},
 	}
@@ -142,7 +142,7 @@ func TestSubscriptionToAppConfigSubscription(t *testing.T) {
 	require.Equal(t, "chain", appConfigSubscription.ChainSubscriptions[0].Chain)
 }
 
-func TestSubscriptionToTomlConfigSubscription(t *testing.T) {
+func TestSubscriptionToYamlConfigSubscription(t *testing.T) {
 	t.Parallel()
 
 	subscription := &types.Subscription{
@@ -152,18 +152,18 @@ func TestSubscriptionToTomlConfigSubscription(t *testing.T) {
 			{Chain: "chain"},
 		},
 	}
-	tomlConfigSubscription := tomlConfig.FromAppConfigSubscription(subscription)
+	yamlConfigSubscription := yamlConfig.FromAppConfigSubscription(subscription)
 
-	require.Equal(t, "name", tomlConfigSubscription.Name)
-	require.Equal(t, "reporter", tomlConfigSubscription.Reporter)
-	require.Len(t, tomlConfigSubscription.ChainSubscriptions, 1)
-	require.Equal(t, "chain", tomlConfigSubscription.ChainSubscriptions[0].Chain)
+	require.Equal(t, "name", yamlConfigSubscription.Name)
+	require.Equal(t, "reporter", yamlConfigSubscription.Reporter)
+	require.Len(t, yamlConfigSubscription.ChainSubscriptions, 1)
+	require.Equal(t, "chain", yamlConfigSubscription.ChainSubscriptions[0].Chain)
 }
 
 func TestChainSubscriptionToAppConfigChainSubscription(t *testing.T) {
 	t.Parallel()
 
-	subscription := &tomlConfig.ChainSubscription{
+	subscription := &yamlConfig.ChainSubscription{
 		Chain:                  "chain",
 		Filters:                []string{"event.key = 'value'"},
 		LogUnknownMessages:     null.BoolFrom(true),
@@ -184,7 +184,7 @@ func TestChainSubscriptionToAppConfigChainSubscription(t *testing.T) {
 	require.Equal(t, "event.key = 'value'", appConfigSubscription.Filters[0].String())
 }
 
-func TestChainSubscriptionToTomlConfigChainSubscription(t *testing.T) {
+func TestChainSubscriptionToYamlConfigChainSubscription(t *testing.T) {
 	t.Parallel()
 
 	query := queryPkg.MustParse("event.key = 'value'")
@@ -198,14 +198,14 @@ func TestChainSubscriptionToTomlConfigChainSubscription(t *testing.T) {
 		LogNodeErrors:          true,
 		FilterInternalMessages: true,
 	}
-	tomlConfigSubscription := tomlConfig.FromAppConfigChainSubscription(subscription)
+	yamlConfigSubscription := yamlConfig.FromAppConfigChainSubscription(subscription)
 
-	require.Equal(t, "chain", tomlConfigSubscription.Chain)
-	require.True(t, tomlConfigSubscription.LogUnknownMessages.Bool)
-	require.True(t, tomlConfigSubscription.LogUnparsedMessages.Bool)
-	require.True(t, tomlConfigSubscription.LogFailedTransactions.Bool)
-	require.True(t, tomlConfigSubscription.LogNodeErrors.Bool)
-	require.True(t, tomlConfigSubscription.FilterInternalMessages.Bool)
-	require.Len(t, tomlConfigSubscription.Filters, 1)
-	require.Equal(t, "event.key = 'value'", tomlConfigSubscription.Filters[0])
+	require.Equal(t, "chain", yamlConfigSubscription.Chain)
+	require.True(t, yamlConfigSubscription.LogUnknownMessages.Bool)
+	require.True(t, yamlConfigSubscription.LogUnparsedMessages.Bool)
+	require.True(t, yamlConfigSubscription.LogFailedTransactions.Bool)
+	require.True(t, yamlConfigSubscription.LogNodeErrors.Bool)
+	require.True(t, yamlConfigSubscription.FilterInternalMessages.Bool)
+	require.Len(t, yamlConfigSubscription.Filters, 1)
+	require.Equal(t, "event.key = 'value'", yamlConfigSubscription.Filters[0])
 }

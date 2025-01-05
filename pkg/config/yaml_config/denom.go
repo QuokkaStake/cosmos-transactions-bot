@@ -1,4 +1,4 @@
-package toml_config
+package yaml_config
 
 import (
 	"fmt"
@@ -6,10 +6,10 @@ import (
 )
 
 type DenomInfo struct {
-	Denom             string `toml:"denom"`
-	DisplayDenom      string `default:""                toml:"display-denom"`
-	DenomExponent     int    `default:"6"               toml:"denom-exponent"`
-	CoingeckoCurrency string `toml:"coingecko-currency"`
+	Denom             string `yaml:"denom"`
+	DisplayDenom      string `default:""                yaml:"display-denom"`
+	DenomExponent     int    `default:"6"               yaml:"denom-exponent"`
+	CoingeckoCurrency string `yaml:"coingecko-currency"`
 }
 
 func (d *DenomInfo) Validate() error {
@@ -40,7 +40,7 @@ func (d DenomInfos) ToAppConfigDenomInfos() types.DenomInfos {
 	return denomInfos
 }
 
-func TomlConfigDenomsFrom(d types.DenomInfos) DenomInfos {
+func YamlConfigDenomsFrom(d types.DenomInfos) DenomInfos {
 	denomInfos := make(DenomInfos, len(d))
 	for index, info := range d {
 		denomInfos[index] = &DenomInfo{

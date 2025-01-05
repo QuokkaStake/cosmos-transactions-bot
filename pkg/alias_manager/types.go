@@ -4,7 +4,7 @@ import (
 	configTypes "main/pkg/config/types"
 )
 
-// Types that are used to save/load TOML.
+// Types that are used to save/load YAML.
 
 type ChainAliases struct {
 	Chain *configTypes.Chain
@@ -21,25 +21,25 @@ type SubscriptionAliases *map[string]ChainAliases
 
 type AllAliases map[string]SubscriptionAliases
 
-func (a AllAliases) ToTomlAliases() *TomlAliases {
-	tomlAliases := TomlAliases{}
+func (a AllAliases) ToYamlAliases() *YamlAliases {
+	yamlAliases := YamlAliases{}
 
 	for subscription, subscriptionAliases := range a {
-		tomlSubscriptionAliases := TomlSubscriptionAliases{}
+		yamlSubscriptionAliases := YamlSubscriptionAliases{}
 
 		for chain, chainAliases := range *subscriptionAliases {
-			tomlChainAliases := TomlChainAliases{}
+			yamlChainAliases := YamlChainAliases{}
 			for wallet, alias := range chainAliases.Aliases {
-				tomlChainAliases[wallet] = alias
+				yamlChainAliases[wallet] = alias
 			}
 
-			tomlSubscriptionAliases[chain] = &tomlChainAliases
+			yamlSubscriptionAliases[chain] = &yamlChainAliases
 		}
 
-		tomlAliases[subscription] = &tomlSubscriptionAliases
+		yamlAliases[subscription] = &yamlSubscriptionAliases
 	}
 
-	return &tomlAliases
+	return &yamlAliases
 }
 
 func (a AllAliases) Set(subscription string, chain *configTypes.Chain, wallet, alias string) {

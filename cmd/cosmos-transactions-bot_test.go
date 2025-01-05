@@ -27,7 +27,7 @@ func TestValidateConfigFailedToLoad(t *testing.T) {
 		}
 	}()
 
-	os.Args = []string{"cmd", "validate-config", "--config", "../assets/config-not-found.toml"}
+	os.Args = []string{"cmd", "validate-config", "--config", "../assets/config-not-found.yml"}
 	main()
 }
 
@@ -39,19 +39,19 @@ func TestValidateConfigInvalid(t *testing.T) {
 		}
 	}()
 
-	os.Args = []string{"cmd", "validate-config", "--config", "../assets/invalid-timezone.toml"}
+	os.Args = []string{"cmd", "validate-config", "--config", "../assets/invalid-timezone.yml"}
 	main()
 }
 
 //nolint:paralleltest // disabled
 func TestValidateConfigWithWarnings(_ *testing.T) {
-	os.Args = []string{"cmd", "validate-config", "--config", "../assets/valid-unused-chain.toml"}
+	os.Args = []string{"cmd", "validate-config", "--config", "../assets/valid-unused-chain.yml"}
 	main()
 }
 
 //nolint:paralleltest // disabled
 func TestValidateConfigValid(_ *testing.T) {
-	os.Args = []string{"cmd", "validate-config", "--config", "../assets/valid.toml"}
+	os.Args = []string{"cmd", "validate-config", "--config", "../assets/valid.yml"}
 	main()
 }
 
@@ -75,6 +75,6 @@ func TestStartConfigProvided(t *testing.T) {
 		}
 	}()
 
-	os.Args = []string{"cmd", "--config", "../assets/invalid-timezone.toml"}
+	os.Args = []string{"cmd", "--config", "../assets/invalid-timezone.yml"}
 	main()
 }

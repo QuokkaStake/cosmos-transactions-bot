@@ -107,7 +107,7 @@ func TestMsgTransferPopulateLinks(t *testing.T) {
 			},
 		},
 		Metrics:     configPkg.MetricsConfig{Enabled: false},
-		AliasesPath: "path.toml",
+		AliasesPath: "path.yaml",
 	}
 
 	parsed, err := ParseMsgTransfer(msgBytes, config.Chains[0], 100)
@@ -161,7 +161,7 @@ func TestMsgTransferPopulateNativeDenom(t *testing.T) {
 			},
 		},
 		Metrics:     configPkg.MetricsConfig{Enabled: false},
-		AliasesPath: "path.toml",
+		AliasesPath: "path.yaml",
 	}
 
 	parsed, err := ParseMsgTransfer(msgBytes, config.Chains[0], 100)
@@ -212,7 +212,7 @@ func TestMsgTransferPopulateIbcDenomFetchDenomFailed(t *testing.T) {
 			},
 		},
 		Metrics:     configPkg.MetricsConfig{Enabled: false},
-		AliasesPath: "path.toml",
+		AliasesPath: "path.yaml",
 	}
 
 	parsed, err := ParseMsgTransfer(msgBytes, config.Chains[0], 100)
@@ -263,7 +263,7 @@ func TestMsgTransferPopulateIbcDenomFetchRemoteChainFailed(t *testing.T) {
 			},
 		},
 		Metrics:     configPkg.MetricsConfig{Enabled: false},
-		AliasesPath: "path.toml",
+		AliasesPath: "path.yaml",
 	}
 
 	parsed, err := ParseMsgTransfer(msgBytes, config.Chains[0], 100)
@@ -318,7 +318,7 @@ func TestMsgTransferPopulateIbcDenom(t *testing.T) {
 			},
 		},
 		Metrics:     configPkg.MetricsConfig{Enabled: false},
-		AliasesPath: "path.toml",
+		AliasesPath: "path.yaml",
 	}
 
 	parsed, err := ParseMsgTransfer(msgBytes, config.Chains[0], 100)

@@ -1,4 +1,4 @@
-package toml_config
+package yaml_config
 
 import (
 	"fmt"
@@ -11,21 +11,21 @@ import (
 type Subscriptions []*Subscription
 
 type Subscription struct {
-	Name               string             `toml:"name"`
-	Reporter           string             `toml:"reporter"`
-	ChainSubscriptions ChainSubscriptions `toml:"chains"`
+	Name               string             `yaml:"name"`
+	Reporter           string             `yaml:"reporter"`
+	ChainSubscriptions ChainSubscriptions `yaml:"chains"`
 }
 
 type ChainSubscriptions []*ChainSubscription
 
 type ChainSubscription struct {
-	Chain                  string    `toml:"name"`
-	Filters                []string  `toml:"filters"`
-	LogUnknownMessages     null.Bool `default:"false" toml:"log-unknown-messages"`
-	LogUnparsedMessages    null.Bool `default:"true"  toml:"log-unparsed-messages"`
-	LogFailedTransactions  null.Bool `default:"true"  toml:"log-failed-transactions"`
-	LogNodeErrors          null.Bool `default:"true"  toml:"log-node-errors"`
-	FilterInternalMessages null.Bool `default:"true"  toml:"filter-internal-messages"`
+	Chain                  string    `yaml:"name"`
+	Filters                []string  `yaml:"filters"`
+	LogUnknownMessages     null.Bool `default:"false" yaml:"log-unknown-messages"`
+	LogUnparsedMessages    null.Bool `default:"true"  yaml:"log-unparsed-messages"`
+	LogFailedTransactions  null.Bool `default:"true"  yaml:"log-failed-transactions"`
+	LogNodeErrors          null.Bool `default:"true"  yaml:"log-node-errors"`
+	FilterInternalMessages null.Bool `default:"true"  yaml:"filter-internal-messages"`
 }
 
 func (subscriptions Subscriptions) Validate() error {
