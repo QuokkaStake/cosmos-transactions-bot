@@ -100,7 +100,7 @@ func TestMsgBeginRedelegatePopulate(t *testing.T) {
 			},
 		},
 		Metrics:     configPkg.MetricsConfig{Enabled: false},
-		AliasesPath: "path.toml",
+		AliasesPath: "path.yaml",
 	}
 
 	parsed, err := ParseMsgBeginRedelegate(msgBytes, config.Chains[0], 100)

@@ -38,18 +38,18 @@ func TestAliasManagerLoadFailed(t *testing.T) {
 	t.Parallel()
 
 	logger := loggerPkg.GetNopLogger()
-	config := &configPkg.AppConfig{AliasesPath: "nonexistent.toml"}
+	config := &configPkg.AppConfig{AliasesPath: "nonexistent.yml"}
 	filesystem := &fs.MockFs{}
 	aliasManager := alias_manager.NewAliasManager(logger, config, filesystem)
 	aliasManager.Load()
 	require.Empty(t, aliasManager.Aliases)
 }
 
-func TestAliasManagerLoadInvalidToml(t *testing.T) {
+func TestAliasManagerLoadInvalidYaml(t *testing.T) {
 	t.Parallel()
 
 	logger := loggerPkg.GetNopLogger()
-	config := &configPkg.AppConfig{AliasesPath: "invalid-toml.toml"}
+	config := &configPkg.AppConfig{AliasesPath: "invalid-yaml.yml"}
 	filesystem := &fs.MockFs{}
 	aliasManager := alias_manager.NewAliasManager(logger, config, filesystem)
 	aliasManager.Load()
@@ -61,7 +61,7 @@ func TestAliasManagerLoadSuccess(t *testing.T) {
 
 	logger := loggerPkg.GetNopLogger()
 	config := &configPkg.AppConfig{
-		AliasesPath: "valid-aliases.toml",
+		AliasesPath: "valid-aliases.yml",
 		Chains: configTypes.Chains{
 			{Name: "chain"},
 		},
@@ -88,7 +88,7 @@ func TestAliasManagerSaveErrorOpening(t *testing.T) {
 	t.Parallel()
 
 	logger := loggerPkg.GetNopLogger()
-	config := &configPkg.AppConfig{AliasesPath: "savefile.toml"}
+	config := &configPkg.AppConfig{AliasesPath: "savefile.yml"}
 	filesystem := &fs.MockFs{FailCreate: true}
 	aliasManager := alias_manager.NewAliasManager(logger, config, filesystem)
 	err := aliasManager.Save()
@@ -100,7 +100,7 @@ func TestAliasManagerSaveErrorWriting(t *testing.T) {
 
 	logger := loggerPkg.GetNopLogger()
 	config := &configPkg.AppConfig{
-		AliasesPath: "savefile.toml",
+		AliasesPath: "savefile.yml",
 		Chains: configTypes.Chains{
 			{Name: "chain"},
 		},
@@ -120,7 +120,7 @@ func TestAliasManagerSaveErrorClosing(t *testing.T) {
 
 	logger := loggerPkg.GetNopLogger()
 	config := &configPkg.AppConfig{
-		AliasesPath: "savefile.toml",
+		AliasesPath: "savefile.yml",
 		Chains: configTypes.Chains{
 			{Name: "chain"},
 		},
@@ -157,7 +157,7 @@ func TestAliasManagerSetNoChain(t *testing.T) {
 
 	logger := loggerPkg.GetNopLogger()
 	config := &configPkg.AppConfig{
-		AliasesPath: "savefile.toml",
+		AliasesPath: "savefile.yml",
 		Chains:      configTypes.Chains{},
 	}
 	filesystem := &fs.MockFs{}
@@ -170,7 +170,7 @@ func TestAliasManagerGetLinks(t *testing.T) {
 
 	logger := loggerPkg.GetNopLogger()
 	config := &configPkg.AppConfig{
-		AliasesPath: "savefile.toml",
+		AliasesPath: "savefile.yml",
 		Chains: configTypes.Chains{
 			{Name: "chain"},
 		},

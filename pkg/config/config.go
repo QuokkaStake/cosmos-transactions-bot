@@ -1,18 +1,17 @@
 package config
 
 import (
-	"bytes"
 	"main/pkg/fs"
 	"time"
 
 	"gopkg.in/guregu/null.v4"
 
-	tomlConfig "main/pkg/config/toml_config"
 	"main/pkg/config/types"
+	yamlConfig "main/pkg/config/yaml_config"
 	"main/pkg/utils"
 
-	"github.com/BurntSushi/toml"
 	"github.com/creasty/defaults"
+	"gopkg.in/yaml.v3"
 )
 
 type AppConfig struct {
@@ -45,10 +44,8 @@ func GetConfig(path string, filesystem fs.FS) (*AppConfig, error) {
 		return nil, err
 	}
 
-	configString := string(configBytes)
-
-	configStruct := &tomlConfig.TomlConfig{}
-	if _, err = toml.Decode(configString, configStruct); err != nil {
+	configStruct := &yamlConfig.YamlConfig{}
+	if err = yaml.Unmarshal(configBytes, configStruct); err != nil {
 		return nil, err
 	}
 
@@ -58,10 +55,10 @@ func GetConfig(path string, filesystem fs.FS) (*AppConfig, error) {
 		return nil, err
 	}
 
-	return FromTomlConfig(configStruct), nil
+	return FromYamlConfig(configStruct), nil
 }
 
-func FromTomlConfig(c *tomlConfig.TomlConfig) *AppConfig {
+func FromYamlConfig(c *yamlConfig.YamlConfig) *AppConfig {
 	timezone, _ := time.LoadLocation(c.Timezone)
 
 	return &AppConfig{
@@ -74,33 +71,33 @@ func FromTomlConfig(c *tomlConfig.TomlConfig) *AppConfig {
 			ListenAddr: c.MetricsConfig.ListenAddr,
 			Enabled:    c.MetricsConfig.Enabled.Bool,
 		},
-		Chains: utils.Map(c.Chains, func(c *tomlConfig.Chain) *types.Chain {
+		Chains: utils.Map(c.Chains, func(c *yamlConfig.Chain) *types.Chain {
 			return c.ToAppConfigChain()
 		}),
-		Reporters: utils.Map(c.Reporters, func(r *tomlConfig.Reporter) *types.Reporter {
+		Reporters: utils.Map(c.Reporters, func(r *yamlConfig.Reporter) *types.Reporter {
 			return r.ToAppConfigReporter()
 		}),
-		Subscriptions: utils.Map(c.Subscriptions, func(s *tomlConfig.Subscription) *types.Subscription {
+		Subscriptions: utils.Map(c.Subscriptions, func(s *yamlConfig.Subscription) *types.Subscription {
 			return s.ToAppConfigSubscription()
 		}),
 		Timezone: timezone,
 	}
 }
 
-func (c *AppConfig) ToTomlConfig() *tomlConfig.TomlConfig {
-	return &tomlConfig.TomlConfig{
+func (c *AppConfig) ToYamlConfig() *yamlConfig.YamlConfig {
+	return &yamlConfig.YamlConfig{
 		AliasesPath: c.AliasesPath,
-		LogConfig: tomlConfig.LogConfig{
+		LogConfig: yamlConfig.LogConfig{
 			LogLevel:   c.LogConfig.LogLevel,
 			JSONOutput: null.BoolFrom(c.LogConfig.JSONOutput),
 		},
-		MetricsConfig: tomlConfig.MetricsConfig{
+		MetricsConfig: yamlConfig.MetricsConfig{
 			ListenAddr: c.Metrics.ListenAddr,
 			Enabled:    null.BoolFrom(c.Metrics.Enabled),
 		},
-		Chains:        utils.Map(c.Chains, tomlConfig.FromAppConfigChain),
-		Reporters:     utils.Map(c.Reporters, tomlConfig.FromAppConfigReporter),
-		Subscriptions: utils.Map(c.Subscriptions, tomlConfig.FromAppConfigSubscription),
+		Chains:        utils.Map(c.Chains, yamlConfig.FromAppConfigChain),
+		Reporters:     utils.Map(c.Reporters, yamlConfig.FromAppConfigReporter),
+		Subscriptions: utils.Map(c.Subscriptions, yamlConfig.FromAppConfigSubscription),
 		Timezone:      c.Timezone.String(),
 	}
 }
@@ -142,11 +139,4 @@ func (c *AppConfig) DisplayWarnings() []types.DisplayWarning {
 	}
 
 	return warnings
-}
-
-func (c *AppConfig) GetConfigAsString() string {
-	configStruct := c.ToTomlConfig()
-	buffer := new(bytes.Buffer)
-	_ = toml.NewEncoder(buffer).Encode(configStruct)
-	return buffer.String()
 }

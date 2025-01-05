@@ -97,7 +97,7 @@ func TestMsgSendPopulate(t *testing.T) {
 			},
 		},
 		Metrics:     configPkg.MetricsConfig{Enabled: false},
-		AliasesPath: "path.toml",
+		AliasesPath: "path.yaml",
 	}
 
 	parsed, err := ParseMsgSend(msgBytes, config.Chains[0], 100)

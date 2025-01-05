@@ -35,7 +35,7 @@ func TestAppHelpOk(t *testing.T) {
 	timezone, err := time.LoadLocation("Etc/GMT")
 	require.NoError(t, err)
 
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 
 	reporter := NewReporter(
 		&configTypes.Reporter{

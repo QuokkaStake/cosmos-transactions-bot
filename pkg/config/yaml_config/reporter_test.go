@@ -1,8 +1,8 @@
-package toml_config_test
+package yaml_config_test
 
 import (
-	tomlConfig "main/pkg/config/toml_config"
 	"main/pkg/config/types"
+	yamlConfig "main/pkg/config/yaml_config"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -11,14 +11,14 @@ import (
 func TestReporterNoName(t *testing.T) {
 	t.Parallel()
 
-	reporter := tomlConfig.Reporter{}
+	reporter := yamlConfig.Reporter{}
 	require.Error(t, reporter.Validate())
 }
 
 func TestReporterUnsupportedType(t *testing.T) {
 	t.Parallel()
 
-	reporter := tomlConfig.Reporter{
+	reporter := yamlConfig.Reporter{
 		Name: "test",
 		Type: "unsupported",
 	}
@@ -28,7 +28,7 @@ func TestReporterUnsupportedType(t *testing.T) {
 func TestReporterNoTelegramConfig(t *testing.T) {
 	t.Parallel()
 
-	reporter := tomlConfig.Reporter{
+	reporter := yamlConfig.Reporter{
 		Name: "test",
 		Type: "telegram",
 	}
@@ -38,10 +38,10 @@ func TestReporterNoTelegramConfig(t *testing.T) {
 func TestReporterValidTelegram(t *testing.T) {
 	t.Parallel()
 
-	reporter := tomlConfig.Reporter{
+	reporter := yamlConfig.Reporter{
 		Name: "test",
 		Type: "telegram",
-		TelegramConfig: &tomlConfig.TelegramConfig{
+		TelegramConfig: &yamlConfig.TelegramConfig{
 			Chat:   1,
 			Token:  "xxx:yyy",
 			Admins: []int64{123},
@@ -53,65 +53,65 @@ func TestReporterValidTelegram(t *testing.T) {
 func TestReportersInvalid(t *testing.T) {
 	t.Parallel()
 
-	reporter := &tomlConfig.Reporter{}
-	reporters := tomlConfig.Reporters{reporter}
+	reporter := &yamlConfig.Reporter{}
+	reporters := yamlConfig.Reporters{reporter}
 	require.Error(t, reporters.Validate())
 }
 
 func TestReportersDuplicates(t *testing.T) {
 	t.Parallel()
 
-	reporter1 := &tomlConfig.Reporter{
+	reporter1 := &yamlConfig.Reporter{
 		Name: "test",
 		Type: "telegram",
-		TelegramConfig: &tomlConfig.TelegramConfig{
+		TelegramConfig: &yamlConfig.TelegramConfig{
 			Chat:   1,
 			Token:  "xxx:yyy",
 			Admins: []int64{123},
 		},
 	}
-	reporter2 := &tomlConfig.Reporter{
+	reporter2 := &yamlConfig.Reporter{
 		Name: "test",
 		Type: "telegram",
-		TelegramConfig: &tomlConfig.TelegramConfig{
+		TelegramConfig: &yamlConfig.TelegramConfig{
 			Chat:   1,
 			Token:  "xxx:yyy",
 			Admins: []int64{123},
 		},
 	}
-	reporters := tomlConfig.Reporters{reporter1, reporter2}
+	reporters := yamlConfig.Reporters{reporter1, reporter2}
 	require.Error(t, reporters.Validate())
 }
 
 func TestReportersValid(t *testing.T) {
 	t.Parallel()
 
-	reporter := &tomlConfig.Reporter{
+	reporter := &yamlConfig.Reporter{
 		Name: "test",
 		Type: "telegram",
-		TelegramConfig: &tomlConfig.TelegramConfig{
+		TelegramConfig: &yamlConfig.TelegramConfig{
 			Chat:   1,
 			Token:  "xxx:yyy",
 			Admins: []int64{123},
 		},
 	}
-	reporters := tomlConfig.Reporters{reporter}
+	reporters := yamlConfig.Reporters{reporter}
 	require.NoError(t, reporters.Validate())
 }
 
 func TestHasReporterByName(t *testing.T) {
 	t.Parallel()
 
-	reporter := &tomlConfig.Reporter{
+	reporter := &yamlConfig.Reporter{
 		Name: "test",
 		Type: "telegram",
-		TelegramConfig: &tomlConfig.TelegramConfig{
+		TelegramConfig: &yamlConfig.TelegramConfig{
 			Chat:   1,
 			Token:  "xxx:yyy",
 			Admins: []int64{123},
 		},
 	}
-	reporters := tomlConfig.Reporters{reporter}
+	reporters := yamlConfig.Reporters{reporter}
 	require.True(t, reporters.HasReporterByName("test"))
 	require.False(t, reporters.HasReporterByName("test-2"))
 }
@@ -119,10 +119,10 @@ func TestHasReporterByName(t *testing.T) {
 func TestReporterToAppConfigReporter(t *testing.T) {
 	t.Parallel()
 
-	reporter := &tomlConfig.Reporter{
+	reporter := &yamlConfig.Reporter{
 		Name: "test",
 		Type: "telegram",
-		TelegramConfig: &tomlConfig.TelegramConfig{
+		TelegramConfig: &yamlConfig.TelegramConfig{
 			Chat:   1,
 			Token:  "xxx:yyy",
 			Admins: []int64{123},
@@ -137,7 +137,7 @@ func TestReporterToAppConfigReporter(t *testing.T) {
 	require.Equal(t, []int64{123}, appConfigReporter.TelegramConfig.Admins)
 }
 
-func TestReporterToTomlConfigReporter(t *testing.T) {
+func TestReporterToYamlConfigReporter(t *testing.T) {
 	t.Parallel()
 
 	reporter := &types.Reporter{
@@ -149,11 +149,11 @@ func TestReporterToTomlConfigReporter(t *testing.T) {
 			Admins: []int64{123},
 		},
 	}
-	tomlConfigReporter := tomlConfig.FromAppConfigReporter(reporter)
+	yamlConfigReporter := yamlConfig.FromAppConfigReporter(reporter)
 
-	require.Equal(t, "test", tomlConfigReporter.Name)
-	require.Equal(t, "telegram", tomlConfigReporter.Type)
-	require.Equal(t, int64(1), tomlConfigReporter.TelegramConfig.Chat)
-	require.Equal(t, "xxx:yyy", tomlConfigReporter.TelegramConfig.Token)
-	require.Equal(t, []int64{123}, tomlConfigReporter.TelegramConfig.Admins)
+	require.Equal(t, "test", yamlConfigReporter.Name)
+	require.Equal(t, "telegram", yamlConfigReporter.Type)
+	require.Equal(t, int64(1), yamlConfigReporter.TelegramConfig.Chat)
+	require.Equal(t, "xxx:yyy", yamlConfigReporter.TelegramConfig.Token)
+	require.Equal(t, []int64{123}, yamlConfigReporter.TelegramConfig.Admins)
 }

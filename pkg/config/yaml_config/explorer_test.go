@@ -1,7 +1,7 @@
-package toml_config_test
+package yaml_config_test
 
 import (
-	tomlConfig "main/pkg/config/toml_config"
+	yamlConfig "main/pkg/config/yaml_config"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -10,7 +10,7 @@ import (
 func TestExplorerToAppConfigExplorer(t *testing.T) {
 	t.Parallel()
 
-	explorer := &tomlConfig.Explorer{
+	explorer := &yamlConfig.Explorer{
 		ValidatorLinkPattern:   "test1",
 		WalletLinkPattern:      "test2",
 		ProposalLinkPattern:    "test3",

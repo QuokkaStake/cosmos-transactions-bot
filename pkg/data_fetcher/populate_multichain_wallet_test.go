@@ -46,7 +46,7 @@ func TestDataFetcherPopulateWalletPresent(t *testing.T) {
 			},
 		},
 		Metrics:     configPkg.MetricsConfig{Enabled: false},
-		AliasesPath: "path.toml",
+		AliasesPath: "path.yaml",
 	}
 
 	filesystem := &fs.MockFs{}
@@ -76,7 +76,7 @@ func TestDataFetcherPopulateMultichainWalletNoChannelOrPort(t *testing.T) {
 			},
 		},
 		Metrics:     configPkg.MetricsConfig{Enabled: false},
-		AliasesPath: "path.toml",
+		AliasesPath: "path.yaml",
 	}
 
 	filesystem := &fs.MockFs{}
@@ -105,7 +105,7 @@ func TestDataFetcherPopulateMultichainWalletNoRemoteChainFetched(t *testing.T) {
 			},
 		},
 		Metrics:     configPkg.MetricsConfig{Enabled: false},
-		AliasesPath: "path.toml",
+		AliasesPath: "path.yaml",
 	}
 
 	filesystem := &fs.MockFs{}
@@ -137,7 +137,7 @@ func TestDataFetcherPopulateMultichainWalletNoLocalChainFetched(t *testing.T) {
 			},
 		},
 		Metrics:     configPkg.MetricsConfig{Enabled: false},
-		AliasesPath: "path.toml",
+		AliasesPath: "path.yaml",
 	}
 
 	filesystem := &fs.MockFs{}
@@ -173,7 +173,7 @@ func TestDataFetcherPopulateMultichainWalletNoLocalChainExplorer(t *testing.T) {
 			},
 		},
 		Metrics:     configPkg.MetricsConfig{Enabled: false},
-		AliasesPath: "path.toml",
+		AliasesPath: "path.yaml",
 	}
 
 	filesystem := &fs.MockFs{}
@@ -210,7 +210,7 @@ func TestDataFetcherPopulateMultichainWalletRemoteOk(t *testing.T) {
 			},
 		},
 		Metrics:     configPkg.MetricsConfig{Enabled: false},
-		AliasesPath: "path.toml",
+		AliasesPath: "path.yaml",
 	}
 
 	filesystem := &fs.MockFs{}

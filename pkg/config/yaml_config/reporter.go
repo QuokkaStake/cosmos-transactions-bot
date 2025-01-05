@@ -1,4 +1,4 @@
-package toml_config
+package yaml_config
 
 import (
 	"errors"
@@ -10,16 +10,16 @@ import (
 )
 
 type TelegramConfig struct {
-	Chat   int64   `toml:"chat"`
-	Token  string  `toml:"token"`
-	Admins []int64 `toml:"admins"`
+	Chat   int64   `yaml:"chat"`
+	Token  string  `yaml:"token"`
+	Admins []int64 `yaml:"admins"`
 }
 
 type Reporter struct {
-	Name string `toml:"name"`
-	Type string `default:"telegram" toml:"type"`
+	Name string `yaml:"name"`
+	Type string `default:"telegram" yaml:"type"`
 
-	TelegramConfig *TelegramConfig `toml:"telegram-config"`
+	TelegramConfig *TelegramConfig `yaml:"telegram-config"`
 }
 
 func (reporter *Reporter) Validate() error {

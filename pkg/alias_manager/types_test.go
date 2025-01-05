@@ -136,7 +136,7 @@ func TestTypesSetAliasesPresentNoSubscription(t *testing.T) {
 	require.Equal(t, "alias", aliases.Get("subscription", "chain", "wallet"))
 }
 
-func TestToTomlAliasesValid(t *testing.T) {
+func TestToYamlAliasesValid(t *testing.T) {
 	t.Parallel()
 
 	aliases := alias_manager.AllAliases{
@@ -148,10 +148,10 @@ func TestToTomlAliasesValid(t *testing.T) {
 		},
 	}
 
-	tomlAliases := aliases.ToTomlAliases()
-	require.Len(t, *tomlAliases, 1)
+	yamlAliases := aliases.ToYamlAliases()
+	require.Len(t, *yamlAliases, 1)
 
-	subscriptionAliases := (*tomlAliases)["subscription"]
+	subscriptionAliases := (*yamlAliases)["subscription"]
 	require.Len(t, *subscriptionAliases, 1)
 
 	chainAliases := (*subscriptionAliases)["chain"]

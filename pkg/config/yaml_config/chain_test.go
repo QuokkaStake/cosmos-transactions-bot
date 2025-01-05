@@ -1,8 +1,8 @@
-package toml_config_test
+package yaml_config_test
 
 import (
-	tomlConfig "main/pkg/config/toml_config"
 	"main/pkg/config/types"
+	yamlConfig "main/pkg/config/yaml_config"
 	"testing"
 
 	queryPkg "github.com/cometbft/cometbft/libs/pubsub/query"
@@ -12,13 +12,13 @@ import (
 func TestChainEmptyName(t *testing.T) {
 	t.Parallel()
 
-	chain := tomlConfig.Chain{}
+	chain := yamlConfig.Chain{}
 	require.Error(t, chain.Validate())
 }
 func TestChainEmptyID(t *testing.T) {
 	t.Parallel()
 
-	chain := tomlConfig.Chain{
+	chain := yamlConfig.Chain{
 		Name: "chain",
 	}
 	require.Error(t, chain.Validate())
@@ -27,7 +27,7 @@ func TestChainEmptyID(t *testing.T) {
 func TestChainEmptyTendermintNodes(t *testing.T) {
 	t.Parallel()
 
-	chain := tomlConfig.Chain{
+	chain := yamlConfig.Chain{
 		Name:    "chain",
 		ChainID: "chain-id",
 	}
@@ -37,7 +37,7 @@ func TestChainEmptyTendermintNodes(t *testing.T) {
 func TestChainEmptyApiNodes(t *testing.T) {
 	t.Parallel()
 
-	chain := tomlConfig.Chain{
+	chain := yamlConfig.Chain{
 		Name:            "chain",
 		ChainID:         "chain-id",
 		TendermintNodes: []string{"node"},
@@ -48,7 +48,7 @@ func TestChainEmptyApiNodes(t *testing.T) {
 func TestChainEmptyQueries(t *testing.T) {
 	t.Parallel()
 
-	chain := tomlConfig.Chain{
+	chain := yamlConfig.Chain{
 		Name:            "chain",
 		ChainID:         "chain-id",
 		TendermintNodes: []string{"node"},
@@ -60,7 +60,7 @@ func TestChainEmptyQueries(t *testing.T) {
 func TestChainInvalidQuery(t *testing.T) {
 	t.Parallel()
 
-	chain := tomlConfig.Chain{
+	chain := yamlConfig.Chain{
 		Name:            "chain",
 		ChainID:         "chain-id",
 		TendermintNodes: []string{"node"},
@@ -73,13 +73,13 @@ func TestChainInvalidQuery(t *testing.T) {
 func TestChainInvalidDenom(t *testing.T) {
 	t.Parallel()
 
-	chain := tomlConfig.Chain{
+	chain := yamlConfig.Chain{
 		Name:            "chain",
 		ChainID:         "chain-id",
 		TendermintNodes: []string{"node"},
 		APINodes:        []string{"node"},
 		Queries:         []string{"event.key = 'value'"},
-		Denoms: tomlConfig.DenomInfos{
+		Denoms: yamlConfig.DenomInfos{
 			{},
 		},
 	}
@@ -89,7 +89,7 @@ func TestChainInvalidDenom(t *testing.T) {
 func TestChainValid(t *testing.T) {
 	t.Parallel()
 
-	chain := tomlConfig.Chain{
+	chain := yamlConfig.Chain{
 		Name:            "chain",
 		ChainID:         "chain-id",
 		TendermintNodes: []string{"node"},
@@ -102,7 +102,7 @@ func TestChainValid(t *testing.T) {
 func TestChainToAppConfigChainBasic(t *testing.T) {
 	t.Parallel()
 
-	chain := tomlConfig.Chain{
+	chain := yamlConfig.Chain{
 		Name:            "chain",
 		PrettyName:      "Chain",
 		ChainID:         "chain-id",
@@ -126,7 +126,7 @@ func TestChainToAppConfigChainBasic(t *testing.T) {
 func TestChainToAppConfigChainMintscan(t *testing.T) {
 	t.Parallel()
 
-	chain := tomlConfig.Chain{
+	chain := yamlConfig.Chain{
 		Name:            "chain",
 		PrettyName:      "Chain",
 		ChainID:         "chain-id",
@@ -144,7 +144,7 @@ func TestChainToAppConfigChainMintscan(t *testing.T) {
 func TestChainToAppConfigChainPing(t *testing.T) {
 	t.Parallel()
 
-	chain := tomlConfig.Chain{
+	chain := yamlConfig.Chain{
 		Name:            "chain",
 		PrettyName:      "Chain",
 		ChainID:         "chain-id",
@@ -163,14 +163,14 @@ func TestChainToAppConfigChainPing(t *testing.T) {
 func TestChainToAppConfigChainCustomExplorer(t *testing.T) {
 	t.Parallel()
 
-	chain := tomlConfig.Chain{
+	chain := yamlConfig.Chain{
 		Name:            "chain",
 		PrettyName:      "Chain",
 		ChainID:         "chain-id",
 		TendermintNodes: []string{"tendermint-node"},
 		APINodes:        []string{"api-node"},
 		Queries:         []string{"event.key = 'value'"},
-		Explorer: &tomlConfig.Explorer{
+		Explorer: &yamlConfig.Explorer{
 			ValidatorLinkPattern: "test/%s",
 		},
 	}
@@ -180,7 +180,7 @@ func TestChainToAppConfigChainCustomExplorer(t *testing.T) {
 	require.Equal(t, "test/%s", appConfigChain.Explorer.ValidatorLinkPattern)
 }
 
-func TestChainToTomlConfigChainBasic(t *testing.T) {
+func TestChainToYamlConfigChainBasic(t *testing.T) {
 	t.Parallel()
 
 	query := queryPkg.MustParse("event.key = 'value'")
@@ -194,20 +194,20 @@ func TestChainToTomlConfigChainBasic(t *testing.T) {
 		Queries:         []queryPkg.Query{*query},
 	}
 
-	tomlConfigChain := tomlConfig.FromAppConfigChain(chain)
+	yamlConfigChain := yamlConfig.FromAppConfigChain(chain)
 
-	require.Equal(t, "chain", tomlConfigChain.Name)
-	require.Equal(t, "Chain", tomlConfigChain.PrettyName)
-	require.Equal(t, "chain-id", tomlConfigChain.ChainID)
-	require.Len(t, tomlConfigChain.TendermintNodes, 1)
-	require.Equal(t, "tendermint-node", tomlConfigChain.TendermintNodes[0])
-	require.Len(t, tomlConfigChain.APINodes, 1)
-	require.Equal(t, "api-node", tomlConfigChain.APINodes[0])
-	require.Len(t, tomlConfigChain.Queries, 1)
-	require.Equal(t, "event.key = 'value'", tomlConfigChain.Queries[0])
+	require.Equal(t, "chain", yamlConfigChain.Name)
+	require.Equal(t, "Chain", yamlConfigChain.PrettyName)
+	require.Equal(t, "chain-id", yamlConfigChain.ChainID)
+	require.Len(t, yamlConfigChain.TendermintNodes, 1)
+	require.Equal(t, "tendermint-node", yamlConfigChain.TendermintNodes[0])
+	require.Len(t, yamlConfigChain.APINodes, 1)
+	require.Equal(t, "api-node", yamlConfigChain.APINodes[0])
+	require.Len(t, yamlConfigChain.Queries, 1)
+	require.Equal(t, "event.key = 'value'", yamlConfigChain.Queries[0])
 }
 
-func TestChainToTomlConfigChainMintscan(t *testing.T) {
+func TestChainToYamlConfigChainMintscan(t *testing.T) {
 	t.Parallel()
 
 	query := queryPkg.MustParse("event.key = 'value'")
@@ -221,12 +221,12 @@ func TestChainToTomlConfigChainMintscan(t *testing.T) {
 		Queries:           []queryPkg.Query{*query},
 		SupportedExplorer: &types.MintscanExplorer{Prefix: "chain"},
 	}
-	tomlConfigChain := tomlConfig.FromAppConfigChain(chain)
+	yamlConfigChain := yamlConfig.FromAppConfigChain(chain)
 
-	require.Equal(t, "chain", tomlConfigChain.MintscanPrefix)
+	require.Equal(t, "chain", yamlConfigChain.MintscanPrefix)
 }
 
-func TestChainToTomlConfigChainPing(t *testing.T) {
+func TestChainToYamlConfigChainPing(t *testing.T) {
 	t.Parallel()
 
 	query := queryPkg.MustParse("event.key = 'value'")
@@ -240,13 +240,13 @@ func TestChainToTomlConfigChainPing(t *testing.T) {
 		Queries:           []queryPkg.Query{*query},
 		SupportedExplorer: &types.PingExplorer{Prefix: "chain", BaseUrl: "https://example.com"},
 	}
-	tomlConfigChain := tomlConfig.FromAppConfigChain(chain)
+	yamlConfigChain := yamlConfig.FromAppConfigChain(chain)
 
-	require.Equal(t, "chain", tomlConfigChain.PingPrefix)
-	require.Equal(t, "https://example.com", tomlConfigChain.PingBaseUrl)
+	require.Equal(t, "chain", yamlConfigChain.PingPrefix)
+	require.Equal(t, "https://example.com", yamlConfigChain.PingBaseUrl)
 }
 
-func TestChainToTomlConfigChainCustomExplorer(t *testing.T) {
+func TestChainToYamlConfigChainCustomExplorer(t *testing.T) {
 	t.Parallel()
 
 	query := queryPkg.MustParse("event.key = 'value'")
@@ -262,17 +262,17 @@ func TestChainToTomlConfigChainCustomExplorer(t *testing.T) {
 			ValidatorLinkPattern: "test/%s",
 		},
 	}
-	tomlConfigChain := tomlConfig.FromAppConfigChain(chain)
+	yamlConfigChain := yamlConfig.FromAppConfigChain(chain)
 
-	require.NotNil(t, tomlConfigChain.Explorer)
-	require.Equal(t, "test/%s", tomlConfigChain.Explorer.ValidatorLinkPattern)
+	require.NotNil(t, yamlConfigChain.Explorer)
+	require.Equal(t, "test/%s", yamlConfigChain.Explorer.ValidatorLinkPattern)
 }
 
 func TestChainsInvalid(t *testing.T) {
 	t.Parallel()
 
-	chain := &tomlConfig.Chain{}
-	chains := tomlConfig.Chains{chain}
+	chain := &yamlConfig.Chain{}
+	chains := yamlConfig.Chains{chain}
 
 	require.Error(t, chains.Validate())
 }
@@ -280,21 +280,21 @@ func TestChainsInvalid(t *testing.T) {
 func TestChainsDuplicateName(t *testing.T) {
 	t.Parallel()
 
-	chain1 := &tomlConfig.Chain{
+	chain1 := &yamlConfig.Chain{
 		Name:            "chain",
 		ChainID:         "chain-id",
 		TendermintNodes: []string{"node"},
 		APINodes:        []string{"node"},
 		Queries:         []string{"event.key = 'value'"},
 	}
-	chain2 := &tomlConfig.Chain{
+	chain2 := &yamlConfig.Chain{
 		Name:            "chain",
 		ChainID:         "chain-id",
 		TendermintNodes: []string{"node"},
 		APINodes:        []string{"node"},
 		Queries:         []string{"event.key = 'value'"},
 	}
-	chains := tomlConfig.Chains{chain1, chain2}
+	chains := yamlConfig.Chains{chain1, chain2}
 
 	require.Error(t, chains.Validate())
 }
@@ -302,21 +302,21 @@ func TestChainsDuplicateName(t *testing.T) {
 func TestChainsValid(t *testing.T) {
 	t.Parallel()
 
-	chain1 := &tomlConfig.Chain{
+	chain1 := &yamlConfig.Chain{
 		Name:            "chain1",
 		ChainID:         "chain-id",
 		TendermintNodes: []string{"node"},
 		APINodes:        []string{"node"},
 		Queries:         []string{"event.key = 'value'"},
 	}
-	chain2 := &tomlConfig.Chain{
+	chain2 := &yamlConfig.Chain{
 		Name:            "chain2",
 		ChainID:         "chain-id",
 		TendermintNodes: []string{"node"},
 		APINodes:        []string{"node"},
 		Queries:         []string{"event.key = 'value'"},
 	}
-	chains := tomlConfig.Chains{chain1, chain2}
+	chains := yamlConfig.Chains{chain1, chain2}
 
 	require.NoError(t, chains.Validate())
 }
@@ -324,13 +324,13 @@ func TestChainsValid(t *testing.T) {
 func TestHasChainByName(t *testing.T) {
 	t.Parallel()
 
-	chain := &tomlConfig.Chain{
+	chain := &yamlConfig.Chain{
 		Name:            "chain-1",
 		TendermintNodes: []string{"node"},
 		APINodes:        []string{"node"},
 		Queries:         []string{"event.key = 'value'"},
 	}
-	chains := tomlConfig.Chains{chain}
+	chains := yamlConfig.Chains{chain}
 
 	require.True(t, chains.HasChainByName("chain-1"))
 	require.False(t, chains.HasChainByName("chain-2"))

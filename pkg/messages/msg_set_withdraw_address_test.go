@@ -88,7 +88,7 @@ func TestMsgSetWithdrawAddressPopulate(t *testing.T) {
 			},
 		},
 		Metrics:     configPkg.MetricsConfig{Enabled: false},
-		AliasesPath: "path.toml",
+		AliasesPath: "path.yaml",
 	}
 
 	parsed, err := ParseMsgSetWithdrawAddress(msgBytes, config.Chains[0], 100)

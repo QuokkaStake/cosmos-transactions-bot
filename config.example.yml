@@ -1,0 +1,184 @@
+# Path to where aliases in .yml will be stored.
+# If omitted, no aliases setting/displaying would work.
+aliases: cosmos-transactions-bot-aliases.yml
+# Timezone in which time (like undelegation finish time) will be displayed.
+# Defaults to "Etc/GMT", so UTC+0
+timezone: Europe/Moscow
+# Prometheus metrics configuration.
+metrics:
+  # Whether to enable Prometheus metrics. Defaults to true.
+  enabled: true
+  # Prometheus metrics listen address.
+  # If you are running this bot on a same server than your Prometheus instance is,
+  # you might want to switch it to "127.0.0.1:<port>" so it won't be accessible from outside.
+  # Defaults to ":9580" (so, port 9580 on all interfaces and accessible from outside).
+  listen-addr: :9580
+# Logging configuration
+log:
+  # Log level. Set to "debug" or "trace" to make it more verbose, or to "warn"/"error"
+  # to make it less verbose.
+  # Defaults to "info"
+  level: info
+  # If true, all logs would be displayed in JSON. Useful if you are using centralized logging
+  # solutions like ELK. Defaults to false.
+  json: false
+# Reporters configuration.
+reporters:
+    # Reporter name. Should be unique.
+  - name: telegram-1
+    # Reporter type. Currently, the only supported type is "telegram", which is the default.
+    type: telegram
+    # Telegram config configuration. Required if the type is "telegram".
+    # See README.md for more details.
+    # Has 3 params:
+    # - token - bot token
+    # - chat - a chat/channel to post messages to
+    # - admins - a whitelist of user IDs allowed to send commands to the bot, optional but recommended.
+    telegram-config:
+      token: xxx:yyy
+      chat: 12345
+      admins:
+        - 67890
+    # There can be multiple reporters.
+  - name: telegram-2
+    type: telegram
+    telegram-config:
+      token: zzz:aaa
+      chat: 98765
+      admins:
+        - 43210
+# Subscriptions config. See README.md on how this schema works.
+subscriptions:
+    # Reporter name to send events matching this subscription to.
+    # Should be one of the names of the reporters declared above, or the app won't start
+    # with the config validation error
+  - reporter: telegram-1
+    # Subscription name, for metrics. Should be unique.
+    name: subscription-1
+    # Chain subscriptions for this subscription.
+    chains:
+        # Chain name. Should be one of the names declared below in chains section,
+        # or the app won't start with the config validation error.
+      - name: cosmos
+        # Filter, see README.md for details.
+        filters:
+          - message.action = '/cosmos.gov.v1beta1.MsgVote'
+        # If set to true and there is a message not supported by this app,
+        # it would post a message about that, otherwise it would ignore such a message.
+        # Defaults to false.
+        log-unknown-messages: true
+        # If set to true, all messages that could not be parsed will produce
+        # a message about that. If set to false, all such messages would be
+        # silently ignored. Defaults to true.
+        log-unparsed-messages: true
+        # If set to true (set by default), it also sends transactions that are failed (code > 0).
+        # If set to false, such transactions won't be displayed.
+        # Additionally, if set to true, each report will include the transaction status
+        # and error code, if it had failed.
+        log-failed-transactions: true
+        # There are messages that can include internal messages (example: AuthZ's MsgExec).
+        # If this value is set to true (set by default), then messages inside these messages
+        # would also be filtered by filters specified in config. If it's set to false,
+        # internal messages won't be filtered.
+        # Example: MsgExec containing MsgDelegate. If there's a filter like this:
+        # - "message.action = '/cosmos.authz.v1beta1.MsgExec"
+        # and this value is true, then
+        # 1) MsgExec would match this filter
+        # 2) MsgDelegate inside won't match this filter
+        # 3) MsgExec would have 0 messages after filtering internal message and would also be filtered.
+        filter-internal-messages: true
+        # Whether to log Tendermint node errors.
+        # Example: when the node is restarted, this error is emitted:
+        # - `Error: RPC error -32000 - Server error: subscription was cancelled (reason: Tendermint exited)`
+        # If this is set to true (default), such messages would be displayed, if not, they will be skipped.
+        log-node-errors: true
+      # There can be multiple chain subscriptions per subscription.
+      - name: sentinel
+        filters:
+          - message.action = '/cosmos.staking.v1beta1.MsgDelegate'
+  # There can also be multiple subscriptions. This one, for example,
+  # sends everything to a different reporter.
+  - name: subscription-2
+    reporter: telegram-2
+    chains:
+      - name: cosmos
+        filters:
+          - message.action = '/cosmos.staking.v1beta1.MsgUndelegate'
+      - name: sentinel
+        filters:
+          - message.action = '/cosmos.staking.v1beta1.MsgBeginRedelegate'
+
+# Per-chain configuration.
+chains:
+    # Chain codename, required.
+  - name: cosmos
+    # Chain ID, required.
+    chain-id: cosmoshub-4
+    # Chain pretty name, optional. If provided, would be used in reports, if not,
+    # codename would be used.
+    pretty-name: Cosmos Hub
+    # Tendermint RPC nodes to subscribe to. At least one is required, better to have multiple ones
+    # as a failover.
+    tendermint-nodes:
+      - https://rpc.cosmos.quokkastake.io:443
+    # API nodes to get blockchain data (validators, proposals etc.) from.
+    api-nodes:
+      - https://api.cosmos.quokkastake.io
+    # Queries, see README.md for details.
+    # Defaults to ["tx.height > 0"], so basically all transactions on chain.
+    queries:
+      - tx.height > 0
+    # Denoms list.
+    denoms:
+      # Each denom inside must have "denom" and "display-denom" fields and additionaly
+      # denom-exponent (set to 6 by default) and coingecko-currency.
+      # Example: if there's a transfer transaction for 10,000,000 uatom,
+      # and the coingecko price for $ATOM is 10$ and if all fields are set,
+      # instead of displaying amount as `10000000.000000uatom` it would be displayed
+      # as `10.000000atom ($100.00)`: the amount would be converted from 10,000,100 uatom
+      # to 10.0 atom (by dividing it by 10^6), and then multiplying it by $10 per 1 ATOM.
+      # If coingecko-currency is omitted, no price would be displayed.
+      - denom: uatom
+        display-denom: atom
+        denom-coefficient: 1000000
+        coingecko-currency: cosmos
+    # Explorer configuration.
+    # Priorities:
+    # 1) ping.pub
+    # 2) mintscan
+    # 3) custom explorer
+    # So if you have a custom explorer, ping.pub and mintscan params specified, ping.pub ones would be used.
+
+    # Mintscan prefix to generate links. Required for mintscan explorer.
+    mintscan-prefix: cosmos
+    # Ping.pub prefix to generate links. Required for ping.pub explorer.
+    ping-prefix: cosmos
+    # Ping.pub base URL to generate links. Defaults to "https://ping.pub"
+    ping-base-url: https://ping.pub
+    # Custom explorer configuration. %s would be replaced by ID of something (proposal, wallet, etc.)
+    # All fields are optional.
+    explorer:
+      # A pattern for proposal link for explorer.
+      proposal-link-pattern: https://mintscan.io/cosmos/proposals/%s
+      # A pattern for wallet links for the explorer.
+      wallet-link-pattern: https://mintscan.io/cosmos/account/%s
+      # A pattern for transaction links for the explorer.
+      transaction-link-pattern: https://mintscan.io/cosmos/txs/%s
+      # A pattern for block links for the explorer.
+      block-link-pattern: https://mintscan.io/cosmos/blocks/%s
+      # A pattern for validator links for the explorer.
+      validator-link-pattern: https://mintscan.io/cosmos/validators/%s
+
+  # There can be multiple chains.
+  - name: sentinel
+    chain-id: sentinelhub-2
+    pretty-name: Sentinel
+    tendermint-nodes:
+      - https://rpc.sentinel.quokkastake.io:443
+    api-nodes:
+      - https://api.sentinel.quokkastake.io
+    denoms:
+      - denom: udvpn
+        display-denom: dvpn
+        coingecko-currency: sentinel
+    mintscan-prefix: sentinel

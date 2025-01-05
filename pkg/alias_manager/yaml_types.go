@@ -10,27 +10,27 @@ import (
 
 // map[wallet]wallet_alias
 
-type TomlChainAliases map[string]string
+type YamlChainAliases map[string]string
 
 // map[chain]chain_aliases
 
-type TomlSubscriptionAliases map[string]*TomlChainAliases
+type YamlSubscriptionAliases map[string]*YamlChainAliases
 
 // map[subscription]subscription_aliases
 
-type TomlAliases map[string]*TomlSubscriptionAliases
+type YamlAliases map[string]*YamlSubscriptionAliases
 
-func (t TomlAliases) ToAliases(
+func (t YamlAliases) ToAliases(
 	chains configTypes.Chains,
 	logger zerolog.Logger,
 ) AllAliases {
 	aliases := AllAliases{}
 
-	for subscription, tomlSubscriptionAliases := range t {
+	for subscription, yamlSubscriptionAliases := range t {
 		newMap := map[string]ChainAliases{}
 		subscriptionAliases := &newMap
 
-		for chain, tomlChainAliases := range *tomlSubscriptionAliases {
+		for chain, yamlChainAliases := range *yamlSubscriptionAliases {
 			chainFound := chains.FindByName(chain)
 			if chainFound == nil {
 				logger.Panic().Str("chain", chain).Msg("Could not find chain when setting an alias!")
@@ -38,7 +38,7 @@ func (t TomlAliases) ToAliases(
 
 			chainAliases := make(map[string]string)
 
-			for wallet, alias := range *tomlChainAliases {
+			for wallet, alias := range *yamlChainAliases {
 				chainAliases[wallet] = alias
 			}
 

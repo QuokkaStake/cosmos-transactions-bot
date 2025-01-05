@@ -1,24 +1,24 @@
-package toml_config_test
+package yaml_config_test
 
 import (
-	tomlConfig "main/pkg/config/toml_config"
+	yamlConfig "main/pkg/config/yaml_config"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 )
 
-func TestTomlConfigNoChains(t *testing.T) {
+func TestYamlConfigNoChains(t *testing.T) {
 	t.Parallel()
 
-	config := tomlConfig.TomlConfig{}
+	config := yamlConfig.YamlConfig{}
 	require.Error(t, config.Validate())
 }
 
-func TestTomlConfigInvalidTimezone(t *testing.T) {
+func TestYamlConfigInvalidTimezone(t *testing.T) {
 	t.Parallel()
 
-	config := tomlConfig.TomlConfig{
-		Chains: tomlConfig.Chains{
+	config := yamlConfig.YamlConfig{
+		Chains: yamlConfig.Chains{
 			{},
 		},
 		Timezone: "invalid",
@@ -26,11 +26,11 @@ func TestTomlConfigInvalidTimezone(t *testing.T) {
 	require.Error(t, config.Validate())
 }
 
-func TestTomlConfigInvalidChain(t *testing.T) {
+func TestYamlConfigInvalidChain(t *testing.T) {
 	t.Parallel()
 
-	config := tomlConfig.TomlConfig{
-		Chains: tomlConfig.Chains{
+	config := yamlConfig.YamlConfig{
+		Chains: yamlConfig.Chains{
 			{},
 		},
 		Timezone: "Etc/UTC",
@@ -38,11 +38,11 @@ func TestTomlConfigInvalidChain(t *testing.T) {
 	require.Error(t, config.Validate())
 }
 
-func TestTomlConfigInvalidReporter(t *testing.T) {
+func TestYamlConfigInvalidReporter(t *testing.T) {
 	t.Parallel()
 
-	config := tomlConfig.TomlConfig{
-		Chains: tomlConfig.Chains{
+	config := yamlConfig.YamlConfig{
+		Chains: yamlConfig.Chains{
 			{
 				Name:            "chain",
 				ChainID:         "chain-id",
@@ -51,7 +51,7 @@ func TestTomlConfigInvalidReporter(t *testing.T) {
 				Queries:         []string{"event.key = 'value'"},
 			},
 		},
-		Reporters: tomlConfig.Reporters{
+		Reporters: yamlConfig.Reporters{
 			{},
 		},
 		Timezone: "Etc/UTC",
@@ -59,11 +59,11 @@ func TestTomlConfigInvalidReporter(t *testing.T) {
 	require.Error(t, config.Validate())
 }
 
-func TestTomlConfigInvalidSubscription(t *testing.T) {
+func TestYamlConfigInvalidSubscription(t *testing.T) {
 	t.Parallel()
 
-	config := tomlConfig.TomlConfig{
-		Chains: tomlConfig.Chains{
+	config := yamlConfig.YamlConfig{
+		Chains: yamlConfig.Chains{
 			{
 				Name:            "chain",
 				ChainID:         "chain-id",
@@ -72,18 +72,18 @@ func TestTomlConfigInvalidSubscription(t *testing.T) {
 				Queries:         []string{"event.key = 'value'"},
 			},
 		},
-		Reporters: tomlConfig.Reporters{
+		Reporters: yamlConfig.Reporters{
 			{
 				Name: "test",
 				Type: "telegram",
-				TelegramConfig: &tomlConfig.TelegramConfig{
+				TelegramConfig: &yamlConfig.TelegramConfig{
 					Chat:   1,
 					Token:  "xxx:yyy",
 					Admins: []int64{123},
 				},
 			},
 		},
-		Subscriptions: tomlConfig.Subscriptions{
+		Subscriptions: yamlConfig.Subscriptions{
 			{},
 		},
 		Timezone: "Etc/UTC",
@@ -91,11 +91,11 @@ func TestTomlConfigInvalidSubscription(t *testing.T) {
 	require.Error(t, config.Validate())
 }
 
-func TestTomlConfigChainSubscriptionChainNotFound(t *testing.T) {
+func TestYamlConfigChainSubscriptionChainNotFound(t *testing.T) {
 	t.Parallel()
 
-	config := tomlConfig.TomlConfig{
-		Chains: tomlConfig.Chains{
+	config := yamlConfig.YamlConfig{
+		Chains: yamlConfig.Chains{
 			{
 				Name:            "chain",
 				ChainID:         "chain-id",
@@ -104,22 +104,22 @@ func TestTomlConfigChainSubscriptionChainNotFound(t *testing.T) {
 				Queries:         []string{"event.key = 'value'"},
 			},
 		},
-		Reporters: tomlConfig.Reporters{
+		Reporters: yamlConfig.Reporters{
 			{
 				Name: "test",
 				Type: "telegram",
-				TelegramConfig: &tomlConfig.TelegramConfig{
+				TelegramConfig: &yamlConfig.TelegramConfig{
 					Chat:   1,
 					Token:  "xxx:yyy",
 					Admins: []int64{123},
 				},
 			},
 		},
-		Subscriptions: tomlConfig.Subscriptions{
+		Subscriptions: yamlConfig.Subscriptions{
 			{
 				Name:     "name",
 				Reporter: "reporter",
-				ChainSubscriptions: tomlConfig.ChainSubscriptions{
+				ChainSubscriptions: yamlConfig.ChainSubscriptions{
 					{Chain: "nonexistent"},
 				},
 			},
@@ -129,11 +129,11 @@ func TestTomlConfigChainSubscriptionChainNotFound(t *testing.T) {
 	require.Error(t, config.Validate())
 }
 
-func TestTomlConfigSubscriptionReporterNotFound(t *testing.T) {
+func TestYamlConfigSubscriptionReporterNotFound(t *testing.T) {
 	t.Parallel()
 
-	config := tomlConfig.TomlConfig{
-		Chains: tomlConfig.Chains{
+	config := yamlConfig.YamlConfig{
+		Chains: yamlConfig.Chains{
 			{
 				Name:            "chain",
 				ChainID:         "chain-id",
@@ -142,22 +142,22 @@ func TestTomlConfigSubscriptionReporterNotFound(t *testing.T) {
 				Queries:         []string{"event.key = 'value'"},
 			},
 		},
-		Reporters: tomlConfig.Reporters{
+		Reporters: yamlConfig.Reporters{
 			{
 				Name: "test",
 				Type: "telegram",
-				TelegramConfig: &tomlConfig.TelegramConfig{
+				TelegramConfig: &yamlConfig.TelegramConfig{
 					Chat:   1,
 					Token:  "xxx:yyy",
 					Admins: []int64{123},
 				},
 			},
 		},
-		Subscriptions: tomlConfig.Subscriptions{
+		Subscriptions: yamlConfig.Subscriptions{
 			{
 				Name:     "name",
 				Reporter: "nonexistent",
-				ChainSubscriptions: tomlConfig.ChainSubscriptions{
+				ChainSubscriptions: yamlConfig.ChainSubscriptions{
 					{Chain: "chain"},
 				},
 			},
@@ -167,11 +167,11 @@ func TestTomlConfigSubscriptionReporterNotFound(t *testing.T) {
 	require.Error(t, config.Validate())
 }
 
-func TestTomlConfigValid(t *testing.T) {
+func TestYamlConfigValid(t *testing.T) {
 	t.Parallel()
 
-	config := tomlConfig.TomlConfig{
-		Chains: tomlConfig.Chains{
+	config := yamlConfig.YamlConfig{
+		Chains: yamlConfig.Chains{
 			{
 				Name:            "chain",
 				ChainID:         "chain-id",
@@ -180,22 +180,22 @@ func TestTomlConfigValid(t *testing.T) {
 				Queries:         []string{"event.key = 'value'"},
 			},
 		},
-		Reporters: tomlConfig.Reporters{
+		Reporters: yamlConfig.Reporters{
 			{
 				Name: "test",
 				Type: "telegram",
-				TelegramConfig: &tomlConfig.TelegramConfig{
+				TelegramConfig: &yamlConfig.TelegramConfig{
 					Chat:   1,
 					Token:  "xxx:yyy",
 					Admins: []int64{123},
 				},
 			},
 		},
-		Subscriptions: tomlConfig.Subscriptions{
+		Subscriptions: yamlConfig.Subscriptions{
 			{
 				Name:     "name",
 				Reporter: "test",
-				ChainSubscriptions: tomlConfig.ChainSubscriptions{
+				ChainSubscriptions: yamlConfig.ChainSubscriptions{
 					{Chain: "chain"},
 				},
 			},

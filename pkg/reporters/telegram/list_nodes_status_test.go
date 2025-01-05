@@ -39,7 +39,7 @@ func TestListNodesCouldNotFindSubscription(t *testing.T) {
 	timezone, err := time.LoadLocation("Etc/GMT")
 	require.NoError(t, err)
 
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	config := &configPkg.AppConfig{AliasesPath: "path.yml"}
 	aliasManager := alias_manager.NewAliasManager(logger, config, &fs.MockFs{})
 	metricsManager := metrics.NewManager(logger, configPkg.MetricsConfig{})
@@ -95,7 +95,7 @@ func TestListNodesOk(t *testing.T) {
 	timezone, err := time.LoadLocation("Etc/GMT")
 	require.NoError(t, err)
 
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	config := &configPkg.AppConfig{
 		AliasesPath: "path.yml",
 		Chains: configTypes.Chains{

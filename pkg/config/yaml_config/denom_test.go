@@ -1,8 +1,8 @@
-package toml_config_test
+package yaml_config_test
 
 import (
-	tomlConfig "main/pkg/config/toml_config"
 	"main/pkg/config/types"
+	yamlConfig "main/pkg/config/yaml_config"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -11,14 +11,14 @@ import (
 func TestDenomNoName(t *testing.T) {
 	t.Parallel()
 
-	denom := tomlConfig.DenomInfo{}
+	denom := yamlConfig.DenomInfo{}
 	require.Error(t, denom.Validate())
 }
 
 func TestDenomNoDisplayName(t *testing.T) {
 	t.Parallel()
 
-	denom := tomlConfig.DenomInfo{
+	denom := yamlConfig.DenomInfo{
 		Denom: "udenom",
 	}
 	require.Error(t, denom.Validate())
@@ -27,7 +27,7 @@ func TestDenomNoDisplayName(t *testing.T) {
 func TestDenomValid(t *testing.T) {
 	t.Parallel()
 
-	denom := tomlConfig.DenomInfo{
+	denom := yamlConfig.DenomInfo{
 		Denom:        "udenom",
 		DisplayDenom: "denom",
 	}
@@ -37,13 +37,13 @@ func TestDenomValid(t *testing.T) {
 func TestDenomsToAppConfigDenoms(t *testing.T) {
 	t.Parallel()
 
-	denom := &tomlConfig.DenomInfo{
+	denom := &yamlConfig.DenomInfo{
 		Denom:             "udenom",
 		DisplayDenom:      "denom",
 		DenomExponent:     10,
 		CoingeckoCurrency: "coingecko",
 	}
-	denoms := tomlConfig.DenomInfos{denom}
+	denoms := yamlConfig.DenomInfos{denom}
 	appConfigDenoms := denoms.ToAppConfigDenomInfos()
 
 	require.Len(t, appConfigDenoms, 1)
@@ -53,7 +53,7 @@ func TestDenomsToAppConfigDenoms(t *testing.T) {
 	require.Equal(t, "coingecko", appConfigDenoms[0].CoingeckoCurrency)
 }
 
-func TestDenomsToTomlConfigDenoms(t *testing.T) {
+func TestDenomsToYamlConfigDenoms(t *testing.T) {
 	t.Parallel()
 
 	denom := &types.DenomInfo{
@@ -63,11 +63,11 @@ func TestDenomsToTomlConfigDenoms(t *testing.T) {
 		CoingeckoCurrency: "coingecko",
 	}
 	denoms := types.DenomInfos{denom}
-	tomlConfigDenoms := tomlConfig.TomlConfigDenomsFrom(denoms)
+	yamlConfigDenoms := yamlConfig.YamlConfigDenomsFrom(denoms)
 
-	require.Len(t, tomlConfigDenoms, 1)
-	require.Equal(t, "udenom", tomlConfigDenoms[0].Denom)
-	require.Equal(t, "denom", tomlConfigDenoms[0].DisplayDenom)
-	require.Equal(t, 10, tomlConfigDenoms[0].DenomExponent)
-	require.Equal(t, "coingecko", tomlConfigDenoms[0].CoingeckoCurrency)
+	require.Len(t, yamlConfigDenoms, 1)
+	require.Equal(t, "udenom", yamlConfigDenoms[0].Denom)
+	require.Equal(t, "denom", yamlConfigDenoms[0].DisplayDenom)
+	require.Equal(t, 10, yamlConfigDenoms[0].DenomExponent)
+	require.Equal(t, "coingecko", yamlConfigDenoms[0].CoingeckoCurrency)
 }

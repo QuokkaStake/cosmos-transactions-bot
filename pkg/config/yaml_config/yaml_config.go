@@ -1,4 +1,4 @@
-package toml_config
+package yaml_config
 
 import (
 	"fmt"
@@ -7,23 +7,23 @@ import (
 	"gopkg.in/guregu/null.v4"
 )
 
-type TomlConfig struct {
-	AliasesPath   string        `toml:"aliases"`
-	LogConfig     LogConfig     `toml:"log"`
-	MetricsConfig MetricsConfig `toml:"metrics"`
-	Chains        Chains        `toml:"chains"`
-	Subscriptions Subscriptions `toml:"subscriptions"`
-	Timezone      string        `default:"Etc/GMT"    toml:"timezone"`
+type YamlConfig struct {
+	AliasesPath   string        `yaml:"aliases"`
+	LogConfig     LogConfig     `yaml:"log"`
+	MetricsConfig MetricsConfig `yaml:"metrics"`
+	Chains        Chains        `yaml:"chains"`
+	Subscriptions Subscriptions `yaml:"subscriptions"`
+	Timezone      string        `default:"Etc/GMT"    yaml:"timezone"`
 
-	Reporters Reporters `toml:"reporters"`
+	Reporters Reporters `yaml:"reporters"`
 }
 
 type LogConfig struct {
-	LogLevel   string    `default:"info"  toml:"level"`
-	JSONOutput null.Bool `default:"false" toml:"json"`
+	LogLevel   string    `default:"info"  yaml:"level"`
+	JSONOutput null.Bool `default:"false" yaml:"json"`
 }
 
-func (c *TomlConfig) Validate() error {
+func (c *YamlConfig) Validate() error {
 	if len(c.Chains) == 0 {
 		return fmt.Errorf("no chains provided")
 	}

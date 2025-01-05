@@ -40,7 +40,7 @@ func TestTelegramReporterNoCredentials(t *testing.T) {
 			TelegramConfig: &configTypes.TelegramConfig{Token: "", Chat: 0},
 		},
 		&configPkg.AppConfig{Timezone: timezone},
-		loggerPkg.GetDefaultLogger(),
+		loggerPkg.GetNopLogger(),
 		nil,
 		nil,
 		nil,
@@ -75,7 +75,7 @@ func TestTelegramReporterCannotFetchBot(t *testing.T) {
 			TelegramConfig: &configTypes.TelegramConfig{Token: "xxx:yyy", Chat: 123},
 		},
 		&configPkg.AppConfig{Timezone: timezone},
-		loggerPkg.GetDefaultLogger(),
+		loggerPkg.GetNopLogger(),
 		nil,
 		nil,
 		nil,
@@ -108,7 +108,7 @@ func TestTelegramReporterStartsOkay(t *testing.T) {
 			TelegramConfig: &configTypes.TelegramConfig{Token: "xxx:yyy", Chat: 123, Admins: []int64{1}},
 		},
 		&configPkg.AppConfig{Timezone: timezone},
-		loggerPkg.GetDefaultLogger(),
+		loggerPkg.GetNopLogger(),
 		nil,
 		nil,
 		nil,
@@ -143,7 +143,7 @@ func TestTelegramReporterStartsDisabled(t *testing.T) {
 			TelegramConfig: &configTypes.TelegramConfig{Token: "xxx:yyy", Chat: 123, Admins: []int64{1}},
 		},
 		&configPkg.AppConfig{Timezone: timezone},
-		loggerPkg.GetDefaultLogger(),
+		loggerPkg.GetNopLogger(),
 		nil,
 		nil,
 		nil,
@@ -171,7 +171,7 @@ func TestHandlerInternalError(t *testing.T) {
 		httpmock.NewBytesResponder(200, assets.GetBytesOrPanic("telegram-send-message-ok.json")),
 	)
 
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	config := &configPkg.AppConfig{}
 	aliasManager := alias_manager.NewAliasManager(logger, config, &fs.MockFs{})
 	metricsManager := metrics.NewManager(logger, configPkg.MetricsConfig{})
@@ -233,7 +233,7 @@ func TestSendReportFailToSerializeAndSend(t *testing.T) {
 		httpmock.NewErrorResponder(errors.New("custom error")),
 	)
 
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	config := &configPkg.AppConfig{}
 	aliasManager := alias_manager.NewAliasManager(logger, config, &fs.MockFs{})
 	metricsManager := metrics.NewManager(logger, configPkg.MetricsConfig{})
@@ -284,7 +284,7 @@ func TestSendReportFailToSerialize(t *testing.T) {
 		httpmock.NewBytesResponder(200, assets.GetBytesOrPanic("telegram-send-message-ok.json")),
 	)
 
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	config := &configPkg.AppConfig{}
 	aliasManager := alias_manager.NewAliasManager(logger, config, &fs.MockFs{})
 	metricsManager := metrics.NewManager(logger, configPkg.MetricsConfig{})
@@ -333,7 +333,7 @@ func TestSendReportFailToSend(t *testing.T) {
 		httpmock.NewErrorResponder(errors.New("custom error")),
 	)
 
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	config := &configPkg.AppConfig{}
 	aliasManager := alias_manager.NewAliasManager(logger, config, &fs.MockFs{})
 	metricsManager := metrics.NewManager(logger, configPkg.MetricsConfig{})
@@ -388,7 +388,7 @@ func TestSendReportOk(t *testing.T) {
 		httpmock.NewBytesResponder(200, assets.GetBytesOrPanic("telegram-send-message-ok.json")),
 	)
 
-	logger := loggerPkg.GetDefaultLogger()
+	logger := loggerPkg.GetNopLogger()
 	config := &configPkg.AppConfig{}
 	aliasManager := alias_manager.NewAliasManager(logger, config, &fs.MockFs{})
 	metricsManager := metrics.NewManager(logger, configPkg.MetricsConfig{})

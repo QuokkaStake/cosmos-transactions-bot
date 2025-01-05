@@ -102,7 +102,7 @@ func TestFungibleTokenPacketPopulateLinks(t *testing.T) {
 			},
 		},
 		Metrics:     configPkg.MetricsConfig{Enabled: false},
-		AliasesPath: "path.toml",
+		AliasesPath: "path.yaml",
 	}
 
 	msg := ibcTypes.FungibleTokenPacketData{
@@ -159,7 +159,7 @@ func TestMsgTransferPopulateNativeDenomNotFetched(t *testing.T) {
 			},
 		},
 		Metrics:     configPkg.MetricsConfig{Enabled: false},
-		AliasesPath: "path.toml",
+		AliasesPath: "path.yaml",
 	}
 
 	msg := ibcTypes.FungibleTokenPacketData{
@@ -209,7 +209,7 @@ func TestMsgTransferPopulateNotNativeDenom(t *testing.T) {
 			},
 		},
 		Metrics:     configPkg.MetricsConfig{Enabled: false},
-		AliasesPath: "path.toml",
+		AliasesPath: "path.yaml",
 	}
 
 	msg := ibcTypes.FungibleTokenPacketData{
@@ -256,7 +256,7 @@ func TestMsgTransferPopulateNativeDenomNotFoundLocally(t *testing.T) {
 			},
 		},
 		Metrics:     configPkg.MetricsConfig{Enabled: false},
-		AliasesPath: "path.toml",
+		AliasesPath: "path.yaml",
 	}
 
 	msg := ibcTypes.FungibleTokenPacketData{

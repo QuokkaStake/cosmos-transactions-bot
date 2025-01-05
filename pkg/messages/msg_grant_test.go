@@ -200,7 +200,7 @@ func TestMsgGrantPopulate(t *testing.T) {
 	config := &configPkg.AppConfig{
 		Chains:      configTypes.Chains{{Name: "chain"}},
 		Metrics:     configPkg.MetricsConfig{Enabled: false},
-		AliasesPath: "path.toml",
+		AliasesPath: "path.yaml",
 	}
 
 	msgInternal := &cosmosStakingTypes.StakeAuthorization{}
