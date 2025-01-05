@@ -7,6 +7,7 @@ import (
 	"main/pkg/constants"
 	"main/pkg/utils"
 	"strings"
+	"time"
 )
 
 type TelegramConfig struct {
@@ -16,8 +17,9 @@ type TelegramConfig struct {
 }
 
 type Reporter struct {
-	Name string `yaml:"name"`
-	Type string `default:"telegram" yaml:"type"`
+	Name     string `yaml:"name"`
+	Type     string `default:"telegram" yaml:"type"`
+	Timezone string `default:"Etc/GMT"  yaml:"timezone"`
 
 	TelegramConfig *TelegramConfig `yaml:"telegram-config"`
 }
@@ -25,6 +27,10 @@ type Reporter struct {
 func (reporter *Reporter) Validate() error {
 	if reporter.Name == "" {
 		return errors.New("reporter name not provided")
+	}
+
+	if _, err := time.LoadLocation(reporter.Timezone); err != nil {
+		return fmt.Errorf("error parsing timezone: %s", err)
 	}
 
 	reporterTypes := constants.GetReporterTypes()
@@ -90,6 +96,7 @@ func FromAppConfigReporter(reporter *types.Reporter) *Reporter {
 	return &Reporter{
 		Name:           reporter.Name,
 		Type:           reporter.Type,
+		Timezone:       reporter.Timezone.String(),
 		TelegramConfig: telegramConfig,
 	}
 }
@@ -105,9 +112,12 @@ func (reporter *Reporter) ToAppConfigReporter() *types.Reporter {
 		}
 	}
 
+	timezone, _ := time.LoadLocation(reporter.Timezone)
+
 	return &types.Reporter{
 		Name:           reporter.Name,
 		Type:           reporter.Type,
+		Timezone:       timezone,
 		TelegramConfig: telegramConfig,
 	}
 }

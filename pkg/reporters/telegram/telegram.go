@@ -65,7 +65,7 @@ func NewReporter(
 		Admins:           reporterConfig.TelegramConfig.Admins,
 		Config:           config,
 		Logger:           logger.With().Str("component", "telegram_reporter").Logger(),
-		TemplatesManager: templates.NewTelegramTemplateManager(logger, config.Timezone),
+		TemplatesManager: templates.NewTelegramTemplateManager(logger, reporterConfig.Timezone),
 		NodesManager:     nodesManager,
 		AliasManager:     aliasManager,
 		MetricsManager:   metricsManager,

@@ -81,7 +81,6 @@ func TestConfigDisplayAsYaml(t *testing.T) {
 	require.EqualValues(t, config.LogConfig, configAgain.LogConfig)
 	require.EqualValues(t, config.AliasesPath, configAgain.AliasesPath)
 	require.EqualValues(t, config.Metrics, configAgain.Metrics)
-	require.EqualValues(t, config.Timezone, configAgain.Timezone)
 
 	require.Equal(t, len(config.Chains), len(configAgain.Chains))
 	for index := range config.Chains {
