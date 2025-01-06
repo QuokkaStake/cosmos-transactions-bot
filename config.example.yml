@@ -1,9 +1,6 @@
 # Path to where aliases in .yml will be stored.
 # If omitted, no aliases setting/displaying would work.
 aliases: cosmos-transactions-bot-aliases.yml
-# Timezone in which time (like undelegation finish time) will be displayed.
-# Defaults to "Etc/GMT", so UTC+0
-timezone: Europe/Moscow
 # Prometheus metrics configuration.
 metrics:
   # Whether to enable Prometheus metrics. Defaults to true.
@@ -28,6 +25,9 @@ reporters:
   - name: telegram-1
     # Reporter type. Currently, the only supported type is "telegram", which is the default.
     type: telegram
+    # Timezone in which time (like undelegation finish time) will be displayed for this reporter.
+    # Defaults to "Etc/GMT", so UTC+0
+    timezone: Europe/Moscow
     # Telegram config configuration. Required if the type is "telegram".
     # See README.md for more details.
     # Has 3 params:

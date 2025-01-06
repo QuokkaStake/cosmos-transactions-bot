@@ -2,7 +2,6 @@ package yaml_config
 
 import (
 	"fmt"
-	"time"
 
 	"gopkg.in/guregu/null.v4"
 )
@@ -13,7 +12,6 @@ type YamlConfig struct {
 	MetricsConfig MetricsConfig `yaml:"metrics"`
 	Chains        Chains        `yaml:"chains"`
 	Subscriptions Subscriptions `yaml:"subscriptions"`
-	Timezone      string        `default:"Etc/GMT"    yaml:"timezone"`
 
 	Reporters Reporters `yaml:"reporters"`
 }
@@ -26,10 +24,6 @@ type LogConfig struct {
 func (c *YamlConfig) Validate() error {
 	if len(c.Chains) == 0 {
 		return fmt.Errorf("no chains provided")
-	}
-
-	if _, err := time.LoadLocation(c.Timezone); err != nil {
-		return fmt.Errorf("error parsing timezone: %s", err)
 	}
 
 	if err := c.Chains.Validate(); err != nil {

@@ -2,7 +2,6 @@ package config
 
 import (
 	"main/pkg/fs"
-	"time"
 
 	"gopkg.in/guregu/null.v4"
 
@@ -21,7 +20,6 @@ type AppConfig struct {
 	Subscriptions types.Subscriptions
 	Reporters     types.Reporters
 	Metrics       MetricsConfig
-	Timezone      *time.Location
 }
 
 type LogConfig struct {
@@ -59,8 +57,6 @@ func GetConfig(path string, filesystem fs.FS) (*AppConfig, error) {
 }
 
 func FromYamlConfig(c *yamlConfig.YamlConfig) *AppConfig {
-	timezone, _ := time.LoadLocation(c.Timezone)
-
 	return &AppConfig{
 		AliasesPath: c.AliasesPath,
 		LogConfig: LogConfig{
@@ -80,7 +76,6 @@ func FromYamlConfig(c *yamlConfig.YamlConfig) *AppConfig {
 		Subscriptions: utils.Map(c.Subscriptions, func(s *yamlConfig.Subscription) *types.Subscription {
 			return s.ToAppConfigSubscription()
 		}),
-		Timezone: timezone,
 	}
 }
 
@@ -98,7 +93,6 @@ func (c *AppConfig) ToYamlConfig() *yamlConfig.YamlConfig {
 		Chains:        utils.Map(c.Chains, yamlConfig.FromAppConfigChain),
 		Reporters:     utils.Map(c.Reporters, yamlConfig.FromAppConfigReporter),
 		Subscriptions: utils.Map(c.Subscriptions, yamlConfig.FromAppConfigSubscription),
-		Timezone:      c.Timezone.String(),
 	}
 }
 

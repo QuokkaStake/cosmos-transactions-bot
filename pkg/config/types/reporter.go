@@ -1,5 +1,7 @@
 package types
 
+import "time"
+
 type Reporters []*Reporter
 
 type TelegramConfig struct {
@@ -12,5 +14,6 @@ type Reporter struct {
 	Name string
 	Type string
 
+	Timezone       *time.Location
 	TelegramConfig *TelegramConfig
 }

@@ -14,18 +14,6 @@ func TestYamlConfigNoChains(t *testing.T) {
 	require.Error(t, config.Validate())
 }
 
-func TestYamlConfigInvalidTimezone(t *testing.T) {
-	t.Parallel()
-
-	config := yamlConfig.YamlConfig{
-		Chains: yamlConfig.Chains{
-			{},
-		},
-		Timezone: "invalid",
-	}
-	require.Error(t, config.Validate())
-}
-
 func TestYamlConfigInvalidChain(t *testing.T) {
 	t.Parallel()
 
@@ -33,7 +21,6 @@ func TestYamlConfigInvalidChain(t *testing.T) {
 		Chains: yamlConfig.Chains{
 			{},
 		},
-		Timezone: "Etc/UTC",
 	}
 	require.Error(t, config.Validate())
 }
@@ -54,7 +41,6 @@ func TestYamlConfigInvalidReporter(t *testing.T) {
 		Reporters: yamlConfig.Reporters{
 			{},
 		},
-		Timezone: "Etc/UTC",
 	}
 	require.Error(t, config.Validate())
 }
@@ -86,7 +72,6 @@ func TestYamlConfigInvalidSubscription(t *testing.T) {
 		Subscriptions: yamlConfig.Subscriptions{
 			{},
 		},
-		Timezone: "Etc/UTC",
 	}
 	require.Error(t, config.Validate())
 }
@@ -124,7 +109,6 @@ func TestYamlConfigChainSubscriptionChainNotFound(t *testing.T) {
 				},
 			},
 		},
-		Timezone: "Etc/UTC",
 	}
 	require.Error(t, config.Validate())
 }
@@ -162,7 +146,6 @@ func TestYamlConfigSubscriptionReporterNotFound(t *testing.T) {
 				},
 			},
 		},
-		Timezone: "Etc/UTC",
 	}
 	require.Error(t, config.Validate())
 }
@@ -200,7 +183,6 @@ func TestYamlConfigValid(t *testing.T) {
 				},
 			},
 		},
-		Timezone: "Etc/UTC",
 	}
 	require.NoError(t, config.Validate())
 }
